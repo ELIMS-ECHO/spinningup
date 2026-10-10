@@ -183,3 +183,141 @@ VPG 以同策略方式训练一个随机策略。这意味着，它通过按照�
 
 `save_freq` （int）
     保存当前策略及价值函数的频率（按训练轮次之间的间隔计算）。
+
+
+保存的模型内容：PyTorch 版本
+-------------------------------------
+
+可以使用 `ac = torch.load('path/to/model.pt')` 加载保存的 PyTorch 模型，从而得到一个具有 `vpg_pytorch` 文档字符串所述属性的演员—评论家对象（`ac`）。
+
+可以通过下面的方式，从该模型获取动作：
+
+.. code-block:: python
+
+    actions = ac.act(torch.as_tensor(obs, dtype=torch.float32))
+
+
+接口文档：TensorFlow 版本
+---------------------------------
+
+下面是 `spinup.vpg_tf1` 的接口说明。与 PyTorch 版本一样，此处翻译的是原先通过 `autofunction` 从代码中自动生成的完整文档字符串。
+
+.. code-block:: python
+
+    vpg(env_fn, actor_critic=core.mlp_actor_critic, ac_kwargs=dict(), seed=0,
+        steps_per_epoch=4000, epochs=50, gamma=0.99, pi_lr=3e-4,
+        vf_lr=1e-3, train_v_iters=80, lam=0.97, max_ep_len=1000,
+        logger_kwargs=dict(), save_freq=10)
+
+**原始策略梯度（Vanilla Policy Gradient）。** 使用 GAE-Lambda 估计优势。
+
+**参数：**
+
+`env_fn`
+    创建环境副本的函数。环境必须满足 OpenAI Gym API 的要求。
+
+`actor_critic`
+    一个接受状态占位符符号 `x_ph` 和动作占位符符号 `a_ph` 的函数。它返回智能体 TensorFlow 计算图的主要输出：
+
+    ============  ================  ============================================
+    符号          形状              描述
+    ============  ================  ============================================
+    `pi`          (batch, act_dim)  根据状态，从策略中采样动作。
+    `logp`        (batch,)          根据策略，在状态 `x_ph` 下采取
+                                    动作 `a_ph` 的对数概率。
+    `logp_pi`     (batch,)          根据策略，由 `pi` 采样得到的动作
+                                    的对数概率。
+    `v`           (batch,)          `x_ph` 中状态对应的价值估计。
+                                    （重要：务必展平成一维！）
+    ============  ================  ============================================
+
+`ac_kwargs` （dict）
+    传递给你为 VPG 提供的 `actor_critic` 函数的任何合适的关键字参数。
+
+`seed` （int）
+    随机数生成器的种子。
+
+`steps_per_epoch` （int）
+    每个训练轮次中，智能体与环境交互的步数（状态—动作对的数量）。
+
+`epochs` （int）
+    要执行的交互轮次数量（等同于策略更新次数）。
+
+`gamma` （float）
+    折扣因子。（始终位于 0 和 1 之间。）
+
+`pi_lr` （float）
+    策略优化器的学习率。
+
+`vf_lr` （float）
+    价值函数优化器的学习率。
+
+`train_v_iters` （int）
+    每个训练轮次中，价值函数执行梯度下降更新的步数。
+
+`lam` （float）
+    GAE-Lambda 中的 Lambda 参数。（始终位于 0 和 1 之间，且接近 1。）
+
+`max_ep_len` （int）
+    一条轨迹／一个回合／一次 rollout 的最大长度。
+
+`logger_kwargs` （dict）
+    提供给 EpochLogger 的关键字参数。
+
+`save_freq` （int）
+    保存当前策略及价值函数的频率（按训练轮次之间的间隔计算）。
+
+
+保存的模型内容：TensorFlow 版本
+----------------------------------------
+
+日志记录器保存的计算图包含：
+
+===========  =====================================================================
+键           值
+===========  =====================================================================
+`x`          用于输入状态的 TensorFlow 占位符。
+`pi`         根据 `x` 中的状态，从智能体采样一个动作。
+`v`          为 `x` 中的状态给出价值估计。
+===========  =====================================================================
+
+可以通过以下任一方式访问保存的模型：
+
+* 使用 `test_policy.py`_ 工具运行训练后的策略；
+* 或使用 `restore_tf_graph`_ 将整个保存的计算图加载到程序中。
+
+.. _`test_policy.py`: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _`restore_tf_graph`: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+
+
+参考文献
+==========
+
+相关论文
+---------------
+
+- `Policy Gradient Methods for Reinforcement Learning with Function Approximation`_（使用函数逼近的强化学习策略梯度方法），Sutton 等，2000 年。
+- `Optimizing Expectations: From Deep Reinforcement Learning to Stochastic Computation Graphs`_（优化期望：从深度强化学习到随机计算图），Schulman，2016(a)。
+- `Benchmarking Deep Reinforcement Learning for Continuous Control`_（面向连续控制的深度强化学习基准测试），Duan 等，2016 年。
+- `High Dimensional Continuous Control Using Generalized Advantage Estimation`_（使用广义优势估计进行高维连续控制），Schulman 等，2016(b)。
+
+.. _`Policy Gradient Methods for Reinforcement Learning with Function Approximation`: https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf
+.. _`Optimizing Expectations: From Deep Reinforcement Learning to Stochastic Computation Graphs`: http://joschu.net/docs/thesis.pdf
+.. _`Benchmarking Deep Reinforcement Learning for Continuous Control`: https://arxiv.org/abs/1604.06778
+.. _`High Dimensional Continuous Control Using Generalized Advantage Estimation`: https://arxiv.org/abs/1506.02438
+
+
+为什么选择这些论文？
+-----------------------------
+
+收录 Sutton 2000，是因为它是强化学习理论中历久弥新的经典之作，而且引用了促成现代策略梯度方法的更早期研究。收录 Schulman 2016(a)，是因为其第 2 章对策略梯度算法理论进行了清晰易懂的介绍，其中还包括伪代码。Duan 2016 是一篇清晰且在当时较新的基准测试论文，展示了深度强化学习环境下的原始策略梯度（例如使用神经网络策略，并以 Adam 作为优化器）与其他深度强化学习算法相比表现如何。收录 Schulman 2016(b)，则是因为我们对 VPG 的实现使用了广义优势估计来计算策略梯度。
+
+
+其他公开实现
+----------------------------
+
+- rllab_
+- `rllib (Ray)`_
+
+.. _rllab: https://github.com/rll/rllab/blob/master/rllab/algos/vpg.py
+.. _`rllib (Ray)`: https://github.com/ray-project/ray/blob/master/python/ray/rllib/agents/pg
