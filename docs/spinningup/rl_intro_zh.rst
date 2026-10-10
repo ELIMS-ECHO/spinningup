@@ -31,6 +31,7 @@
     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
         <iframe src="https://www.youtube.com/embed/jwSbzNHGflM?ecver=1" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: auto;"></iframe>
     </div>
+    <br />
 
 它还因创造能够玩复杂策略游戏的突破性人工智能而闻名，其中最著名的是 `围棋`_ 和 `Dota`_。此外，人们还用强化学习让计算机仅凭原始像素`玩雅达利游戏`_，并训练模拟机器人`遵循人类指令`_。
 
