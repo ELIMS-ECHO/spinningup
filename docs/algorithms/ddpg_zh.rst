@@ -105,3 +105,155 @@ DDPG 的策略学习相当简单。我们希望学习一个确定性策略 :math
     \max_{\theta} \underset{s \sim {\mathcal D}}{{\mathrm E}}\left[ Q_{\phi}(s, \mu_{\theta}(s)) \right].
 
 注意，这里将 Q 函数的参数视为常量。
+
+探索与利用
+----------------------------
+
+DDPG 以离策略方式训练确定性策略。由于策略是确定性的，如果智能体以同策略方式探索，在训练初期很可能无法尝试足够多样的动作，从而难以发现有用的学习信号。为了提高 DDPG 的探索能力，训练时我们会向策略输出的动作添加噪声。原始 DDPG 论文作者推荐具有时间相关性的 `OU 噪声`_，但较新的研究结果表明，彼此不相关、均值为零的高斯噪声同样表现良好。由于后者更简单，因此更受青睐。为了获得质量更高的训练数据，可以在训练过程中逐渐降低噪声幅度。（我们的实现没有这么做，而是始终保持固定噪声幅度。）
+
+在测试时，为了检验策略利用已学知识的能力，我们不会向动作添加噪声。
+
+.. _`OU 噪声`: https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process
+
+.. admonition:: 你应该知道
+
+    我们的 DDPG 实现使用一个技巧来改善训练初期的探索。在最开始固定数量的步数内（由 start_steps 关键字参数设定），智能体从合法动作范围内的均匀随机分布中采样动作。此后才恢复正常的 DDPG 探索。
+
+伪代码
+----------
+
+.. math::
+    :nowrap:
+
+    \begin{algorithm}[H]
+        \caption{深度确定性策略梯度}
+        \label{alg1}
+    \begin{algorithmic}[1]
+        \STATE 输入：初始策略参数 $\theta$、Q 函数参数 $\phi$、空经验回放缓冲区 $\mathcal D$
+        \STATE 将目标参数设为主网络参数：$\theta_{\text{targ}}\leftarrow\theta$，$\phi_{\text{targ}}\leftarrow\phi$
+        \REPEAT
+            \STATE 观察状态 $s$，选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
+            \STATE 在环境中执行动作 $a$
+            \STATE 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
+            \STATE 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
+            \STATE 如果 $s'$ 是终止状态，则重置环境状态
+            \IF{到达更新时机}
+                \FOR{执行预定次数的更新}
+                    \STATE 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
+                    \STATE 计算目标值
+                    \begin{equation*}
+                        y(r,s',d)=r+\gamma(1-d)Q_{\phi_{\text{targ}}}(s',\mu_{\theta_{\text{targ}}}(s'))
+                    \end{equation*}
+                    \STATE 使用下式进行一步梯度下降，更新 Q 函数
+                    \begin{equation*}
+                        \nabla_\phi\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}
+                        \left(Q_\phi(s,a)-y(r,s',d)\right)^2
+                    \end{equation*}
+                    \STATE 使用下式进行一步梯度上升，更新策略
+                    \begin{equation*}
+                        \nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_\phi(s,\mu_\theta(s))
+                    \end{equation*}
+                    \STATE 更新目标网络：
+                    \begin{align*}
+                        \phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\\
+                        \theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
+                    \end{align*}
+                \ENDFOR
+            \ENDIF
+        \UNTIL{收敛}
+    \end{algorithmic}
+    \end{algorithm}
+
+接口文档
+==========
+
+.. admonition:: 你应该知道
+
+    以下分别提供 Spinning Up 中 DDPG 的 PyTorch 与 TensorFlow 实现文档。除了模型构造相关细节，两者的函数调用和文档字符串几乎相同。为求完整，下面仍分别列出两套说明。
+
+PyTorch 版本
+------------------------------
+
+原始页面使用 autofunction 指令引入 spinup.ddpg_pytorch 的源码文档。这里将其展开翻译。
+
+.. code-block:: python
+
+    ddpg(env_fn, actor_critic=core.MLPActorCritic, ac_kwargs=dict(), seed=0,
+         steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99,
+         polyak=0.995, pi_lr=1e-3, q_lr=1e-3, batch_size=100, start_steps=10000,
+         update_after=1000, update_every=50, act_noise=0.1, num_test_episodes=10,
+         max_ep_len=1000, logger_kwargs=dict(), save_freq=1)
+
+**深度确定性策略梯度（DDPG）**
+
+**参数：**
+
+env_fn
+    创建环境副本的函数。环境必须符合 OpenAI Gym API。
+
+actor_critic
+    PyTorch Module 的构造函数。该模块必须包含 act 方法、pi 模块和 q 模块。act 方法与 pi 模块应接收一批观测值，q 模块应接收一批观测值及一批动作。调用结果应为：
+
+    * act：形状为 (batch, act_dim) 的 NumPy 数组，包含每个观测对应的动作。
+    * pi：形状为 (batch, act_dim) 的 Tensor，包含策略根据观测生成的动作。
+    * q：形状为 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值当前估计。（非常重要：务必将其展平！）
+
+ac_kwargs（dict）
+    适用于提供给 DDPG 的 ActorCritic 对象的任意关键字参数。
+
+seed（int）
+    随机数生成器种子。
+
+steps_per_epoch（int）
+    每轮中智能体与环境交互的步数，即状态—动作对数量。
+
+epochs（int）
+    智能体运行和训练的轮数。
+
+replay_size（int）
+    经验回放缓冲区的最大长度。
+
+gamma（float）
+    折扣因子，始终位于 0 和 1 之间。
+
+polyak（float）
+    目标网络 Polyak 平均的插值系数。目标网络向主网络靠近的更新规则为：
+
+    .. math::
+
+        \theta_{\text{targ}}\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
+
+    其中 :math:`\rho` 即 polyak，始终介于 0 和 1 之间，通常接近 1。
+
+pi_lr（float）
+    策略的学习率。
+
+q_lr（float）
+    Q 网络的学习率。
+
+batch_size（int）
+    随机梯度下降所用的小批量大小。
+
+start_steps（int）
+    开始使用真实策略之前，采取均匀随机动作的步数，有助于探索。
+
+update_after（int）
+    开始执行梯度下降更新前，需要收集的环境交互次数，以确保回放缓冲区有足够数据支持有效更新。
+
+update_every（int）
+    两次梯度下降更新之间经过的环境交互次数。注意，无论两次更新之间等待多久，环境步数与梯度更新步数之比固定为 1。
+
+act_noise（float）
+    训练时添加到策略动作上的高斯探索噪声标准差。（测试时不添加噪声。）
+
+num_test_episodes（int）
+    每轮结束时测试确定性策略的回合数。
+
+max_ep_len（int）
+    轨迹／回合／rollout 的最大长度。
+
+logger_kwargs（dict）
+    传递给 EpochLogger 的关键字参数。
+
+save_freq（int）
+    保存当前策略和价值函数的频率，以训练轮次之间的间隔计。
