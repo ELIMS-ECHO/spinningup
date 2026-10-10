@@ -135,3 +135,93 @@ SAC 使用这种对目标值的采样近似，为每个 Q 函数构造 MSBE 损�
 .. math::
 
     y(r, s', d) = r + \gamma (1 - d) \left( \min_{j=1,2} Q_{\phi_{\text{targ},j}}(s', \tilde{a}') - \alpha \log \pi_{\theta}(\tilde{a}'|s') \right), \;\;\;\;\; \tilde{a}' \sim \pi_{\theta}(\cdot|s').
+
+**学习策略。** 策略在每个状态下都应该使预期未来回报与预期未来熵之和最大，即最大化 :math:`V^\pi(s)`。展开可得：
+
+.. math::
+
+    V^{\pi}(s) &= \underE{a \sim \pi}{Q^{\pi}(s,a)} + \alpha H\left(\pi(\cdot|s)\right) \\
+    &= \underE{a \sim \pi}{Q^{\pi}(s,a) - \alpha \log \pi(a|s)}.
+
+我们使用**重参数化技巧**优化策略：通过计算状态、策略参数和独立噪声的确定性函数，得到服从 :math:`\pi_\theta(\cdot|s)` 的样本。举例来说，遵循 SAC 论文作者的做法，我们使用经过压缩变换的高斯策略（squashed Gaussian policy），样本按下式获得：
+
+.. math::
+
+    \tilde{a}_{\theta}(s, \xi) = \tanh\left( \mu_{\theta}(s) + \sigma_{\theta}(s) \odot \xi \right), \;\;\;\;\; \xi \sim \mathcal{N}(0, I).
+
+.. admonition:: 你应该知道
+
+    这种策略与其他策略优化算法中的策略存在两项关键区别：
+
+    **1. 压缩函数。** SAC 策略中的 :math:`\tanh` 确保动作限制在有限范围内。VPG、TRPO 和 PPO 的策略没有这个操作。它还会改变动作分布：在经过 :math:`\tanh` 之前，SAC 策略与其他算法一样是分解的高斯分布；经过 :math:`\tanh` 之后则不再是高斯分布。（不过仍可以解析计算动作的对数概率，详见论文附录。）
+
+    **2. 标准差的参数化方式。** 在 VPG、TRPO 和 PPO 中，我们使用与状态无关的参数向量表示对数标准差；而在 SAC 中，对数标准差是神经网络的输出，因此以复杂方式依赖于状态。根据我们的经验，采用与状态无关的对数标准差的 SAC 无法正常工作。（你能想出原因吗？或者更进一步，设计实验验证？）
+
+重参数化技巧允许我们把对动作的期望（困难在于动作分布依赖策略参数）改写为对噪声的期望（困难由此消除，因为噪声分布不依赖参数）：
+
+.. math::
+
+    \underE{a \sim \pi_{\theta}}{Q^{\pi_{\theta}}(s,a) - \alpha \log \pi_{\theta}(a|s)} = \underE{\xi \sim \mathcal{N}}{Q^{\pi_{\theta}}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)}
+
+为了得到策略损失，最后还需要使用函数近似器替换 :math:`Q^{\pi_\theta}`。与 TD3 使用第一个 Q 近似器 :math:`Q_{\phi_1}` 不同，SAC 使用两个 Q 近似器的最小值 :math:`\min_{j=1,2}Q_{\phi_j}`。因此策略优化目标为：
+
+.. math::
+
+    \max_{\theta} \underE{s \sim \mathcal{D} \\ \xi \sim \mathcal{N}}{\min_{j=1,2} Q_{\phi_j}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)},
+
+除了取双 Q 最小值、随机性和熵项之外，这与 DDPG、TD3 的策略优化几乎相同。
+
+探索与利用
+----------------------------
+
+SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索。熵正则化系数 :math:`\alpha` 显式控制探索与利用之间的权衡：:math:`\alpha` 越大，探索越多；:math:`\alpha` 越小，利用越多。合适的系数（能够实现最稳定学习或最高奖励的系数）可能因环境而异，需要仔细调整。
+
+测试时，为了观察策略利用所学知识的能力，我们移除随机性，使用均值动作，而不是从分布中采样动作。这样通常比原始随机策略表现更好。
+
+.. admonition:: 你应该知道
+
+    我们的 SAC 实现使用一个技巧来改善训练初期的探索：在最开始固定数量的步数内（通过 start_steps 关键字参数设置），智能体从合法动作范围的均匀随机分布中采样动作。之后才恢复正常 SAC 探索。
+
+伪代码
+----------
+
+.. math::
+    :nowrap:
+
+    \begin{algorithm}[H]
+        \caption{软演员—评论家算法}
+        \label{alg1}
+    \begin{algorithmic}[1]
+        \STATE 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$ 和 $\phi_2$，以及空经验回放缓冲区 $\mathcal D$
+        \STATE 将目标参数设为主网络参数：$\phi_{\text{targ},1}\leftarrow\phi_1$，$\phi_{\text{targ},2}\leftarrow\phi_2$
+        \REPEAT
+            \STATE 观察状态 $s$，选择动作 $a\sim\pi_\theta(\cdot|s)$
+            \STATE 在环境中执行 $a$
+            \STATE 观察下一状态 $s'$、奖励 $r$，以及表示 $s'$ 是否为终止状态的完成信号 $d$
+            \STATE 将 $(s,a,r,s',d)$ 存入经验回放缓冲区 $\mathcal D$
+            \STATE 如果 $s'$ 是终止状态，则重置环境状态
+            \IF{到了更新时机}
+                \FOR{$j$ 遍历预定的更新次数}
+                    \STATE 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
+                    \STATE 计算 Q 函数的目标值：
+                    \begin{align*}
+                        y(r,s',d)&=r+\gamma(1-d)\left(\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',\tilde a')-\alpha\log\pi_\theta(\tilde a'|s')\right), &&\tilde a'\sim\pi_\theta(\cdot|s')
+                    \end{align*}
+                    \STATE 使用下式进行一步梯度下降，更新两个 Q 函数：
+                    \begin{align*}
+                        &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
+                    \end{align*}
+                    \STATE 使用下式进行一步梯度上升，更新策略：
+                    \begin{equation*}
+                        \nabla_\theta\frac{1}{|B|}\sum_{s\in B}\Big(\min_{i=1,2}Q_{\phi_i}(s,\tilde a_\theta(s))-\alpha\log\pi_\theta\left(\left.\tilde a_\theta(s)\right|s\right)\Big),
+                    \end{equation*}
+                    其中 $\tilde a_\theta(s)$ 是从 $\pi_\theta(\cdot|s)$ 采样的动作，并可通过重参数化技巧对 $\theta$ 求导。
+                    \STATE 更新目标网络：
+                    \begin{align*}
+                        \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2
+                    \end{align*}
+                \ENDFOR
+            \ENDIF
+        \UNTIL{收敛}
+    \end{algorithmic}
+    \end{algorithm}
