@@ -13,7 +13,7 @@
 
 软演员—评论家（Soft Actor-Critic，SAC）是一种以离策略方式优化随机策略的算法，连接了随机策略优化方法和 DDPG 一类方法。它并不是 TD3 的直接后继算法（两者几乎同时发表），但它采用了裁剪双 Q 技巧，而且由于 SAC 策略本身具有随机性，也能获得类似于目标策略平滑的效果。
 
-SAC 的核心特征是**熵正则化**。策略训练的目标是在期望回报与`熵`_之间寻求平衡，熵衡量策略的随机程度。这与探索和利用之间的权衡密切相关：提高熵会增加探索，可能加快后续学习，也有助于防止策略过早收敛到较差的局部最优。
+SAC 的核心特征是**熵正则化**。策略训练的目标是在期望回报与 `熵`_ 之间寻求平衡，熵衡量策略的随机程度。这与探索和利用之间的权衡密切相关：提高熵会增加探索，可能加快后续学习，也有助于防止策略过早收敛到较差的局部最优。
 
 .. _`熵`: https://en.wikipedia.org/wiki/Entropy_(information_theory)
 
@@ -41,7 +41,7 @@ SAC 的核心特征是**熵正则化**。策略训练的目标是在期望回报
 
     H(P) = \underE{x \sim P}{-\log P(x)}.
 
-在熵正则化强化学习中，智能体在每个时间步都会获得一个与该时间步策略熵成比例的奖励加成。于是`强化学习问题`_ 变为：
+在熵正则化强化学习中，智能体在每个时间步都会获得一个与该时间步策略熵成比例的奖励加成。于是 `强化学习问题`_ 变为：
 
 .. math::
 
@@ -180,7 +180,7 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 
 .. admonition:: 你应该知道
 
-    我们的 SAC 实现使用一个技巧来改善训练初期的探索：在最开始固定数量的步数内（通过 start_steps 关键字参数设置），智能体从合法动作范围的均匀随机分布中采样动作。之后才恢复正常 SAC 探索。
+    我们的 SAC 实现使用一个技巧来改善训练初期的探索：在最开始固定数量的步数内（通过 ``start_steps`` 关键字参数设置），智能体从合法动作范围的均匀随机分布中采样动作。之后才恢复正常 SAC 探索。
 
 伪代码
 ----------
@@ -236,7 +236,7 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 PyTorch 版本接口
 ------------------------------
 
-原始网页使用 autofunction 指令引用 spinup.sac_pytorch；以下展开翻译源码中的函数文档。
+原始网页使用 ``autofunction`` 指令引用 ``spinup.sac_pytorch``；以下展开翻译源码中的函数文档。
 
 .. code-block:: python
 
@@ -257,8 +257,8 @@ actor_critic
     PyTorch Module 的构造方法。该模块应具有 act 方法、pi 模块、q1 模块和 q2 模块。act 方法和 pi 模块接收一批观测作为输入，q1 与 q2 接收一批观测和一批动作作为输入。各方法应返回：
 
     * act：形状 (batch, act_dim) 的 NumPy 数组，包含每个观测对应的动作。
-    * q1：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值的第一组当前估计。（务必展平！）
-    * q2：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值的另一组当前估计。（务必展平！）
+    * q1：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优动作价值函数 :math:`Q^*` 的第一组当前估计。（务必展平！）
+    * q2：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优动作价值函数 :math:`Q^*` 的另一组当前估计。（务必展平！）
 
     调用 pi 应返回：
 
@@ -331,7 +331,7 @@ PyTorch 版本保存的模型
 
     ac = torch.load('path/to/model.pt')
 
-得到的 actor-critic 对象 ac 具有 sac_pytorch 函数文档中描述的属性。
+得到的 actor-critic 对象 ``ac`` 具有 ``sac_pytorch`` 函数文档中描述的属性。
 
 可通过以下代码从模型获取动作：
 
@@ -342,7 +342,7 @@ PyTorch 版本保存的模型
 TensorFlow 版本接口
 ------------------------------
 
-原始网页使用 autofunction 指令引用 spinup.sac_tf1；以下展开翻译源码中的函数文档。
+原始网页使用 ``autofunction`` 指令引用 ``spinup.sac_tf1``；以下展开翻译源码中的函数文档。
 
 .. code-block:: python
 
@@ -365,8 +365,8 @@ actor_critic
     * mu：形状 (batch, act_dim)，根据状态计算策略的均值动作。
     * pi：形状 (batch, act_dim)，根据状态从策略中采样动作。
     * logp_pi：形状 (batch,)，给出策略对 pi 所采样动作的对数概率。关键要求：从动作采样过程一直到策略参数，必须全程可微。
-    * q1：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的一组最优 Q 值估计。
-    * q2：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的另一组最优 Q 值估计。
+    * q1：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的对最优动作价值函数 :math:`Q^*` 的一组估计。
+    * q2：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的另对最优动作价值函数 :math:`Q^*` 的一组估计。
 
 ac_kwargs（dict）
     适用于提供给 SAC 的 actor_critic 函数的任意关键字参数。
@@ -440,13 +440,13 @@ TensorFlow 版本保存的模型
 
 访问保存模型有两种方式：
 
-* 使用 test_policy.py_ 工具运行训练后的策略；
-* 使用 restore_tf_graph_ 将完整保存的计算图加载到程序中。
+* 使用 `test_policy.py`_ 工具运行训练后的策略；
+* 使用 `restore_tf_graph`_ 将完整保存的计算图加载到程序中。
 
 注意：对于 SAC，正确的评估策略由 mu 给出，而不是 pi。可以把 pi 看作探索策略，把 mu 看作利用策略。
 
-.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
-.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+.. _`test_policy.py`: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _`restore_tf_graph`: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
 
 参考文献
 ==========
