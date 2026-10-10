@@ -10,6 +10,10 @@ on:
       - 'docs/spinningup/keypapers_zh.rst'
       - 'docs/spinningup/exercises_zh.rst'
       - 'docs/spinningup/bench_zh.rst'
+      - 'docs/utils/logger_zh.rst'
+      - 'spinup/utils/logx.py'
+      - 'spinup/utils/mpi_tools.py'
+      - 'spinup/utils/serialization_utils.py'
       - 'docs/images/plots/**'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
@@ -36,6 +40,15 @@ jobs:
           cp docs/spinningup/keypapers_zh.rst "$src/"
           cp docs/spinningup/exercises_zh.rst "$src/"
           cp docs/spinningup/bench_zh.rst "$src/"
+          cp docs/utils/logger_zh.rst "$src/"
+          # Use the actual logx.py source for autodoc, but isolate spinup.__init__
+          # to avoid importing the entire historic TF1 and PyTorch algorithm stack.
+          api=/tmp/spinningup-zh-api
+          mkdir -p "$api/spinup/utils"
+          touch "$api/spinup/__init__.py" "$api/spinup/utils/__init__.py"
+          cp spinup/utils/logx.py "$api/spinup/utils/logx.py"
+          cp spinup/utils/mpi_tools.py "$api/spinup/utils/mpi_tools.py"
+          cp spinup/utils/serialization_utils.py "$api/spinup/utils/serialization_utils.py"
           # Original figure paths are ../images/plots relative to the source RST.
           mkdir -p /tmp/images/plots/pyt /tmp/images/plots/tf1
           cp docs/images/plots/pyt/*_performance.svg /tmp/images/plots/pyt/
@@ -44,7 +57,10 @@ jobs:
           project = 'Spinning Up Chinese Documentation Check'
           master_doc = 'index'
           language = 'zh_CN'
-          extensions = []
+          import sys
+          sys.path.insert(0, '/tmp/spinningup-zh-api')
+          extensions = ['sphinx.ext.autodoc']
+          autodoc_mock_imports = ['tensorflow', 'torch', 'numpy', 'joblib', 'mpi4py']
           # The original researcher guide contains 47 numbered bibliography footnotes
           # that are intentionally not cited using [n]_ in the prose.
           suppress_warnings = ['ref.footnote']
@@ -64,5 +80,6 @@ jobs:
              keypapers_zh
              exercises_zh
              bench_zh
+             logger_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
