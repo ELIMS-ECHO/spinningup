@@ -5,6 +5,7 @@ on:
     paths:
       - 'docs/user/running_zh.rst'
       - 'docs/user/saving_and_loading_zh.rst'
+      - 'docs/user/plotting_zh.rst'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
 jobs:
@@ -25,6 +26,7 @@ jobs:
           mkdir -p "$src"
           cp docs/user/running_zh.rst "$src/"
           cp docs/user/saving_and_loading_zh.rst "$src/"
+          cp docs/user/plotting_zh.rst "$src/"
           cat > "$src/conf.py" <<'PYCONF'
           project = 'Spinning Up Chinese Documentation Check'
           master_doc = 'index'
@@ -40,5 +42,6 @@ jobs:
 
              running_zh
              saving_and_loading_zh
+             plotting_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
