@@ -257,3 +257,155 @@ logger_kwargs（dict）
 
 save_freq（int）
     保存当前策略和价值函数的频率，以训练轮次之间的间隔计。
+
+PyTorch 版本保存的模型
+-------------------------------------
+
+可以使用以下代码加载 PyTorch 保存的模型：
+
+.. code-block:: python
+
+    ac = torch.load('path/to/model.pt')
+
+这将得到一个 actor-critic 对象 ac，其属性如 ddpg_pytorch 的函数文档所述。
+
+可以通过以下代码让模型产生动作：
+
+.. code-block:: python
+
+    actions = ac.act(torch.as_tensor(obs, dtype=torch.float32))
+
+TensorFlow 版本
+------------------------------
+
+原始页面使用 autofunction 指令引入 spinup.ddpg_tf1 的源码文档。以下完整翻译其参数说明。
+
+.. code-block:: python
+
+    ddpg(env_fn, actor_critic=core.mlp_actor_critic, ac_kwargs=dict(), seed=0,
+         steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99,
+         polyak=0.995, pi_lr=1e-3, q_lr=1e-3, batch_size=100, start_steps=10000,
+         update_after=1000, update_every=50, act_noise=0.1, num_test_episodes=10,
+         max_ep_len=1000, logger_kwargs=dict(), save_freq=1)
+
+**深度确定性策略梯度（DDPG）**
+
+**参数：**
+
+env_fn
+    创建环境副本的函数。环境必须符合 OpenAI Gym API。
+
+actor_critic
+    一个接收状态占位符 x_ph 与动作占位符 a_ph 的函数，返回智能体 TensorFlow 计算图的主要输出：
+
+    * pi：形状 (batch, act_dim)，根据状态确定性地计算策略动作。
+    * q：形状 (batch,)，对 x_ph 中的状态及 a_ph 中的动作给出最优 Q 值的当前估计。
+    * q_pi：形状 (batch,)，在 x_ph 中的状态上组合 q 与 pi，即 q(x, pi(x))。
+
+ac_kwargs（dict）
+    适用于提供给 DDPG 的 actor_critic 函数的任意关键字参数。
+
+seed（int）
+    随机数生成器种子。
+
+steps_per_epoch（int）
+    每轮智能体与环境交互的步数（状态—动作对数量）。
+
+epochs（int）
+    智能体运行与训练的轮数。
+
+replay_size（int）
+    经验回放缓冲区的最大长度。
+
+gamma（float）
+    折扣因子，始终介于 0 和 1 之间。
+
+polyak（float）
+    目标网络进行 Polyak 平均时的插值系数。目标网络参数按照以下公式向主网络参数更新：
+
+    .. math::
+
+        \theta_{\text{targ}}\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
+
+    其中 :math:`\rho` 为 polyak，始终介于 0 和 1 之间，通常接近 1。
+
+pi_lr（float）
+    策略的学习率。
+
+q_lr（float）
+    Q 网络的学习率。
+
+batch_size（int）
+    随机梯度下降所用的小批量大小。
+
+start_steps（int）
+    使用真实策略之前，先执行均匀随机动作的步数，有助于探索。
+
+update_after（int）
+    开始执行梯度下降更新之前需要收集的环境交互次数，确保回放缓冲区具有足够数据。
+
+update_every（int）
+    梯度下降更新之间间隔的环境交互次数。注意：无论等待间隔有多长，环境步数与梯度更新步数之比固定为 1。
+
+act_noise（float）
+    训练时添加到策略动作上的高斯探索噪声的标准差。（测试时不添加噪声。）
+
+num_test_episodes（int）
+    每轮结束时用于测试确定性策略的回合数。
+
+max_ep_len（int）
+    轨迹／回合／rollout 的最大长度。
+
+logger_kwargs（dict）
+    传给 EpochLogger 的关键字参数。
+
+save_freq（int）
+    保存当前策略和价值函数的频率，以轮次间隔计。
+
+TensorFlow 版本保存的模型
+----------------------------------------
+
+日志记录器保存的计算图包含：
+
+* x：用于输入状态的 TensorFlow 占位符。
+* a：用于输入动作的 TensorFlow 占位符。
+* pi：根据 x 中的状态，确定性地计算智能体动作。
+* q：给出 x 中状态与 a 中动作对应的动作价值估计。
+
+访问保存模型有两种方式：
+
+* 使用 test_policy.py_ 工具运行训练后的策略。
+* 使用 restore_tf_graph_ 将保存的完整计算图加载到程序中。
+
+.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+
+参考文献
+==========
+
+相关论文
+---------------
+
+* `Deterministic Policy Gradient Algorithms`_（确定性策略梯度算法），Silver 等，2014 年。
+* `Continuous Control With Deep Reinforcement Learning`_（利用深度强化学习进行连续控制），Lillicrap 等，2016 年。
+
+.. _`Deterministic Policy Gradient Algorithms`: http://proceedings.mlr.press/v32/silver14.pdf
+.. _`Continuous Control With Deep Reinforcement Learning`: https://arxiv.org/abs/1509.02971
+
+为什么选择这些论文？
+-----------------
+
+收录 Silver 2014，是因为它建立了确定性策略梯度（DPG）的基础理论。收录 Lillicrap 2016，是因为它将具有理论基础的 DPG 算法扩展到深度强化学习场景，从而提出 DDPG。
+
+其他公开实现
+----------------------------
+
+* Baselines_
+* rllab_
+* `rllib (Ray)`_
+* `TD3 发布仓库`_
+
+.. _Baselines: https://github.com/openai/baselines/tree/master/baselines/ddpg
+.. _rllab: https://github.com/rll/rllab/blob/master/rllab/algos/ddpg.py
+.. _`rllib (Ray)`: https://github.com/ray-project/ray/tree/master/python/ray/rllib/agents/ddpg
+.. _`TD3 发布仓库`: https://github.com/sfujim/TD3
