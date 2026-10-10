@@ -13,11 +13,14 @@ on:
       - 'docs/utils/logger_zh.rst'
       - 'docs/utils/plotter_zh.rst'
       - 'docs/utils/mpi_zh.rst'
+      - 'docs/utils/run_utils_zh.rst'
       - 'spinup/utils/logx.py'
       - 'spinup/utils/mpi_tools.py'
       - 'spinup/utils/mpi_pytorch.py'
       - 'spinup/utils/mpi_tf.py'
       - 'spinup/utils/serialization_utils.py'
+      - 'spinup/utils/run_utils.py'
+      - 'spinup/user_config.py'
       - 'docs/images/plots/**'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
@@ -47,6 +50,7 @@ jobs:
           cp docs/utils/logger_zh.rst "$src/"
           cp docs/utils/plotter_zh.rst "$src/"
           cp docs/utils/mpi_zh.rst "$src/"
+          cp docs/utils/run_utils_zh.rst "$src/"
           # Use the actual logx.py source for autodoc, but isolate spinup.__init__
           # to avoid importing the entire historic TF1 and PyTorch algorithm stack.
           api=/tmp/spinningup-zh-api
@@ -57,6 +61,8 @@ jobs:
           cp spinup/utils/mpi_pytorch.py "$api/spinup/utils/mpi_pytorch.py"
           cp spinup/utils/mpi_tf.py "$api/spinup/utils/mpi_tf.py"
           cp spinup/utils/serialization_utils.py "$api/spinup/utils/serialization_utils.py"
+          cp spinup/utils/run_utils.py "$api/spinup/utils/run_utils.py"
+          cp spinup/user_config.py "$api/spinup/user_config.py"
           # Original figure paths are ../images/plots relative to the source RST.
           mkdir -p /tmp/images/plots/pyt /tmp/images/plots/tf1
           cp docs/images/plots/pyt/*_performance.svg /tmp/images/plots/pyt/
@@ -68,7 +74,7 @@ jobs:
           import sys
           sys.path.insert(0, '/tmp/spinningup-zh-api')
           extensions = ['sphinx.ext.autodoc']
-          autodoc_mock_imports = ['tensorflow', 'torch', 'numpy', 'joblib', 'mpi4py']
+          autodoc_mock_imports = ['tensorflow', 'torch', 'numpy', 'joblib', 'mpi4py', 'cloudpickle', 'psutil', 'tqdm']
           # The original researcher guide contains 47 numbered bibliography footnotes
           # that are intentionally not cited using [n]_ in the prose.
           suppress_warnings = ['ref.footnote']
@@ -91,6 +97,7 @@ jobs:
              logger_zh
              plotter_zh
              mpi_zh
+             run_utils_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
           # Assert that autodoc really rendered docstrings from logx.py,
@@ -102,3 +109,7 @@ jobs:
           grep -Fq 'Re-launches the current script with workers linked by MPI.' /tmp/spinningup-zh-html/mpi_zh.html
           grep -Fq 'Average contents of gradient buffers across MPI processes.' /tmp/spinningup-zh-html/mpi_zh.html
           grep -Fq 'Sync all tf variables across MPI processes.' /tmp/spinningup-zh-html/mpi_zh.html
+          # Verify the three API entries contain actual run_utils.py docstrings.
+          grep -Fq 'Tool for running many experiments given hyperparameter ranges.' /tmp/spinningup-zh-html/run_utils_zh.html
+          grep -Fq 'Run a function (thunk) with hyperparameters (kwargs), plus configuration.' /tmp/spinningup-zh-html/run_utils_zh.html
+          grep -Fq 'Sets up the output_dir for a logger and returns a dict for logger kwargs.' /tmp/spinningup-zh-html/run_utils_zh.html
