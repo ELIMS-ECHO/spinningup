@@ -90,7 +90,7 @@
 
     **练习文件路径。** （不适用，本练习没有代码文件。）
 
-    **参考解答路径。** `在这里查看解答 <../spinningup/exercise2_1_soln.html>`_。
+    **参考解答路径。** `查看练习 2.1 的解答 <../spinningup/exercise2_1_soln.html>`_。
 
     许多因素都可能影响策略梯度算法的性能，但很少有因素比用于优势估计的已学习价值函数的质量影响更为显著。
 
@@ -112,7 +112,7 @@
 
     * TensorFlow 版本：``spinup/exercises/tf1/problem_set_2/exercise2_2.py``
 
-    **参考解答路径。** `在这里查看解答 <../spinningup/exercise2_2_soln.html>`_。
+    **参考解答路径。** `查看练习 2.2 的解答 <../spinningup/exercise2_2_soln.html>`_。
 
     编写强化学习代码最困难的部分之一是处理程序错误（bug），因为失败经常悄无声息地发生。代码看起来运行正常，但智能体的性能却比没有错误的实现差，有时甚至始终学不到任何东西。
 
