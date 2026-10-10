@@ -183,3 +183,293 @@
 
 .. _`正态分布`: https://pytorch.org/docs/stable/distributions.html#normal
 
+
+**3. 运行一个训练轮次。**
+
+.. code-block:: python
+    :linenos:
+    :lineno-start: 50
+
+    # for training policy
+    def train_one_epoch():
+        # make some empty lists for logging.
+        batch_obs = []          # for observations
+        batch_acts = []         # for actions
+        batch_weights = []      # for R(tau) weighting in policy gradient
+        batch_rets = []         # for measuring episode returns
+        batch_lens = []         # for measuring episode lengths
+
+        # reset episode-specific variables
+        obs = env.reset()       # first obs comes from starting distribution
+        done = False            # signal from environment that episode is over
+        ep_rews = []            # list for rewards accrued throughout ep
+
+        # render first episode of each epoch
+        finished_rendering_this_epoch = False
+
+        # collect experience by acting in the environment with current policy
+        while True:
+
+            # rendering
+            if (not finished_rendering_this_epoch) and render:
+                env.render()
+
+            # save obs
+            batch_obs.append(obs.copy())
+
+            # act in the environment
+            act = get_action(torch.as_tensor(obs, dtype=torch.float32))
+            obs, rew, done, _ = env.step(act)
+
+            # save action, reward
+            batch_acts.append(act)
+            ep_rews.append(rew)
+
+            if done:
+                # if episode is over, record info about episode
+                ep_ret, ep_len = sum(ep_rews), len(ep_rews)
+                batch_rets.append(ep_ret)
+                batch_lens.append(ep_len)
+
+                # the weight for each logprob(a|s) is R(tau)
+                batch_weights += [ep_ret] * ep_len
+
+                # reset episode-specific variables
+                obs, done, ep_rews = env.reset(), False, []
+
+                # won't render again this epoch
+                finished_rendering_this_epoch = True
+
+                # end experience loop if we have enough of it
+                if len(batch_obs) > batch_size:
+                    break
+
+        # take a single policy gradient update step
+        optimizer.zero_grad()
+        batch_loss = compute_loss(obs=torch.as_tensor(batch_obs, dtype=torch.float32),
+                                  act=torch.as_tensor(batch_acts, dtype=torch.int32),
+                                  weights=torch.as_tensor(batch_weights, dtype=torch.float32)
+                                  )
+        batch_loss.backward()
+        optimizer.step()
+        return batch_loss, batch_rets, batch_lens
+
+`train_one_epoch()` 函数运行一个策略梯度训练“轮次”（epoch），在这里我们将其定义为：
+
+1）经验收集步骤（第 67—102 行），智能体使用最新策略在环境中运行若干回合；
+
+2）随后执行一次策略梯度更新（第 104—111 行）。
+
+算法的主循环只是反复调用 `train_one_epoch()`。
+
+.. admonition:: 你应该知道
+
+    如果你还不熟悉 PyTorch 中的优化过程，请观察第 104—111 行所展示的一次梯度下降更新模式。首先，清空梯度缓冲区。然后计算损失函数。接着对损失执行反向传播，这会把新计算出的梯度累积到梯度缓冲区。最后，让优化器执行一步更新。
+
+
+期望对数概率梯度引理
+============================
+
+本小节将推导一个在策略梯度理论中得到广泛使用的中间结果。我们把它称为“期望对数概率梯度”（Expected Grad-Log-Prob，EGLP）引理。[1]_
+
+**EGLP 引理。** 假设 :math:`P_{\theta}` 是随机变量 :math:`x` 上的一个参数化概率分布，那么：
+
+.. math::
+
+    \underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)} = 0.
+
+.. admonition:: 证明
+
+    回想一下，所有概率分布都是 *归一化* 的：
+
+    .. math::
+
+        \int_x P_{\theta}(x) = 1.
+
+    对归一化条件两边取梯度：
+
+    .. math::
+
+        \nabla_{\theta} \int_x P_{\theta}(x) = \nabla_{\theta} 1 = 0.
+
+    使用对数求导技巧，得到：
+
+    .. math::
+
+        0 &= \nabla_{\theta} \int_x P_{\theta}(x) \\
+        &= \int_x \nabla_{\theta} P_{\theta}(x) \\
+        &= \int_x P_{\theta}(x) \nabla_{\theta} \log P_{\theta}(x) \\
+        \therefore 0 &= \underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)}.
+
+.. [1] 本文作者还不知道文献中有任何地方给这个引理赋予了一个标准名称。不过，鉴于它出现得如此频繁，为方便引用，似乎很值得给它起个名字。
+
+
+不要让过去分散你的注意力
+===============================
+
+观察我们最近得到的策略梯度表达式：
+
+.. math::
+
+    \nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)}.
+
+沿着这个梯度走一步，会按照 :math:`R(\tau)`（也就是 *全部时间内获得的奖励之和*）的大小，提高每个动作的对数概率。但这样做不太合理。
+
+智能体其实应该只根据动作的 *后果* 来强化动作。一个动作执行之前获得的奖励，并不能说明这个动作是否好；真正有关的是动作 *之后* 的奖励。
+
+事实证明，这一直觉也反映在数学中，我们可以证明策略梯度还可以表达为：
+
+.. math::
+
+    \nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1})}.
+
+在这种表达方式下，只会根据动作执行以后获得的奖励来强化动作。
+
+我们把这种形式称为“reward-to-go 策略梯度”，因为轨迹中某一点之后的奖励之和：
+
+.. math::
+
+    \hat{R}_t \doteq \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}),
+
+被称为该点的 **未来回报（reward-to-go）**，而这个策略梯度表达式依赖各个状态—动作对对应的未来回报。
+
+.. admonition:: 你应该知道
+
+    **但这样为什么更好？** 策略梯度的一个关键问题在于，需要多少条样本轨迹才能得到低方差的梯度样本估计。我们最初使用的公式包含了一些根据过去奖励强化动作的项。这些项的均值为零，但方差不为零，因此它们只会给策略梯度的样本估计增加噪声。把它们去掉，可以减少需要采样的轨迹数量。
+
+这一论断的（可选）证明可以在`这里`_ 找到，而该证明最终依赖于 EGLP 引理。
+
+.. _`这里`: ../spinningup/extra_pg_proof1.html
+
+
+实现 Reward-to-Go 策略梯度
+=========================================
+
+我们在 `spinup/examples/pytorch/pg_math/2_rtg_pg.py` 中给出了 reward-to-go 策略梯度的简短 PyTorch 实现。（也可以`在 GitHub 上查看 <https://github.com/openai/spinningup/blob/master/spinup/examples/pytorch/pg_math/2_rtg_pg.py>`_。）
+
+与 `1_simple_pg.py` 相比，唯一改变的是损失函数所使用的权重。代码修改很小：我们增加一个新函数，并改动另外两行。新函数如下：
+
+.. code-block:: python
+    :linenos:
+    :lineno-start: 17
+
+    def reward_to_go(rews):
+        n = len(rews)
+        rtgs = np.zeros_like(rews)
+        for i in reversed(range(n)):
+            rtgs[i] = rews[i] + (rtgs[i+1] if i+1 < n else 0)
+        return rtgs
+
+
+然后，我们把原先第 91—92 行的代码：
+
+.. code-block:: python
+    :linenos:
+    :lineno-start: 91
+
+                    # the weight for each logprob(a|s) is R(tau)
+                    batch_weights += [ep_ret] * ep_len
+
+改成：
+
+.. code-block:: python
+    :linenos:
+    :lineno-start: 98
+
+                    # the weight for each logprob(a_t|s_t) is reward-to-go from t
+                    batch_weights += list(reward_to_go(ep_rews))
+
+
+.. admonition:: 你应该知道
+
+    本节以前使用 TensorFlow 示例编写。旧的 TensorFlow 内容可以在`这里 <../spinningup/extra_tf_pg_implementation.html#implementing-reward-to-go-policy-gradient>`_ 找到。
+
+
+策略梯度中的基线
+=============================
+
+EGLP 引理的一个直接推论是，对任何只依赖于状态的函数 :math:`b`：
+
+.. math::
+
+    \underE{a_t \sim \pi_{\theta}}{\nabla_{\theta} \log \pi_{\theta}(a_t|s_t) b(s_t)} = 0.
+
+因此，我们可以向策略梯度表达式中添加任意数量的这类项，或从中减去这类项，而不会改变它的期望：
+
+.. math::
+
+    \nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \left(\sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}) - b(s_t)\right)}.
+
+以这种方式使用的函数 :math:`b`，称为 **基线（baseline）**。
+
+最常见的基线选择是`给定策略下的状态价值函数`_ :math:`V^{\pi}(s_t)`。回想一下，它表示智能体从状态 :math:`s_t` 开始，并在之后始终按照策略 :math:`\pi` 行动，所能获得的平均回报。
+
+根据经验，选择 :math:`b(s_t) = V^{\pi}(s_t)` 可以降低策略梯度样本估计的方差。这使得策略学习更快、更稳定。从概念上看，这种选择也很有吸引力：它体现了一种直觉，即如果智能体获得了自己预期的结果，那么它应对此“没有特别的感觉”。
+
+.. admonition:: 你应该知道
+
+    实践中，我们无法精确计算 :math:`V^{\pi}(s_t)`，因此必须近似它。通常使用神经网络 :math:`V_{\phi}(s_t)`，并在更新策略的同时更新这个网络（使价值网络始终近似最新策略的价值函数）。
+
+    学习 :math:`V_{\phi}` 最简单的方式，是最小化一个均方误差目标。大多数策略优化算法的实现（包括 VPG、TRPO、PPO 和 A2C）都采用它：
+
+    .. math:: \phi_k = \arg \min_{\phi} \underE{s_t, \hat{R}_t \sim \pi_k}{\left( V_{\phi}(s_t) - \hat{R}_t \right)^2},
+
+    |
+    其中 :math:`\pi_k` 是第 :math:`k` 个训练轮次的策略。具体做法是从之前的价值参数 :math:`\phi_{k-1}` 开始，执行一次或多次梯度下降。
+
+
+策略梯度的其他形式
+==================================
+
+到目前为止，我们看到策略梯度的一般形式为：
+
+.. math::
+
+    \nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \Phi_t},
+
+其中 :math:`\Phi_t` 可以采用以下任意一种形式：
+
+.. math:: \Phi_t &= R(\tau),
+
+或者：
+
+.. math:: \Phi_t &= \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}),
+
+或者：
+
+.. math:: \Phi_t &= \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}) - b(s_t).
+
+尽管这些选择具有不同的方差，但它们得到的策略梯度期望值相同。事实上，还有两种同样有效的 :math:`\Phi_t` 权重值得了解。
+
+**1. 给定策略下的动作价值函数（On-Policy Action-Value Function）。** 选择：
+
+.. math:: \Phi_t = Q^{\pi_{\theta}}(s_t, a_t)
+
+也是有效的。可参阅`这一页`_，查看该结论的（可选）证明。
+
+**2. 优势函数（Advantage Function）。** 回想一下，一个动作的`优势`_ 定义为 :math:`A^{\pi}(s_t,a_t) = Q^{\pi}(s_t,a_t) - V^{\pi}(s_t)`，表示它与当前策略下其他动作相比，平均而言有多好或多差。选择：
+
+.. math:: \Phi_t = A^{\pi_{\theta}}(s_t, a_t)
+
+同样有效。这是因为它等价于选择 :math:`\Phi_t = Q^{\pi_{\theta}}(s_t, a_t)`，然后使用一个价值函数基线，而我们始终可以这么做。
+
+.. admonition:: 你应该知道
+
+    用优势函数表示策略梯度是极其常见的做法，不同算法也采用了许多不同的优势函数估计方法。
+
+.. admonition:: 你应该知道
+
+    如果希望更深入地了解这个主题，应该阅读`广义优势估计（Generalized Advantage Estimation）`_（GAE）论文。该论文在背景部分深入讨论了 :math:`\Phi_t` 的不同选择。
+
+    随后，这篇论文介绍了 GAE：一种在策略优化算法中近似优势函数的方法，它的使用非常广泛。例如，Spinning Up 对 VPG、TRPO 和 PPO 的实现就采用了它。因此，我们强烈建议你学习这一方法。
+
+
+回顾
+=====
+
+本章介绍了策略梯度方法的基础理论，并把一些早期结果与代码示例联系起来。感兴趣的学习者可以继续研究后面的结果（价值函数基线与使用优势函数表示策略梯度），如何转化为 Spinning Up 对`原始策略梯度（Vanilla Policy Gradient）`_ 的实现。
+
+.. _`给定策略下的状态价值函数`: ../spinningup/rl_intro.html#value-functions
+.. _`优势`: ../spinningup/rl_intro.html#advantage-functions
+.. _`这一页`: ../spinningup/extra_pg_proof2.html
+.. _`广义优势估计（Generalized Advantage Estimation）`: https://arxiv.org/abs/1506.02438
