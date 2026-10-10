@@ -59,8 +59,8 @@ c. 确定性策略梯度
 .. [#] `Addressing Function Approximation Error in Actor-Critic Methods <https://arxiv.org/abs/1802.09477>`_, Fujimoto et al, 2018. **算法： TD3.**
 
 
-d. 分布式价值建模强化学习
----------------------------
+d. 分布强化学习
+--------------------
 
 .. [#] `A Distributional Perspective on Reinforcement Learning <https://arxiv.org/abs/1707.06887>`_, Bellemare et al, 2017. **算法： C51.** 
 
