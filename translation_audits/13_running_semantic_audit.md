@@ -103,7 +103,10 @@
 - 显式 RST 引用定义：原文 8，译文 8。
 - 命令、代码示例、URL、文档引用：经程序化集合对照，没有检测到缺项。
 
-## 尚未完成的独立验收
+## Sphinx 实际构建记录（追加）
 
-- 当前执行环境未提供可执行的 Sphinx 安装与可核验的 HTML 构建结果。
-- GitHub Actions 工作流已另行提交，但没有可核验的成功日志。因此，不将“语义核验通过”等同于“Sphinx 构建通过”。
+- 已使用 GitHub Actions 在独立、最小 Sphinx 配置下，对 `running_zh.rst` 与 `saving_and_loading_zh.rst` 执行 HTML 构建。
+- 成功运行：https://github.com/tianyueni78-cyber/spinningup/actions/runs/38044773491
+- 命令：`sphinx-build -b html -n -W --keep-going`；实际日志含 `build succeeded`，未出现文档警告；构建时第13篇包含 Sphinx 格式修复 commit `3885b4647c67f3a67380b90b487d9ee9fb66a7d2`。
+- 因原版 `docs/conf.py` 会导入缺失的 TensorFlow，先前整站构建失败；本次绕过了原项目依赖，仅验证中文页面本身能被 Sphinx 编译。**独立文档构建已通过；原站点完整集成构建仍未验收。**
+- 本记录最初归档了逐句语义对照，以上为后续构建验收证据，不代表重新执行语义审计。
