@@ -11,6 +11,7 @@ on:
       - 'docs/spinningup/exercises_zh.rst'
       - 'docs/spinningup/bench_zh.rst'
       - 'docs/utils/logger_zh.rst'
+      - 'docs/utils/plotter_zh.rst'
       - 'spinup/utils/logx.py'
       - 'spinup/utils/mpi_tools.py'
       - 'spinup/utils/serialization_utils.py'
@@ -41,6 +42,7 @@ jobs:
           cp docs/spinningup/exercises_zh.rst "$src/"
           cp docs/spinningup/bench_zh.rst "$src/"
           cp docs/utils/logger_zh.rst "$src/"
+          cp docs/utils/plotter_zh.rst "$src/"
           # Use the actual logx.py source for autodoc, but isolate spinup.__init__
           # to avoid importing the entire historic TF1 and PyTorch algorithm stack.
           api=/tmp/spinningup-zh-api
@@ -81,6 +83,7 @@ jobs:
              exercises_zh
              bench_zh
              logger_zh
+             plotter_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
           # Assert that autodoc really rendered docstrings from logx.py,
