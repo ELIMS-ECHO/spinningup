@@ -13,7 +13,7 @@
 .. figure:: ../images/rl_algorithms_9_15.svg
     :align: center
 
-    现代强化学习算法的一种分类。它并不穷尽所有算法，但很有用。`Citations below.`_
+    现代强化学习算法的一种分类。它并不穷尽所有算法，但很有用。`参见下方引用文献 <#分类图中的算法链接>`_
 
 在开始本节之前，先说明一点：要为现代强化学习算法画出一个准确、全面的分类体系，实际上非常困难，因为算法的模块化特征很难通过树形结构充分表示。此外，为了把内容放到一页中，并让入门读者能够消化，我们不得不省略大量更高级的主题（探索、迁移学习、元学习等）。尽管如此，本节仍然希望：
 
@@ -111,10 +111,19 @@ Q 学习方法的例子包括：
 .. _`World Models`: https://worldmodels.github.io/
 
 
+.. _`A2C / A3C`: https://arxiv.org/abs/1602.01783
+.. _`PPO`: https://arxiv.org/abs/1707.06347
+.. _`DQN`: https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
+.. _`C51`: https://arxiv.org/abs/1707.06887
+.. _`DDPG`: https://arxiv.org/abs/1509.02971
+.. _`SAC`: https://arxiv.org/abs/1801.01290
+.. _`MBMF`: https://sites.google.com/view/mbmf
+.. _`MBVE`: https://arxiv.org/abs/1803.00101
+.. _`I2A`: https://arxiv.org/abs/1707.06203
+.. _`AlphaZero`: https://arxiv.org/abs/1712.01815
+
 分类图中的算法链接
 ===============================
-
-.. _`Citations below.`:
 
 .. [#] `A2C / A3C <https://arxiv.org/abs/1602.01783>`_（异步优势演员-评论家）：Mnih 等，2016
 .. [#] `PPO <https://arxiv.org/abs/1707.06347>`_（近端策略优化）：Schulman 等，2017
