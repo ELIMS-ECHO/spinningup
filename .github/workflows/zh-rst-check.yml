@@ -4,6 +4,7 @@ on:
     branches: [learning-edition-zh]
     paths:
       - 'docs/user/running_zh.rst'
+      - 'docs/user/saving_and_loading_zh.rst'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
 jobs:
@@ -14,9 +15,30 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install documentation dependencies
+      - name: Install Sphinx
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "sphinx<7" sphinx-rtd-theme recommonmark
-      - name: Build docs
-        run: sphinx-build -b html -n docs /tmp/spinningup-docs
+          python -m pip install "sphinx>=6,<7"
+      - name: Build Chinese RST pages in isolation
+        run: |
+          set -eu
+          src=/tmp/spinningup-zh-rst
+          mkdir -p "$src"
+          cp docs/user/running_zh.rst "$src/"
+          cp docs/user/saving_and_loading_zh.rst "$src/"
+          cat > "$src/conf.py" <<'PYCONF'
+          project = 'Spinning Up Chinese Documentation Check'
+          master_doc = 'index'
+          language = 'zh_CN'
+          extensions = []
+          PYCONF
+          cat > "$src/index.rst" <<'RSTINDEX'
+          中文文档构建检查
+          ================
+
+          .. toctree::
+             :maxdepth: 1
+
+             running_zh
+             saving_and_loading_zh
+          RSTINDEX
+          sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
