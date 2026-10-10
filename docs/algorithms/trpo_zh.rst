@@ -112,26 +112,38 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
     :nowrap:
 
     \begin{algorithm}[H]
-    \caption{信赖域策略优化算法}
+        \caption{信赖域策略优化（Trust Region Policy Optimization）}
+        \label{alg1}
     \begin{algorithmic}[1]
-    \STATE 输入初始策略参数 $\theta_0$ 和价值函数参数 $\phi_0$。
-    \FOR{$k=0,1,2,\ldots$}
-    \STATE 运行策略 $\pi_k=\pi(\theta_k)$，收集轨迹集合 $\mathcal D_k$。
-    \STATE 计算未来回报 $\hat R_t$ 与优势估计 $\hat A_t$。
-    \STATE 计算策略梯度估计：
-    \begin{equation*}
-    \hat g_k = \frac{1}{|\mathcal D_k|}\sum_{\tau\in\mathcal D_k}\sum_{t=0}^T
-    \left.\nabla_\theta\log\pi_\theta(a_t|s_t)\right|_{\theta_k}\hat A_t.
-    \end{equation*}
-    \STATE 用共轭梯度法求解 $\hat x_k\approx \hat H_k^{-1}\hat g_k$。
-    \STATE 回溯线搜索，取满足 KL 约束并改善代理目标的最小 $j$：
-    \begin{equation*}
-    \theta_{k+1}=\theta_k+\alpha^j\sqrt{\frac{2\delta}{\hat x_k^T\hat H_k\hat x_k}}\hat x_k.
-    \end{equation*}
-    \STATE 通过最小化价值估计与未来回报的均方误差更新 $\phi_{k+1}$。
-    \ENDFOR
+        \STATE 输入：初始策略参数 $\theta_0$，初始价值函数参数 $\phi_0$
+        \STATE 超参数：KL 散度上限 $\delta$、回溯系数 $\alpha$、最大回溯步数 $K$
+        \FOR{$k = 0,1,2,...$}
+        \STATE 在环境中运行策略 $\pi_k = \pi(\theta_k)$，收集轨迹集合 $ {\mathcal D}_k = \{\tau_i\}$。
+        \STATE 计算未来回报 $\hat{R}_t$。
+        \STATE 根据当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计 $\hat{A}_t$。
+        \STATE 将策略梯度估计为
+            \begin{equation*}
+            \hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
+            \end{equation*}
+        \STATE 使用共轭梯度算法计算
+            \begin{equation*}
+            \hat{x}_k \approx \hat{H}_k^{-1} \hat{g}_k,
+            \end{equation*}
+            其中 $\hat{H}_k$ 为样本平均 KL 散度的 Hessian 矩阵。
+        \STATE 使用回溯线搜索更新策略：
+            \begin{equation*}
+            \theta_{k+1} = \theta_k + \alpha^j \sqrt{ \frac{2\delta}{\hat{x}_k^T \hat{H}_k \hat{x}_k}} \hat{x}_k,
+            \end{equation*}
+            其中 $j \in \{0, 1, 2, ... K\}$ 是使样本损失得到改善、同时满足样本 KL 散度约束的最小取值。
+        \STATE 通过对均方误差进行回归来拟合价值函数：
+            \begin{equation*}
+            \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
+            \end{equation*}
+            通常使用某种梯度下降算法完成。
+        \ENDFOR
     \end{algorithmic}
     \end{algorithm}
+
 
 接口文档
 ==========
@@ -153,7 +165,21 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
 参数说明：
 
 * env_fn：用于创建环境副本的函数，环境必须符合 OpenAI Gym API。
-* actor_critic：接收状态占位符 x_ph 和动作占位符 a_ph 的函数，返回 TensorFlow 计算图的主要输出：pi（形状 batch, act_dim，采样动作）；logp（形状 batch，对给定动作计算对数概率）；logp_pi（形状 batch，策略采样动作的对数概率）；info（用于计算 KL 散度的分布统计量字典）；info_phs（对应旧策略统计量的占位符字典）；d_kl（当前策略和旧策略的平均 KL 散度）；v（形状 batch，价值估计，必须展平）。
+* actor_critic：接收状态占位符 ``x_ph`` 和动作占位符 ``a_ph`` 的函数，返回 TensorFlow 计算图的主要输出：
+
+  ============  ================  ==================================================
+  符号          形状              描述
+  ============  ================  ==================================================
+  ``pi``          (batch, act_dim)  给定状态时，从策略采样动作。
+  ``logp``        (batch,)          在状态 ``x_ph`` 下，策略采取动作 ``a_ph`` 的对数概率。
+  ``logp_pi``     (batch,)          策略对 ``pi`` 采样动作赋予的对数概率。
+  ``info``        N/A               计算策略或对数概率时产生的中间量字典，用于解析计算
+                                  KL 散度，例如概率分布的充分统计量。
+  ``info_phs``    N/A               字典，包含 ``info`` 各项旧值对应的占位符。
+  ``d_kl``        ()                用于计算当前策略 ``pi`` 与旧策略（由 ``info_phs``
+                                  的输入指定）在 ``x_ph`` 所给状态批次上的平均 KL 散度。
+  ``v``           (batch,)          ``x_ph`` 中状态的价值估计（必须展平为一维）。
+  ============  ================  ==================================================
 * ac_kwargs（dict）：传给 actor_critic 的其他关键字参数。
 * seed（int）：随机数种子。
 * steps_per_epoch（int）：每轮训练中与环境交互的步数。
@@ -169,7 +195,7 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
       Hv \rightarrow (\alpha I+H)v
 
   其中 :math:`\alpha` 为阻尼系数。通常不建议调整。
-* cg_iters（int）：共轭梯度迭代次数。增加迭代次数可以提高 :math:`H^{-1}g` 的近似精度，但会降低运行速度。
+* cg_iters（int）：共轭梯度迭代次数。增加迭代次数可以提高 :math:`H^{-1}g` 的近似精度，并可能略微改善性能，但会降低运行速度。原文还建议通常不要调整这个超参数。
 * backtrack_iters（int）：回溯线搜索的最大回退次数。实际通常无需回退，或只回退一次。
 * backtrack_coeff（float）：每次回溯缩小步长的比例，介于 0 和 1 之间，通常大于 0.5。
 * lam（float）：GAE-Lambda 的 Lambda 参数，介于 0 和 1 之间且接近 1。
@@ -193,11 +219,11 @@ v       对 x 中的状态进行价值估计。
 
 访问保存模型有两种方式：
 
-* 使用 test_policy.py_ 工具运行训练后的策略；
-* 使用 restore_tf_graph_ 将完整的保存计算图加载到程序中。
+* 使用 `test_policy.py`_ 工具运行训练后的策略；
+* 使用 `restore_tf_graph`_ 将完整的保存计算图加载到程序中。
 
-.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
-.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+.. _`test_policy.py`: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _`restore_tf_graph`: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
 
 参考文献
 ==========
