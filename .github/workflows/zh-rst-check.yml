@@ -34,6 +34,10 @@ jobs:
           master_doc = 'index'
           language = 'zh_CN'
           extensions = []
+          # The original researcher guide contains 47 numbered bibliography footnotes
+          # that are intentionally not cited using [n]_ in the prose.
+          suppress_warnings = ['ref.footnote']
+          show_warning_types = True
           PYCONF
           cat > "$src/index.rst" <<'RSTINDEX'
           中文文档构建检查
