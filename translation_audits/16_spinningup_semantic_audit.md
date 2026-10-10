@@ -6,6 +6,7 @@
 - 中文译文：`tianyueni78-cyber/spinningup`，分支 `learning-edition-zh`，文件 `docs/spinningup/spinningup_zh.rst`。
 - 初次翻译 commit：`a71c6d38ef6a25974c6ca1934da2242bcd137715`。
 - 修复中文括号紧贴 RST 链接导致的解析错误：`160a2ebe81ef65365cce00170ffdabd7a42c40d5`、`c94b0497768b831d4b2a0b98bea7de056f5bbf58`。
+- 最新技术语义精修 commit：`4de57b5c2a09fb6e5e025aa78e1ccd133f9de4a1`。将 PPO 的 clipped objective 明确为“裁剪目标函数”，并更准确地表达“必须严谨证明超过当前尽可能强的 SOTA 基线”。
 - 验收方法：按原文连续段落与中文逐段一一对应，拆分多句段落的独立技术主张、条件、数量、例外、比较标准和研究规范进行语义核对；另以程序精确比较参考文献行与 URL，实际运行 Sphinx 检查 RST。
 - 本记录中「一致」表示审阅中没有发现所标明的原文含义缺失或反向翻译，不代表对现实世界中的算法与研究建议作独立事实验证。
 
@@ -143,7 +144,7 @@
 ## 实际 Sphinx 构建记录与例外
 
 - 工作流：`.github/workflows/zh-rst-check.yml`；在隔离的 Sphinx 配置下检查第 13–16 篇中文 RST，命令为 `sphinx-build -b html -n -W --keep-going`。
-- 针对当前版第16篇 `c94b0497768b831d4b2a0b98bea7de056f5bbf58`，成功运行：https://github.com/tianyueni78-cyber/spinningup/actions/runs/38050149623 。实际日志有 `build succeeded`，且没有 `WARNING:` 或 `ERROR:`。
+- **最新精修版验收：** commit `4de57b5c2a09fb6e5e025aa78e1ccd133f9de4a1` 对应的 GitHub Actions 运行 https://github.com/tianyueni78-cyber/spinningup/actions/runs/38050356910 已完成，状态 `success`。实际日志含 `build succeeded`，读取并写出了 `spinningup_zh`（以及第 13–15 篇），未出现 `WARNING:` 或 `ERROR:`。此前的构建成功记录：https://github.com/tianyueni78-cyber/spinningup/actions/runs/38050149623 。
 - **已知且明确的例外：**英文原始文献列表本来就有 47 个未被正文脚注编号引用的 `.. [n]` 定义。使用严格 `-W` 构建时它们会造成 `Footnote [n] is not referenced` 警告。为保持原文全部脚注条目和 RST 排列、且不掩盖其他错误，隔离构建配置只设置 `suppress_warnings = ['ref.footnote']`。该项豁免只针对原文固有的孤立脚注告警，不是移除文献或取消 `-W`。
 - **范围限制：** 此次成功证明这些中文页面可被独立编译为 HTML。Spinning Up 原始整站配置仍会受到历史 TensorFlow 依赖影响，整站集成构建并未通过本轮测试。文中旧 Gym 环境、代码运行结果及外部网站是否仍可访问也不属于本轮测试。
 
