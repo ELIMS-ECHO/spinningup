@@ -104,3 +104,76 @@ TRPO 在满足新旧策略接近程度的特殊约束时，尽可能采取能够
 ----------------------------
 
 TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略采样动作进行探索。动作选择的随机性取决于初始条件和训练过程。训练期间，更新规则鼓励利用已发现的奖励，策略通常逐渐变得不那么随机。这可能导致策略陷入局部最优。
+
+伪代码
+----------
+
+.. math::
+    :nowrap:
+
+    \begin{algorithm}[H]
+    \caption{信赖域策略优化算法}
+    \begin{algorithmic}[1]
+    \STATE 输入初始策略参数 $\theta_0$ 和价值函数参数 $\phi_0$。
+    \FOR{$k=0,1,2,\ldots$}
+    \STATE 运行策略 $\pi_k=\pi(\theta_k)$，收集轨迹集合 $\mathcal D_k$。
+    \STATE 计算未来回报 $\hat R_t$ 与优势估计 $\hat A_t$。
+    \STATE 计算策略梯度估计：
+    \begin{equation*}
+    \hat g_k = \frac{1}{|\mathcal D_k|}\sum_{\tau\in\mathcal D_k}\sum_{t=0}^T
+    \left.\nabla_\theta\log\pi_\theta(a_t|s_t)\right|_{\theta_k}\hat A_t.
+    \end{equation*}
+    \STATE 用共轭梯度法求解 $\hat x_k\approx \hat H_k^{-1}\hat g_k$。
+    \STATE 回溯线搜索，取满足 KL 约束并改善代理目标的最小 $j$：
+    \begin{equation*}
+    \theta_{k+1}=\theta_k+\alpha^j\sqrt{\frac{2\delta}{\hat x_k^T\hat H_k\hat x_k}}\hat x_k.
+    \end{equation*}
+    \STATE 通过最小化价值估计与未来回报的均方误差更新 $\phi_{k+1}$。
+    \ENDFOR
+    \end{algorithmic}
+    \end{algorithm}
+
+接口文档
+==========
+
+.. admonition:: 你应该知道
+
+    Spinning Up 仅提供 TRPO 的 TensorFlow 版本。以下将原网页通过 autofunction 自动引入的函数说明译为中文。
+
+.. code-block:: python
+
+    trpo(env_fn, actor_critic=core.mlp_actor_critic, ac_kwargs=dict(), seed=0,
+         steps_per_epoch=4000, epochs=50, gamma=0.99, delta=0.01, vf_lr=1e-3,
+         train_v_iters=80, damping_coeff=0.1, cg_iters=10, backtrack_iters=10,
+         backtrack_coeff=0.8, lam=0.97, max_ep_len=1000, logger_kwargs=dict(),
+         save_freq=10, algo='trpo')
+
+**信赖域策略优化。** 同时支持自然策略梯度（NPG）。
+
+参数说明：
+
+* env_fn：用于创建环境副本的函数，环境必须符合 OpenAI Gym API。
+* actor_critic：接收状态占位符 x_ph 和动作占位符 a_ph 的函数，返回 TensorFlow 计算图的主要输出：pi（形状 batch, act_dim，采样动作）；logp（形状 batch，对给定动作计算对数概率）；logp_pi（形状 batch，策略采样动作的对数概率）；info（用于计算 KL 散度的分布统计量字典）；info_phs（对应旧策略统计量的占位符字典）；d_kl（当前策略和旧策略的平均 KL 散度）；v（形状 batch，价值估计，必须展平）。
+* ac_kwargs（dict）：传给 actor_critic 的其他关键字参数。
+* seed（int）：随机数种子。
+* steps_per_epoch（int）：每轮训练中与环境交互的步数。
+* epochs（int）：训练轮数，也是策略更新次数。
+* gamma（float）：折扣因子，介于 0 与 1 之间。
+* delta（float）：TRPO 或 NPG 更新允许的 KL 散度上限。为了稳定性通常取 0.01 或 0.05。
+* vf_lr（float）：价值函数优化器学习率。
+* train_v_iters（int）：每轮训练中价值函数的梯度下降更新次数。
+* damping_coeff（float）：数值稳定性阻尼系数，用于将 Hessian—向量乘积调整为：
+
+  .. math::
+
+      Hv \rightarrow (\alpha I+H)v
+
+  其中 :math:`\alpha` 为阻尼系数。通常不建议调整。
+* cg_iters（int）：共轭梯度迭代次数。增加迭代次数可以提高 :math:`H^{-1}g` 的近似精度，但会降低运行速度。
+* backtrack_iters（int）：回溯线搜索的最大回退次数。实际通常无需回退，或只回退一次。
+* backtrack_coeff（float）：每次回溯缩小步长的比例，介于 0 和 1 之间，通常大于 0.5。
+* lam（float）：GAE-Lambda 的 Lambda 参数，介于 0 和 1 之间且接近 1。
+* max_ep_len（int）：一条轨迹／一个回合／一次 rollout 的最大长度。
+* logger_kwargs（dict）：传递给 EpochLogger 的关键字参数。
+* save_freq（int）：按训练轮次计的模型保存频率。
+* algo：可以选择 trpo 或 npg；二者足够相似，因此共用这份代码。
