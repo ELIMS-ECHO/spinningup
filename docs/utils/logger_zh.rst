@@ -1,6 +1,6 @@
-======
+==========
 日志工具
-======
+==========
 
 .. contents:: 目录
 
@@ -131,7 +131,7 @@ Spinning Up 提供了基本的日志记录工具，分别由 `Logger`_ 和 `Epoc
 日志记录与 PyTorch
 -------------------
 
-前面的示例使用的是 TensorFlow。对于 PyTorch，除了第 42–43 行之外，其余部分都相同：你需要以 ``logger.setup_pytorch_saver`` 代替 ``logger.setup_tf_saver``，并向它传入 `一个 PyTorch 模块`_（即正在训练的神经网络）作为参数。
+前面的示例使用的是 TensorFlow。对于 PyTorch，除了第 42–43 行之外，其余部分都相同：你需要以 ``logger.setup_pytorch_saver`` 代替 ``logger.setup_tf_saver``，并向它传入 `一个 PyTorch 模块`_ （即正在训练的神经网络）作为参数。
 
 ``logger.save_state`` 的行为与 TensorFlow 版本相同：每次调用都会保存该 PyTorch 模块的最新版本。
 
