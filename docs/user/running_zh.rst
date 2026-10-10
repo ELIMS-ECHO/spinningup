@@ -220,13 +220,13 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 注意，``h`` 是用户提供的；``ac-act`` 是根据 ``ac_kwargs:activation``（``act`` 参数的实际名称）自动生成的。
 
 补充说明
------
+--------
 
 .. admonition:: 这一点其实不需要了解
 
-    每个算法都位于 ``spinup/algos/BACKEND/ALGO_NAME/ALGO_NAME.py`` 文件中，也可以直接从命令行运行这些文件，但只能使用有限的一组参数，其中部分参数与 ``spinup/run.py`` 支持的不同。这种单个算法文件中的命令行支持基本属于历史遗留功能，**不推荐**以此开展实验。
+    每个算法都位于 ``spinup/algos/BACKEND/ALGO_NAME/ALGO_NAME.py`` 文件中，也可以直接从命令行运行这些文件，但只能使用有限的一组参数，其中部分参数与 ``spinup/run.py`` 支持的不同。这种单个算法文件中的命令行支持基本属于历史遗留功能，**不推荐** 以此开展实验。
 
-    本文不会介绍这些命令行调用，*只会*介绍通过 ``spinup/run.py`` 运行的方式。
+    本文不会介绍这些命令行调用，*只会* 介绍通过 ``spinup/run.py`` 运行的方式。
 
 从脚本启动
 ======================
@@ -295,7 +295,7 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 
 .. parsed-literal::
 
-    eg.run(thunk, **run_kwargs)
+    eg.run(thunk, \*\*run_kwargs)
 
 即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 ``thunk``。``ExperimentGrid.run`` 使用名为 `call_experiment`_ 的函数启动 ``thunk``，而 ``**run_kwargs`` 则指定 ``call_experiment`` 的行为。详见 `文档页面`_。
 
