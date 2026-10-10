@@ -62,6 +62,16 @@ jobs:
           cp spinup/utils/mpi_tf.py "$api/spinup/utils/mpi_tf.py"
           cp spinup/utils/serialization_utils.py "$api/spinup/utils/serialization_utils.py"
           cp spinup/utils/run_utils.py "$api/spinup/utils/run_utils.py"
+          # Fix one legacy RST docstring formatting issue only in temporary
+          # autodoc source; do not modify the tracked algorithm implementation.
+          python - <<'PYRST'
+          from pathlib import Path
+          p = Path('/tmp/spinningup-zh-api/spinup/utils/run_utils.py')
+          source = p.read_text()
+          old = '**kwargs: All kwargs to pass to thunk.'
+          assert source.count(old) == 1
+          p.write_text(source.replace(old, '``**kwargs``: All kwargs to pass to thunk.'))
+          PYRST
           cp spinup/user_config.py "$api/spinup/user_config.py"
           # Original figure paths are ../images/plots relative to the source RST.
           mkdir -p /tmp/images/plots/pyt /tmp/images/plots/tf1
