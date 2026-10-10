@@ -48,7 +48,7 @@
 ## 实际 GitHub Actions 构建与问题修复
 
 - 首轮运行：https://github.com/tianyueni78-cyber/spinningup/actions/runs/38055476981 ，失败原因是原始 Python `call_experiment` 文档字符串里的 `**kwargs:` 没有正确按 RST 标记，导致 `Inline strong start-string without end-string` 警告。不是中文译文的误译。
-- CI 仅在 `/tmp/spinningup-zh-api/spinup/utils/run_utils.py` 临时副本中把该文本替换为 RST 行内代码 ` ``**kwargs``: ` 的安全写法；未修改 GitHub 受版本控制的源文件，也未屏蔽本条警告。
+- CI 仅在 `/tmp/spinningup-zh-api/spinup/utils/run_utils.py` 临时副本中将其改为双反引号包裹的 RST 行内代码（` ``**kwargs`` ` 中的双反引号是 RST 语法）；未修改 GitHub 受版本控制的源文件，也未屏蔽本条警告。
 - 修复后的严格 Sphinx 构建：https://github.com/tianyueni78-cyber/spinningup/actions/runs/38055539136 ，head commit `b16c4ba2a0e3296c5696f2fe5ca28487850e96d1`，状态 `completed`，结果 `success`。
 - 实际命令：`sphinx-build -b html -n -W --keep-going`；最终日志 `build succeeded`，无新 `WARNING:` 或 `ERROR:`。
 - 在生成的 `run_utils_zh.html` 中，三项来自**真实 Python 源码**的文档字符串逐一验收成功：
