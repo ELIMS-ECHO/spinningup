@@ -174,7 +174,7 @@ DDPG 以离策略方式训练确定性策略。由于策略是确定性的，如
 PyTorch 版本
 ------------------------------
 
-原始页面使用 autofunction 指令引入 spinup.ddpg_pytorch 的源码文档。这里将其展开翻译。
+原始页面使用 ``autofunction`` 指令引入 ``spinup.ddpg_pytorch`` 的源码文档。这里将其展开翻译。
 
 .. code-block:: python
 
@@ -196,7 +196,7 @@ actor_critic
 
     * act：形状为 (batch, act_dim) 的 NumPy 数组，包含每个观测对应的动作。
     * pi：形状为 (batch, act_dim) 的 Tensor，包含策略根据观测生成的动作。
-    * q：形状为 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值当前估计。（非常重要：务必将其展平！）
+    * q：形状为 (batch,) 的 Tensor，包含给定观测和动作对应的最优动作价值函数 :math:`Q^*` 的当前估计。（非常重要：务必将其展平！）
 
 ac_kwargs（dict）
     适用于提供给 DDPG 的 ActorCritic 对象的任意关键字参数。
@@ -267,7 +267,7 @@ PyTorch 版本保存的模型
 
     ac = torch.load('path/to/model.pt')
 
-这将得到一个 actor-critic 对象 ac，其属性如 ddpg_pytorch 的函数文档所述。
+这将得到一个 actor-critic 对象 ``ac``，其属性如 ``ddpg_pytorch`` 的函数文档所述。
 
 可以通过以下代码让模型产生动作：
 
@@ -278,7 +278,7 @@ PyTorch 版本保存的模型
 TensorFlow 版本
 ------------------------------
 
-原始页面使用 autofunction 指令引入 spinup.ddpg_tf1 的源码文档。以下完整翻译其参数说明。
+原始页面使用 ``autofunction`` 指令引入 ``spinup.ddpg_tf1`` 的源码文档。以下完整翻译其参数说明。
 
 .. code-block:: python
 
@@ -299,7 +299,7 @@ actor_critic
     一个接收状态占位符 x_ph 与动作占位符 a_ph 的函数，返回智能体 TensorFlow 计算图的主要输出：
 
     * pi：形状 (batch, act_dim)，根据状态确定性地计算策略动作。
-    * q：形状 (batch,)，对 x_ph 中的状态及 a_ph 中的动作给出最优 Q 值的当前估计。
+    * q：形状 (batch,)，对 x_ph 中的状态及 a_ph 中的动作给出最优动作价值函数 :math:`Q^*` 的当前估计。
     * q_pi：形状 (batch,)，在 x_ph 中的状态上组合 q 与 pi，即 q(x, pi(x))。
 
 ac_kwargs（dict）
@@ -374,11 +374,11 @@ TensorFlow 版本保存的模型
 
 访问保存模型有两种方式：
 
-* 使用 test_policy.py_ 工具运行训练后的策略。
-* 使用 restore_tf_graph_ 将保存的完整计算图加载到程序中。
+* 使用 `test_policy.py`_ 工具运行训练后的策略。
+* 使用 `restore_tf_graph`_ 将保存的完整计算图加载到程序中。
 
-.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
-.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+.. _`test_policy.py`: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _`restore_tf_graph`: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
 
 参考文献
 ==========
