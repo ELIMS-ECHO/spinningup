@@ -83,3 +83,8 @@ jobs:
              logger_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
+          # Assert that autodoc really rendered docstrings from logx.py,
+          # not just empty stub API headings.
+          grep -Fq 'A general-purpose logger.' /tmp/spinningup-zh-html/logger_zh.html
+          grep -Fq 'A variant of Logger tailored for tracking average values over epochs.' /tmp/spinningup-zh-html/logger_zh.html
+          grep -Fq 'Loads graphs saved by Logger.' /tmp/spinningup-zh-html/logger_zh.html
