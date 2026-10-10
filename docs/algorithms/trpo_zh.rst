@@ -177,3 +177,54 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
 * logger_kwargs（dict）：传递给 EpochLogger 的关键字参数。
 * save_freq（int）：按训练轮次计的模型保存频率。
 * algo：可以选择 trpo 或 npg；二者足够相似，因此共用这份代码。
+
+保存的模型内容
+--------------------
+
+日志记录器保存的 TensorFlow 计算图包括：
+
+======  =========================================================
+键      值
+======  =========================================================
+x       输入状态的 TensorFlow 占位符。
+pi      根据 x 中的状态，从智能体策略采样动作。
+v       对 x 中的状态进行价值估计。
+======  =========================================================
+
+访问保存模型有两种方式：
+
+* 使用 test_policy.py_ 工具运行训练后的策略；
+* 使用 restore_tf_graph_ 将完整的保存计算图加载到程序中。
+
+.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+
+参考文献
+==========
+
+相关论文
+---------------
+
+* `Trust Region Policy Optimization`_（信赖域策略优化），Schulman 等，2015 年。
+* `High Dimensional Continuous Control Using Generalized Advantage Estimation`_（使用广义优势估计进行高维连续控制），Schulman 等，2016 年。
+* `Approximately Optimal Approximate Reinforcement Learning`_（近似最优的近似强化学习），Kakade 与 Langford，2002 年。
+
+.. _`Trust Region Policy Optimization`: https://arxiv.org/abs/1502.05477
+.. _`High Dimensional Continuous Control Using Generalized Advantage Estimation`: https://arxiv.org/abs/1506.02438
+.. _`Approximately Optimal Approximate Reinforcement Learning`: https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/KakadeLangford-icml2002.pdf
+
+为什么选择这些论文？
+---------------------
+
+Schulman 2015 是最初提出 TRPO 的论文。Schulman 2016 介绍广义优势估计，而 Spinning Up 的 TRPO 实现使用它计算策略梯度。Kakade 与 Langford 2002 提供了与 TRPO 理论基础密切相关的早期结果，也是 TRPO 的理论动机之一。
+
+其他公开实现
+----------------------------
+
+* Baselines_
+* ModularRL_
+* rllab_
+
+.. _Baselines: https://github.com/openai/baselines/tree/master/baselines/trpo_mpi
+.. _ModularRL: https://github.com/joschu/modular_rl/blob/master/modular_rl/trpo.py
+.. _rllab: https://github.com/rll/rllab/blob/master/rllab/algos/trpo.py
