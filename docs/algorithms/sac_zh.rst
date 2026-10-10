@@ -338,3 +338,137 @@ PyTorch 版本保存的模型
 .. code-block:: python
 
     actions = ac.act(torch.as_tensor(obs, dtype=torch.float32))
+
+TensorFlow 版本接口
+------------------------------
+
+原始网页使用 autofunction 指令引用 spinup.sac_tf1；以下展开翻译源码中的函数文档。
+
+.. code-block:: python
+
+    sac(env_fn, actor_critic=core.mlp_actor_critic, ac_kwargs=dict(), seed=0,
+        steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99,
+        polyak=0.995, lr=1e-3, alpha=0.2, batch_size=100, start_steps=10000,
+        update_after=1000, update_every=50, num_test_episodes=10, max_ep_len=1000,
+        logger_kwargs=dict(), save_freq=1)
+
+**软演员—评论家算法（SAC）**
+
+**参数：**
+
+env_fn
+    创建环境副本的函数。环境必须符合 OpenAI Gym API。
+
+actor_critic
+    接收状态占位符 x_ph 和动作占位符 a_ph 的函数，返回智能体 TensorFlow 计算图的主要输出：
+
+    * mu：形状 (batch, act_dim)，根据状态计算策略的均值动作。
+    * pi：形状 (batch, act_dim)，根据状态从策略中采样动作。
+    * logp_pi：形状 (batch,)，给出策略对 pi 所采样动作的对数概率。关键要求：从动作采样过程一直到策略参数，必须全程可微。
+    * q1：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的一组最优 Q 值估计。
+    * q2：形状 (batch,)，给出 x_ph 中状态和 a_ph 中动作对应的另一组最优 Q 值估计。
+
+ac_kwargs（dict）
+    适用于提供给 SAC 的 actor_critic 函数的任意关键字参数。
+
+seed（int）
+    随机数生成器种子。
+
+steps_per_epoch（int）
+    每轮智能体与环境交互的步数（状态—动作对数量）。
+
+epochs（int）
+    智能体运行与训练的轮数。
+
+replay_size（int）
+    经验回放缓冲区的最大长度。
+
+gamma（float）
+    折扣因子，始终介于 0 和 1 之间。
+
+polyak（float）
+    目标网络 Polyak 平均的插值系数。目标网络按以下规则向主网络更新：
+
+    .. math::
+
+        \theta_{\text{targ}}\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
+
+    其中 :math:`\rho` 为 polyak，始终介于 0 和 1 之间，通常接近 1。
+
+lr（float）
+    学习率，同时用于策略学习与价值学习。
+
+alpha（float）
+    熵正则化系数。（等价于原始 SAC 论文中奖励尺度的倒数。）
+
+batch_size（int）
+    随机梯度下降的小批量大小。
+
+start_steps（int）
+    开始运行真实策略之前，采取均匀随机动作的步数，有助于探索。
+
+update_after（int）
+    开始梯度下降更新前需要收集的环境交互次数，确保回放缓冲区中有足够数据。
+
+update_every（int）
+    梯度下降更新之间经过的环境交互次数。注意，无论两次更新之间等待多久，环境步数与梯度更新步数之比固定为 1。
+
+num_test_episodes（int）
+    每轮结束时测试确定性策略的回合数。
+
+max_ep_len（int）
+    轨迹／回合／rollout 的最大长度。
+
+logger_kwargs（dict）
+    传给 EpochLogger 的关键字参数。
+
+save_freq（int）
+    保存当前策略和价值函数的频率，以训练轮次之间的间隔计。
+
+TensorFlow 版本保存的模型
+----------------------------------------
+
+日志记录器保存的计算图包括：
+
+* x：用于状态输入的 TensorFlow 占位符。
+* a：用于动作输入的 TensorFlow 占位符。
+* mu：根据 x 中的状态，确定性地计算智能体的均值动作。
+* pi：根据 x 中的状态，从智能体策略中采样动作。
+* q1：给出 x 中状态与 a 中动作对应的一组动作价值估计。
+* q2：给出 x 中状态与 a 中动作对应的另一组动作价值估计。
+* v：给出 x 中状态的价值估计。
+
+访问保存模型有两种方式：
+
+* 使用 test_policy.py_ 工具运行训练后的策略；
+* 使用 restore_tf_graph_ 将完整保存的计算图加载到程序中。
+
+注意：对于 SAC，正确的评估策略由 mu 给出，而不是 pi。可以把 pi 看作探索策略，把 mu 看作利用策略。
+
+.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+
+参考文献
+==========
+
+相关论文
+---------------
+
+* `Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor`_（软演员—评论家：使用随机 Actor 的离策略最大熵深度强化学习），Haarnoja 等，2018 年。
+* `Soft Actor-Critic Algorithms and Applications`_（软演员—评论家算法及其应用），Haarnoja 等，2018 年。
+* `Learning to Walk via Deep Reinforcement Learning`_（通过深度强化学习学习行走），Haarnoja 等，2018 年。
+
+.. _`Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor`: https://arxiv.org/abs/1801.01290
+.. _`Soft Actor-Critic Algorithms and Applications`: https://arxiv.org/abs/1812.05905
+.. _`Learning to Walk via Deep Reinforcement Learning`: https://arxiv.org/abs/1812.11103
+
+其他公开实现
+----------------------------
+
+* `SAC 发布仓库`_（最初的“官方”代码库）
+* `Softlearning 仓库`_（目前的“官方”代码库）
+* `Yarats 与 Kostrikov 仓库`_
+
+.. _`SAC 发布仓库`: https://github.com/haarnoja/sac
+.. _`Softlearning 仓库`: https://github.com/rail-berkeley/softlearning
+.. _`Yarats 与 Kostrikov 仓库`: https://github.com/denisyarats/pytorch_sac
