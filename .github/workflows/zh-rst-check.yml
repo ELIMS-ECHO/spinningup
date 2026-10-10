@@ -12,8 +12,11 @@ on:
       - 'docs/spinningup/bench_zh.rst'
       - 'docs/utils/logger_zh.rst'
       - 'docs/utils/plotter_zh.rst'
+      - 'docs/utils/mpi_zh.rst'
       - 'spinup/utils/logx.py'
       - 'spinup/utils/mpi_tools.py'
+      - 'spinup/utils/mpi_pytorch.py'
+      - 'spinup/utils/mpi_tf.py'
       - 'spinup/utils/serialization_utils.py'
       - 'docs/images/plots/**'
       - '.github/workflows/zh-rst-check.yml'
@@ -43,6 +46,7 @@ jobs:
           cp docs/spinningup/bench_zh.rst "$src/"
           cp docs/utils/logger_zh.rst "$src/"
           cp docs/utils/plotter_zh.rst "$src/"
+          cp docs/utils/mpi_zh.rst "$src/"
           # Use the actual logx.py source for autodoc, but isolate spinup.__init__
           # to avoid importing the entire historic TF1 and PyTorch algorithm stack.
           api=/tmp/spinningup-zh-api
@@ -50,6 +54,8 @@ jobs:
           touch "$api/spinup/__init__.py" "$api/spinup/utils/__init__.py"
           cp spinup/utils/logx.py "$api/spinup/utils/logx.py"
           cp spinup/utils/mpi_tools.py "$api/spinup/utils/mpi_tools.py"
+          cp spinup/utils/mpi_pytorch.py "$api/spinup/utils/mpi_pytorch.py"
+          cp spinup/utils/mpi_tf.py "$api/spinup/utils/mpi_tf.py"
           cp spinup/utils/serialization_utils.py "$api/spinup/utils/serialization_utils.py"
           # Original figure paths are ../images/plots relative to the source RST.
           mkdir -p /tmp/images/plots/pyt /tmp/images/plots/tf1
@@ -84,6 +90,7 @@ jobs:
              bench_zh
              logger_zh
              plotter_zh
+             mpi_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
           # Assert that autodoc really rendered docstrings from logx.py,
@@ -91,3 +98,7 @@ jobs:
           grep -Fq 'A general-purpose logger.' /tmp/spinningup-zh-html/logger_zh.html
           grep -Fq 'A variant of Logger tailored for tracking average values over epochs.' /tmp/spinningup-zh-html/logger_zh.html
           grep -Fq 'Loads graphs saved by Logger.' /tmp/spinningup-zh-html/logger_zh.html
+          # Check actual MPI source modules were imported and their docstrings rendered.
+          grep -Fq 'Re-launches the current script with workers linked by MPI.' /tmp/spinningup-zh-html/mpi_zh.html
+          grep -Fq 'Average contents of gradient buffers across MPI processes.' /tmp/spinningup-zh-html/mpi_zh.html
+          grep -Fq 'Sync all tf variables across MPI processes.' /tmp/spinningup-zh-html/mpi_zh.html
