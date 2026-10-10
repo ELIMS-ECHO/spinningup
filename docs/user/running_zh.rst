@@ -9,7 +9,7 @@
 从命令行启动
 ===============================
 
-Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你从命令行轻松启动任意算法，并选择任意超参数。它也对查看训练后策略和绘图的工具提供轻量级封装，不过本页不讨论这些功能（详见`实验输出`_和`绘图`_页面）。
+Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你从命令行轻松启动任意算法，并选择任意超参数。它也对查看训练后策略和绘图的工具提供轻量级封装，不过本页不讨论这些功能（详见 `实验输出`_ 和 `绘图`_ 页面）。
 
 从命令行运行 Spinning Up 算法的标准方式是：
 
@@ -297,7 +297,7 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 
     eg.run(thunk, **run_kwargs)
 
-即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 ``thunk``。``ExperimentGrid.run`` 使用名为 `call_experiment`_ 的函数启动 ``thunk``，而 ``**run_kwargs`` 则指定 ``call_experiment`` 的行为。详见`文档页面`_。
+即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 ``thunk``。``ExperimentGrid.run`` 使用名为 `call_experiment`_ 的函数启动 ``thunk``，而 ``**run_kwargs`` 则指定 ``call_experiment`` 的行为。详见 `文档页面`_。
 
 除了不能使用快捷关键字参数（在 ``ExperimentGrid`` 中不能用 ``hid`` 代替 ``ac_kwargs:hidden_sizes``）之外，``ExperimentGrid`` 的基本行为与命令行运行方式相同。（实际上，``spinup.run`` 内部就使用了 ``ExperimentGrid``。）
 
