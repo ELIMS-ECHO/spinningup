@@ -56,5 +56,5 @@
 ## 结论与构建范围
 
 - 译文按全部独立原文句义审计，已修订发现的两处 `select/exclude` 表达不精确问题，未再发现剩余漏译或实质性误译。
-- Sphinx 构建采用分离原项目 TensorFlow 依赖的中文 RST 独立 HTML 构建工作流：`.github/workflows/zh-rst-check.yml`，命令 `sphinx-build -b html -n -W --keep-going`。需以对应**修订版 commit** 的实际 GitHub Actions 运行结果为最后验收依据。
+- **Sphinx 实际构建通过**：工作流 `.github/workflows/zh-rst-check.yml` 使用隔离原项目 TensorFlow 依赖的最小配置，执行 `sphinx-build -b html -n -W --keep-going`。修订版译文 commit `2c40364eed3985114d9aaddc4537dbfa49e0eccb` 对应的实际 GitHub Actions 运行 [38045179231](https://github.com/tianyueni78-cyber/spinningup/actions/runs/38045179231) 已完成，`conclusion=success`。日志明确显示 `plotting_zh`、`running_zh`、`saving_and_loading_zh` 均已读取并写入，最终 `build succeeded`，未见 `WARNING` 或 `ERROR`。
 - 整个 Spinning Up 网站的原配置、交叉章节集成、代码运行与绘图真实效果，不属于本次独立 RST 页面构建的验证范围。
