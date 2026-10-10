@@ -225,3 +225,116 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
         \UNTIL{收敛}
     \end{algorithmic}
     \end{algorithm}
+
+接口文档
+==========
+
+.. admonition:: 你应该知道
+
+    以下提供 Spinning Up 中 SAC 的 PyTorch 和 TensorFlow 实现文档。除了模型构造相关细节，两者的函数调用和文档字符串几乎相同。为求完整，这里分别给出两套文档字符串的中文翻译。
+
+PyTorch 版本接口
+------------------------------
+
+原始网页使用 autofunction 指令引用 spinup.sac_pytorch；以下展开翻译源码中的函数文档。
+
+.. code-block:: python
+
+    sac(env_fn, actor_critic=core.MLPActorCritic, ac_kwargs=dict(), seed=0,
+        steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99,
+        polyak=0.995, lr=1e-3, alpha=0.2, batch_size=100, start_steps=10000,
+        update_after=1000, update_every=50, num_test_episodes=10, max_ep_len=1000,
+        logger_kwargs=dict(), save_freq=1)
+
+**软演员—评论家算法（SAC）**
+
+**参数：**
+
+env_fn
+    创建环境副本的函数。环境必须符合 OpenAI Gym API。
+
+actor_critic
+    PyTorch Module 的构造方法。该模块应具有 act 方法、pi 模块、q1 模块和 q2 模块。act 方法和 pi 模块接收一批观测作为输入，q1 与 q2 接收一批观测和一批动作作为输入。各方法应返回：
+
+    * act：形状 (batch, act_dim) 的 NumPy 数组，包含每个观测对应的动作。
+    * q1：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值的第一组当前估计。（务必展平！）
+    * q2：形状 (batch,) 的 Tensor，包含给定观测和动作对应的最优 Q 值的另一组当前估计。（务必展平！）
+
+    调用 pi 应返回：
+
+    * a：形状 (batch, act_dim) 的 Tensor，包含策略根据观测生成的动作。
+    * logp_pi：形状 (batch,) 的 Tensor，包含 a 中动作的对数概率。重要的是：梯度必须能够反向传播到 a。
+
+ac_kwargs（dict）
+    适用于提供给 SAC 的 ActorCritic 对象的任意关键字参数。
+
+seed（int）
+    随机数生成器的种子。
+
+steps_per_epoch（int）
+    每轮智能体与环境交互的步数，即状态—动作对的数量。
+
+epochs（int）
+    智能体运行与训练的轮数。
+
+replay_size（int）
+    经验回放缓冲区的最大长度。
+
+gamma（float）
+    折扣因子，始终介于 0 和 1 之间。
+
+polyak（float）
+    目标网络 Polyak 平均的插值系数。目标网络向主网络更新的规则为：
+
+    .. math::
+
+        \theta_{\text{targ}}\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
+
+    其中 :math:`\rho` 为 polyak，始终介于 0 和 1 之间，通常接近 1。
+
+lr（float）
+    学习率，同时用于策略学习和价值学习。
+
+alpha（float）
+    熵正则化系数。（等价于原始 SAC 论文中奖励尺度的倒数。）
+
+batch_size（int）
+    随机梯度下降的小批量大小。
+
+start_steps（int）
+    在运行真实策略之前，先采取均匀随机动作的步数，有助于探索。
+
+update_after（int）
+    开始梯度下降更新前需要收集的环境交互次数，确保经验回放缓冲区中已有足够数据用于有效更新。
+
+update_every（int）
+    梯度下降更新之间经过的环境交互次数。注意，无论两次更新之间等待多久，环境步数与梯度更新步数之比固定为 1。
+
+num_test_episodes（int）
+    每轮结束时测试确定性策略的回合数。
+
+max_ep_len（int）
+    轨迹／回合／rollout 的最大长度。
+
+logger_kwargs（dict）
+    传给 EpochLogger 的关键字参数。
+
+save_freq（int）
+    保存当前策略和价值函数的频率，以训练轮次之间的间隔计。
+
+PyTorch 版本保存的模型
+-------------------------------------
+
+可以使用以下代码加载 PyTorch 保存的模型：
+
+.. code-block:: python
+
+    ac = torch.load('path/to/model.pt')
+
+得到的 actor-critic 对象 ac 具有 sac_pytorch 函数文档中描述的属性。
+
+可通过以下代码从模型获取动作：
+
+.. code-block:: python
+
+    actions = ac.act(torch.as_tensor(obs, dtype=torch.float32))
