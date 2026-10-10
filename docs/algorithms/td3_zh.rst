@@ -80,7 +80,7 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 
 .. admonition:: 你应该知道
 
-    我们的 TD3 实现采用一项技巧来改善训练初期的探索：在开始的固定步数内（通过 start_steps 关键字参数设置），智能体从合法动作范围内的均匀随机分布采样动作。之后才恢复正常的 TD3 探索。
+    我们的 TD3 实现采用一项技巧来改善训练初期的探索：在开始的固定步数内（通过 ``start_steps`` 关键字参数设置），智能体从合法动作范围内的均匀随机分布采样动作。之后才恢复正常的 TD3 探索。
 
 伪代码
 ----------
@@ -142,7 +142,7 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 PyTorch 版本接口
 ------------------------------
 
-原网页通过 autofunction 指令引用 spinup.td3_pytorch 的函数文档；以下将源码文档展开翻译。
+原网页通过 ``autofunction`` 指令引用 ``spinup.td3_pytorch`` 的函数文档；以下将源码文档展开翻译。
 
 .. code-block:: python
 
@@ -165,8 +165,8 @@ actor_critic
 
     * act：形状 (batch, act_dim)，针对每个观测返回动作的 NumPy 数组。
     * pi：形状 (batch, act_dim)，包含策略针对观测生成动作的 Tensor。
-    * q1：形状 (batch,)，包含给定观测与动作对应的最优 Q 值的第一组当前估计。（重要：务必展平！）
-    * q2：形状 (batch,)，包含给定观测与动作对应的最优 Q 值的另一组当前估计。（重要：务必展平！）
+    * q1：形状 (batch,)，包含给定观测与动作对应的最优动作价值函数 :math:`Q^*` 的第一组当前估计。（重要：务必展平！）
+    * q2：形状 (batch,)，包含给定观测与动作对应的最优动作价值函数 :math:`Q^*` 的另一组当前估计。（重要：务必展平！）
 
 ac_kwargs（dict）
     适用于提供给 TD3 的 ActorCritic 对象的任意关键字参数。
@@ -246,7 +246,7 @@ PyTorch 保存的模型可以通过以下方式加载：
 
     ac = torch.load('path/to/model.pt')
 
-这将得到一个 actor-critic 对象 ac，其属性与 td3_pytorch 函数文档中的描述一致。
+这将得到一个 actor-critic 对象 ``ac``，其属性与 ``td3_pytorch`` 函数文档中的描述一致。
 
 可以通过以下方式从模型获取动作：
 
@@ -257,7 +257,7 @@ PyTorch 保存的模型可以通过以下方式加载：
 TensorFlow 版本接口
 ------------------------------
 
-原网页通过 autofunction 指令引用 spinup.td3_tf1 的函数文档；以下为源码文档的完整中文参数说明。
+原网页通过 ``autofunction`` 指令引用 ``spinup.td3_tf1`` 的函数文档；以下为源码文档的完整中文参数说明。
 
 .. code-block:: python
 
@@ -279,8 +279,8 @@ actor_critic
     接收状态占位符 x_ph 和动作占位符 a_ph 的函数，返回智能体 TensorFlow 计算图的主要输出：
 
     * pi：形状 (batch, act_dim)，根据给定状态确定性地计算策略动作。
-    * q1：形状 (batch,)，针对 x_ph 中的状态和 a_ph 中的动作给出一组最优 Q 值估计。
-    * q2：形状 (batch,)，针对 x_ph 中的状态和 a_ph 中的动作给出另一组最优 Q 值估计。
+    * q1：形状 (batch,)，针对 x_ph 中的状态和 a_ph 中的动作给出对最优动作价值函数 :math:`Q^*` 的一组估计。
+    * q2：形状 (batch,)，针对 x_ph 中的状态和 a_ph 中的动作给出另对最优动作价值函数 :math:`Q^*` 的一组估计。
     * q1_pi：形状 (batch,)，给出 x_ph 中状态下 q1 与 pi 的组合，即 q1(x, pi(x))。
 
 ac_kwargs（dict）
@@ -365,11 +365,11 @@ TensorFlow 版本保存的模型
 
 可以通过以下两种方式访问保存的模型：
 
-* 使用 test_policy.py_ 工具运行训练后的策略；
-* 使用 restore_tf_graph_ 将完整的保存计算图加载到程序中。
+* 使用 `test_policy.py`_ 工具运行训练后的策略；
+* 使用 `restore_tf_graph`_ 将完整的保存计算图加载到程序中。
 
-.. _test_policy.py: ../user/saving_and_loading.html#loading-and-running-trained-policies
-.. _restore_tf_graph: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
+.. _`test_policy.py`: ../user/saving_and_loading.html#loading-and-running-trained-policies
+.. _`restore_tf_graph`: ../utils/logger.html#spinup.utils.logx.restore_tf_graph
 
 参考文献
 ==========
