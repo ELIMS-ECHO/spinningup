@@ -8,6 +8,7 @@ on:
       - 'docs/user/plotting_zh.rst'
       - 'docs/spinningup/spinningup_zh.rst'
       - 'docs/spinningup/keypapers_zh.rst'
+      - 'docs/spinningup/exercises_zh.rst'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
 jobs:
@@ -31,6 +32,7 @@ jobs:
           cp docs/user/plotting_zh.rst "$src/"
           cp docs/spinningup/spinningup_zh.rst "$src/"
           cp docs/spinningup/keypapers_zh.rst "$src/"
+          cp docs/spinningup/exercises_zh.rst "$src/"
           cat > "$src/conf.py" <<'PYCONF'
           project = 'Spinning Up Chinese Documentation Check'
           master_doc = 'index'
@@ -53,5 +55,6 @@ jobs:
              plotting_zh
              spinningup_zh
              keypapers_zh
+             exercises_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
