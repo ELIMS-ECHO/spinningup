@@ -68,7 +68,7 @@ d. 分布强化学习
 
 .. [#] `Implicit Quantile Networks for Distributional Reinforcement Learning <https://arxiv.org/abs/1806.06923>`_, Dabney et al, 2018. **算法： IQN.**
 
-.. [#] `Dopamine: A Research Framework for Deep Reinforcement Learning <https://openreview.net/forum?id=ByG_3s09KX>`_, Anonymous, 2018. **贡献： 介绍 Dopamine 代码仓库，其中包含 DQN、C51、IQN 和 Rainbow 的实现。 `代码链接 <https://github.com/google/dopamine>`_
+.. [#] `Dopamine: A Research Framework for Deep Reinforcement Learning <https://openreview.net/forum?id=ByG_3s09KX>`_, Anonymous, 2018. **贡献：** 介绍 Dopamine 代码仓库，其中包含 DQN、C51、IQN 和 Rainbow 的实现。 `代码链接 <https://github.com/google/dopamine>`_
 
 e. 使用依赖动作基线的策略梯度
 ---------------------------------------------------
@@ -77,7 +77,7 @@ e. 使用依赖动作基线的策略梯度
 
 .. [#] `Action-depedent Control Variates for Policy Optimization via Stein's Identity <https://arxiv.org/abs/1710.11198>`_, Liu et al, 2017. **算法： Stein Control Variates.**
 
-.. [#] `The Mirage of Action-Dependent Baselines in Reinforcement Learning <https://arxiv.org/abs/1802.10031>`_, Tucker et al, 2018. **贡献： 对早期论文（包括 Q-Prop 和 Stein 控制变量方法）的主张提出批评并重新评估，发现了其中重要的方法学错误。这一点尤其值得注意。
+.. [#] `The Mirage of Action-Dependent Baselines in Reinforcement Learning <https://arxiv.org/abs/1802.10031>`_, Tucker et al, 2018. **贡献：** 对早期论文（包括 Q-Prop 和 Stein 控制变量方法）的主张提出批评并重新评估，发现了其中重要的方法学错误。这一点尤其值得注意。
 
 
 f. 路径一致性学习
@@ -96,7 +96,7 @@ g. 结合策略学习与 Q 学习的其他方向
 
 .. [#] `Interpolated Policy Gradient: Merging On-Policy and Off-Policy Gradient Estimation for Deep Reinforcement Learning <http://papers.nips.cc/paper/6974-interpolated-policy-gradient-merging-on-policy-and-off-policy-gradient-estimation-for-deep-reinforcement-learning>`_, Gu et al, 2017. **算法： IPG.**
 
-.. [#] `Equivalence Between Policy Gradients and Soft Q-Learning <https://arxiv.org/abs/1704.06440>`_, Schulman et al, 2017. **贡献： 揭示这两类强化学习算法之间的理论联系。
+.. [#] `Equivalence Between Policy Gradients and Soft Q-Learning <https://arxiv.org/abs/1704.06440>`_, Schulman et al, 2017. **贡献：** 揭示这两类强化学习算法之间的理论联系。
 
 
 h. 进化算法
@@ -124,7 +124,7 @@ a. 内在动机
 
 .. [#] `Curiosity-driven Exploration by Self-supervised Prediction <https://arxiv.org/abs/1705.05363>`_, Pathak et al, 2017. **算法： Intrinsic Curiosity Module (ICM).**
 
-.. [#] `Large-Scale Study of Curiosity-Driven Learning <https://arxiv.org/abs/1808.04355>`_, Burda et al, 2018. **贡献： 系统分析了基于惊讶度的内在动机方法在多种环境中的表现。
+.. [#] `Large-Scale Study of Curiosity-Driven Learning <https://arxiv.org/abs/1808.04355>`_, Burda et al, 2018. **贡献：** 系统分析了基于惊讶度的内在动机方法在多种环境中的表现。
 
 .. [#] `Exploration by Random Network Distillation <https://arxiv.org/abs/1810.12894>`_, Burda et al, 2018. **算法： RND.**
 
@@ -222,7 +222,7 @@ b. 模型已知
 8. 强化学习的规模扩展
 =======================
 
-.. [#] `Accelerated Methods for Deep Reinforcement Learning <https://arxiv.org/abs/1803.02811>`_, Stooke and Abbeel, 2018. **贡献： 系统分析不同深度强化学习算法中的并行化。 
+.. [#] `Accelerated Methods for Deep Reinforcement Learning <https://arxiv.org/abs/1803.02811>`_, Stooke and Abbeel, 2018. **贡献：** 系统分析不同深度强化学习算法中的并行化。 
 
 .. [#] `IMPALA: Scalable Distributed Deep-RL with Importance Weighted Actor-Learner Architectures <https://arxiv.org/abs/1802.01561>`_, Espeholt et al, 2018. **算法： IMPALA.**
 
@@ -230,7 +230,7 @@ b. 模型已知
 
 .. [#] `Recurrent Experience Replay in Distributed Reinforcement Learning <https://openreview.net/forum?id=r1lyTjAqYX>`_, Anonymous, 2018. **算法： R2D2.**
 
-.. [#] `RLlib: Abstractions for Distributed Reinforcement Learning <https://arxiv.org/abs/1712.09381>`_, Liang et al, 2017. **贡献： 一个可扩展的强化学习算法实现库。 `文档链接 <https://ray.readthedocs.io/en/latest/rllib.html>`_
+.. [#] `RLlib: Abstractions for Distributed Reinforcement Learning <https://arxiv.org/abs/1712.09381>`_, Liang et al, 2017. **贡献：** 一个可扩展的强化学习算法实现库。 `文档链接 <https://ray.readthedocs.io/en/latest/rllib.html>`_
 
 
 9. 现实世界中的强化学习
@@ -248,7 +248,7 @@ b. 模型已知
 10. 安全性
 ============
 
-.. [#] `Concrete Problems in AI Safety <https://arxiv.org/abs/1606.06565>`_, Amodei et al, 2016. **贡献： 建立了安全问题的分类体系，为后续研究提供了重要起点。这些问题需要得到解决！
+.. [#] `Concrete Problems in AI Safety <https://arxiv.org/abs/1606.06565>`_, Amodei et al, 2016. **贡献：** 建立了安全问题的分类体系，为后续研究提供了重要起点。这些问题需要得到解决！
 
 .. [#] `Deep Reinforcement Learning From Human Preferences <https://arxiv.org/abs/1706.03741>`_, Christiano et al, 2017. **算法： LFP.**
 
@@ -264,7 +264,7 @@ b. 模型已知
 11. 模仿学习与逆强化学习
 =========================================================
 
-.. [#] `Modeling Purposeful Adaptive Behavior with the Principle of Maximum Causal Entropy <http://www.cs.cmu.edu/~bziebart/publications/thesis-bziebart.pdf>`_, Ziebart 2010. **贡献： 对最大熵逆强化学习（IRL）进行了清晰明确的形式化表述。
+.. [#] `Modeling Purposeful Adaptive Behavior with the Principle of Maximum Causal Entropy <http://www.cs.cmu.edu/~bziebart/publications/thesis-bziebart.pdf>`_, Ziebart 2010. **贡献：** 对最大熵逆强化学习（IRL）进行了清晰明确的形式化表述。
 
 .. [#] `Guided Cost Learning: Deep Inverse Optimal Control via Policy Optimization <https://arxiv.org/abs/1603.00448>`_, Finn et al, 2016. **算法： GCL.**
 
@@ -297,14 +297,14 @@ b. 模型已知
 13. 补充：经典强化学习理论与综述论文
 ================================================
 
-.. [#] `Policy Gradient Methods for Reinforcement Learning with Function Approximation <https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf>`_, Sutton et al, 2000. **贡献： 确立了策略梯度定理，并证明了针对任意策略类的策略梯度算法的收敛性。 
+.. [#] `Policy Gradient Methods for Reinforcement Learning with Function Approximation <https://papers.nips.cc/paper/1713-policy-gradient-methods-for-reinforcement-learning-with-function-approximation.pdf>`_, Sutton et al, 2000. **贡献：** 确立了策略梯度定理，并证明了针对任意策略类的策略梯度算法的收敛性。 
 
-.. [#] `An Analysis of Temporal-Difference Learning with Function Approximation <http://web.mit.edu/jnt/www/Papers/J063-97-bvr-td.pdf>`_, Tsitsiklis and Van Roy, 1997. **贡献： 给出了强化学习中价值学习方法的多种收敛性结果和反例。
+.. [#] `An Analysis of Temporal-Difference Learning with Function Approximation <http://web.mit.edu/jnt/www/Papers/J063-97-bvr-td.pdf>`_, Tsitsiklis and Van Roy, 1997. **贡献：** 给出了强化学习中价值学习方法的多种收敛性结果和反例。
 
-.. [#] `Reinforcement Learning of Motor Skills with Policy Gradients <http://www.kyb.mpg.de/fileadmin/user_upload/files/publications/attachments/Neural-Netw-2008-21-682_4867%5b0%5d.pdf>`_, Peters and Schaal, 2008. **贡献： 全面回顾了当时的策略梯度方法，其中许多论述至今仍可用于描述深度强化学习方法。 
+.. [#] `Reinforcement Learning of Motor Skills with Policy Gradients <http://www.kyb.mpg.de/fileadmin/user_upload/files/publications/attachments/Neural-Netw-2008-21-682_4867%5b0%5d.pdf>`_, Peters and Schaal, 2008. **贡献：** 全面回顾了当时的策略梯度方法，其中许多论述至今仍可用于描述深度强化学习方法。 
 
-.. [#] `Approximately Optimal Approximate Reinforcement Learning <https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/KakadeLangford-icml2002.pdf>`_, Kakade and Langford, 2002. **贡献： 包含单调改进理论的早期思想，后来为 TRPO 等算法的理论依据奠定了基础。
+.. [#] `Approximately Optimal Approximate Reinforcement Learning <https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/KakadeLangford-icml2002.pdf>`_, Kakade and Langford, 2002. **贡献：** 包含单调改进理论的早期思想，后来为 TRPO 等算法的理论依据奠定了基础。
 
-.. [#] `A Natural Policy Gradient <https://papers.nips.cc/paper/2073-a-natural-policy-gradient.pdf>`_, Kakade, 2002. **贡献： 将自然梯度引入强化学习，随后推动了 TRPO、ACKTR 及深度强化学习中的多种其他方法。
+.. [#] `A Natural Policy Gradient <https://papers.nips.cc/paper/2073-a-natural-policy-gradient.pdf>`_, Kakade, 2002. **贡献：** 将自然梯度引入强化学习，随后推动了 TRPO、ACKTR 及深度强化学习中的多种其他方法。
 
-.. [#] `Algorithms for Reinforcement Learning <https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf>`_, Szepesvari, 2009. **贡献： 一份关于深度强化学习兴起之前的强化学习的极佳参考资料，涵盖基础知识与理论背景。
+.. [#] `Algorithms for Reinforcement Learning <https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf>`_, Szepesvari, 2009. **贡献：** 一份关于深度强化学习兴起之前的强化学习的极佳参考资料，涵盖基础知识与理论背景。
