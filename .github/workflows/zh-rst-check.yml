@@ -9,6 +9,8 @@ on:
       - 'docs/spinningup/spinningup_zh.rst'
       - 'docs/spinningup/keypapers_zh.rst'
       - 'docs/spinningup/exercises_zh.rst'
+      - 'docs/spinningup/bench_zh.rst'
+      - 'docs/images/plots/**'
       - '.github/workflows/zh-rst-check.yml'
   workflow_dispatch:
 jobs:
@@ -33,6 +35,11 @@ jobs:
           cp docs/spinningup/spinningup_zh.rst "$src/"
           cp docs/spinningup/keypapers_zh.rst "$src/"
           cp docs/spinningup/exercises_zh.rst "$src/"
+          cp docs/spinningup/bench_zh.rst "$src/"
+          # Original figure paths are ../images/plots relative to the source RST.
+          mkdir -p /tmp/images/plots/pyt /tmp/images/plots/tf1
+          cp docs/images/plots/pyt/*_performance.svg /tmp/images/plots/pyt/
+          cp docs/images/plots/tf1/*_performance.svg /tmp/images/plots/tf1/
           cat > "$src/conf.py" <<'PYCONF'
           project = 'Spinning Up Chinese Documentation Check'
           master_doc = 'index'
@@ -56,5 +63,6 @@ jobs:
              spinningup_zh
              keypapers_zh
              exercises_zh
+             bench_zh
           RSTINDEX
           sphinx-build -b html -n -W --keep-going "$src" /tmp/spinningup-zh-html
