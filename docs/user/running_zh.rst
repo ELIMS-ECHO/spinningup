@@ -28,7 +28,7 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 
 .. admonition:: 你应该知道
 
-    如果使用 ZShell：ZShell 会把方括号解释为特殊字符。Spinning Up 的一些命令行参数会使用方括号，因此请确保对它们进行转义。如果希望默认转义，也可以尝试`这里推荐的解决方法 <http://kinopyo.com/en/blog/escape-square-bracket-by-default-in-zsh>`_。
+    如果使用 ZShell：ZShell 会把方括号解释为特殊字符。Spinning Up 的一些命令行参数会使用方括号，因此请确保对它们进行转义。如果希望默认转义，也可以尝试 `这里推荐的解决方法 <http://kinopyo.com/en/blog/escape-square-bracket-by-default-in-zsh>`_。
 
 .. admonition:: 详细快速入门指南
 
@@ -42,7 +42,7 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 
     默认运行 PyTorch 版本（TRPO 除外，因为 Spinning Up 尚未提供 PyTorch 版 TRPO）。若要运行 TensorFlow 版本，将 ``ppo`` 替换为 ``ppo_tf1``。
 
-    ``clip_ratio``、``hid`` 和 ``act`` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。有关可设置的超参数，请查看算法文档（例如 `PPO 文档`_）。
+    ``clip_ratio``、``hid`` 和 ``act`` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。要了解可以设置哪些超参数，请查阅相应的算法文档（点击这里查看 `PPO 文档`_）。
 
     ``hid`` 和 ``act`` 是设置神经网络隐藏层大小和激活函数的 `特殊快捷参数`_。
 
@@ -127,7 +127,7 @@ Spinning Up 附带 ``spinup/run.py``，它是一个方便的工具，可让你�
 
     python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --seed 0 10 20
 
-实验不会并行启动，因为它们会占用大量资源，同时运行多个实验通常无法带来加速。
+实验不会并行启动，因为它们会占用大量资源，同时运行多个实验并不能带来加速。
 
 特殊参数
 -------------
