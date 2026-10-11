@@ -149,6 +149,26 @@ def code_alignment(source, target):
             "examples": uncertain[:20]}
 
 
+
+def chinese_sentence_alignment(source, target):
+    """Check normalized Chinese sentence spans independent of list/markup layout."""
+    chinese = lambda value: "".join(re.findall(r"[\u4e00-\u9fff]", value))
+    target_han = chinese(target)
+    samples = []
+    for i, sentence in enumerate(re.split(r"[。！？；]", source), 1):
+        normalized = chinese(sentence)
+        if len(normalized) < 16:
+            continue
+        anchors = [normalized[j:j + 32] for j in range(0, len(normalized), 32)]
+        missing = [a for a in anchors if len(a) >= 12 and a not in target_han]
+        samples.append({"sentence": i, "characters": len(normalized),
+                        "covered_windows": len(anchors) - len(missing),
+                        "windows": len(anchors), "unmatched": missing[:2]})
+    uncertain = [e for e in samples if e["unmatched"]]
+    return {"source_sentences": len(samples), "unmatched_sentences": len(uncertain),
+            "examples": uncertain[:30]}
+
+
 def audit_pair(name):
     src = DOCS / (name + "_zh.rst")
     dst = ONLINE / (name + "_zh.md")
@@ -192,6 +212,7 @@ def audit_pair(name):
     if b.count("$$") % 2:
         out["issues"].append({"kind": "unclosed_display_math"})
     out["prose_alignment"] = prose_alignment(a, b)
+    out["sentence_alignment"] = chinese_sentence_alignment(a, b)
     out["math_alignment"] = math_alignment(a, b)
     out["code_alignment"] = code_alignment(a, b)
     if out["prose_alignment"]["zero_window_matches"]:
