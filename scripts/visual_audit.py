@@ -63,6 +63,14 @@ with sync_playwright() as p:
             item["code_blocks"] = page.locator("article.markdown-body pre, .markdown-body pre").count()
             item["raw_parsed_literal"] = 'class="parsed-literal"' in page.locator("article.markdown-body, .markdown-body").first.inner_text()
             item["visible_body_characters"] = len(page.locator("article.markdown-body, .markdown-body").first.inner_text())
+            # Guard previously observed real GitHub rendering regressions.
+            body_text = page.locator("article.markdown-body, .markdown-body").first.inner_text()
+            if name == "algorithms/vpg_zh.md" and "$J(" in body_text:
+                result["errors"].append({"chapter": name, "reason": "unrendered inline J math"})
+            if name == "user/running_zh.md" and "\\\\[algo name\\\\]" in body_text:
+                result["errors"].append({"chapter": name, "reason": "escaped shell placeholder"})
+            if name == "spinningup/spinningup_zh.md" and "文献 47" not in body_text:
+                result["errors"].append({"chapter": name, "reason": "numbered references missing"})
             item["screenshot"] = name.replace("/", "-") + ".png"
             page.screenshot(path=str(OUTPUT / item["screenshot"]), full_page=False)
             if item["http_status"] != 200 or not item["has_expected_text"] or item["raw_parsed_literal"]:
