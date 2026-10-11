@@ -96,23 +96,23 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
 - 计算未来回报 $\hat{R}_t$。
 - 根据当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计 $\hat{A}_t$。
 - 将策略梯度估计为
-$
+$$
 \hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
-$
+$$
 - 使用共轭梯度算法计算
-$
+$$
 \hat{x}_k \approx \hat{H}_k^{-1} \hat{g}_k,
-$
+$$
 其中 $\hat{H}_k$ 为样本平均 KL 散度的 Hessian 矩阵。
 - 使用回溯线搜索更新策略：
-$
+$$
 \theta_{k+1} = \theta_k + \alpha^j \sqrt{ \frac{2\delta}{\hat{x}_k^T \hat{H}_k \hat{x}_k}} \hat{x}_k,
-$
+$$
 其中 $j \in \{0, 1, 2, ... K\}$ 是使样本损失得到改善、同时满足样本 KL 散度约束的最小取值。
 - 通过对均方误差进行回归来拟合价值函数：
-$
+$$
 \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
-$
+$$
 通常使用某种梯度下降算法完成。
 - **结束循环**
 

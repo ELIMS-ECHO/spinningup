@@ -170,22 +170,28 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 - **循环：** $j$ 遍历预定的更新次数
 - 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
 - 计算 Q 函数的目标值：
-\begin{align*}
+$$
+\begin{aligned}
 y(r,s',d)&=r+\gamma(1-d)\left(\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',\tilde a')-\alpha\log\pi_\theta(\tilde a'|s')\right), &&\tilde a'\sim\pi_\theta(\cdot|s')
-\end{align*}
+\end{aligned}
+$$
 - 使用下式进行一步梯度下降，更新两个 Q 函数：
-\begin{align*}
+$$
+\begin{aligned}
 &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
-\end{align*}
+\end{aligned}
+$$
 - 使用下式进行一步梯度上升，更新策略：
-$
+$$
 \nabla_\theta\frac{1}{|B|}\sum_{s\in B}\Big(\min_{i=1,2}Q_{\phi_i}(s,\tilde a_\theta(s))-\alpha\log\pi_\theta\left(\left.\tilde a_\theta(s)\right|s\right)\Big),
-$
+$$
 其中 $\tilde a_\theta(s)$ 是从 $\pi_\theta(\cdot|s)$ 采样的动作，并可通过重参数化技巧对 $\theta$ 求导。
 - 更新目标网络：
-\begin{align*}
+$$
+\begin{aligned}
 \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2
-\end{align*}
+\end{aligned}
+$$
 - **结束循环**
 - **结束条件**
 - **直到：** 收敛

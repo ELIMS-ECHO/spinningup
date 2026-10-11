@@ -102,17 +102,17 @@ PPO 以同策略方式训练随机策略，因此通过从最新随机策略中�
 - 计算未来回报 $\hat{R}_t$。
 - 根据当前价值函数 $V_{\phi_k}$，用任意优势估计方法计算优势估计 $\hat{A}_t$。
 - 通过最大化 PPO-Clip 目标更新策略：
-$
+$$
 \theta_{k+1} = \arg \max_{\theta} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \min\left(
 \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\theta_k}(a_t|s_t)}  A^{\pi_{\theta_k}}(s_t,a_t), \;\;
 g(\epsilon, A^{\pi_{\theta_k}}(s_t,a_t))
 \right),
-$
+$$
 通常使用 Adam 进行随机梯度上升。
 - 通过最小化均方误差拟合价值函数：
-$
+$$
 \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
-$
+$$
 通常使用某种梯度下降算法完成。
 - **结束循环**
 

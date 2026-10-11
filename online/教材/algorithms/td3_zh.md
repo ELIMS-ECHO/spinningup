@@ -86,27 +86,31 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 - **循环：** $j$ 取预定的更新次数
 - 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
 - 计算目标动作
-$
+$$
 a'(s')=\text{clip}\left(\mu_{\theta_{\text{targ}}}(s')+\text{clip}(\epsilon,-c,c),a_{Low},a_{High}\right),\quad \epsilon\sim\mathcal N(0,\sigma)
-$
+$$
 - 计算目标值
-$
+$$
 y(r,s',d)=r+\gamma(1-d)\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',a'(s'))
-$
+$$
 - 利用下式执行一步梯度下降，更新两个 Q 函数
-\begin{align*}
+$$
+\begin{aligned}
 &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
-\end{align*}
+\end{aligned}
+$$
 - **如果：** $j\mod\texttt{policy\_delay}=0$
 - 利用下式执行一步梯度上升，更新策略
-$
+$$
 \nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_{\phi_1}(s,\mu_\theta(s))
-$
+$$
 - 更新目标网络
-\begin{align*}
+$$
+\begin{aligned}
 \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
 \theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
-\end{align*}
+\end{aligned}
+$$
 - **结束条件**
 - **结束循环**
 - **结束条件**

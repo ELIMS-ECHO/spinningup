@@ -50,18 +50,18 @@ VPG 以同策略方式训练一个随机策略。这意味着，它通过按照�
 - 计算未来回报 $\hat{R}_t$。
 - 基于当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计值 $\hat{A}_t$。
 - 将策略梯度估计为
-$
+$$
 \hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
-$
+$$
 - 计算策略更新。可以使用标准梯度上升：
-$
+$$
 \theta_{k+1} = \theta_k + \alpha_k \hat{g}_k,
-$
+$$
 也可以使用 Adam 等其他梯度上升算法。
 - 通过最小化均方误差的回归来拟合价值函数：
-$
+$$
 \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
-$
+$$
 通常使用某种梯度下降算法来完成。
 - **结束循环**
 
