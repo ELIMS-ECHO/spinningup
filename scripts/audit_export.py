@@ -128,8 +128,20 @@ def code_alignment(source, target):
     from difflib import SequenceMatcher
     source_blocks = rst_directive_blocks(source,
         ["code-block", "code", "parsed-literal", "literalinclude"])
-    target_blocks = re.findall(r"(?ms)^"+chr(96)*3+r"[^\n]*\n(.*?)^"+chr(96)*3+r"\s*$", target)
+    target_blocks = []
+    in_fence, current = False, []
+    for line in target.splitlines():
+        plain = re.sub(r"^\s*>\s?", "", line)
+        if plain.strip().startswith(chr(96) * 3):
+            if in_fence:
+                target_blocks.append("\n".join(current))
+                current = []
+            in_fence = not in_fence
+        elif in_fence:
+            current.append(plain)
     def norm(value):
+        value = re.sub(r"(?m)^:(?:linenos|lineno-start):[^\n]*$", "", value)
+        value = re.sub(r"^(?:python|bash|text)\s*\n", "", value.strip())
         return re.sub(r"\s+", "", value).replace(r"\[", "[").replace(r"\]", "]")
     target_norm = [norm(x) for x in target_blocks]
     uncertain, strong = [], 0
