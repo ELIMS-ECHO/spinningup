@@ -221,19 +221,15 @@ def main():
 
     contents = ["# Spinning Up 深度强化学习 · 中文教材", "",
                 "> 已翻译的 24 篇主目录文章。第25篇《作者》尚未完成，不在本笔记库中。",
-                "", "按原站点目录顺序阅读；个人学习记录放在我的笔记文件夹。", ""]
+                "", "按原站点目录顺序阅读；本公开教材包不包含个人学习笔记。", ""]
     last = ""
     for num, sec, rel, title in listing:
         if sec != last:
             last = sec
             contents += ["## " + SECTION[sec], ""]
         contents.append(str(num).zfill(2) + ". [[" + "教材/" + rel.with_suffix("").as_posix() + "|" + title + "]]")
-    contents += ["", "## 学习笔记", "", "[[我的笔记/概念索引]] · [[我的笔记/问题清单]]", "", "[[导入说明]]"]
+    contents += ["", "[[导入说明]]"]
     (VAULT / "00_课程导航.md").write_text("\n".join(contents) + "\n", encoding="utf-8")
-    notes = VAULT / "我的笔记"
-    notes.mkdir()
-    (notes / "概念索引.md").write_text("# 概念索引\n\n将概念拆成独立笔记，并链接教材中的原始解释、代码和公式。\n", encoding="utf-8")
-    (notes / "问题清单.md").write_text("# 问题清单\n\n- [ ] 目前最不理解的公式或概念是什么？\n- [ ] 有哪些实验需要亲自复现？\n", encoding="utf-8")
     (VAULT / "导入说明.md").write_text(
         "# 导入和使用说明\n\n"
         "1. 将下载的压缩包解压到电脑。\n"
