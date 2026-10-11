@@ -89,7 +89,7 @@ $$a_t \sim \pi(\cdot | s_t).$$
 我们通常用 $\theta$ 或 $\phi$ 表示这类策略的参数，并把它写成策略符号的下标，以强调二者之间的关系：
 
 $$\begin{aligned}
-a_t &= \mu_{\theta}(s_t) \\
+a_t &= \mu_{\theta}(s_t) \ \
 a_t &\sim \pi_{\theta}(\cdot | s_t).
 \end{aligned}$$
 
@@ -289,7 +289,7 @@ $$a^*(s) = \arg \max_a Q^* (s,a).$$
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^{\pi}(s) &= \mathbb{E}_{a \sim \pi \\ s'\sim P}\left[r(s,a) + \gamma V^{\pi}(s')\right], \\
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi \\ s'\sim P}\left[r(s,a) + \gamma V^{\pi}(s')\right], \ \
 Q^{\pi}(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \mathbb{E}_{a'\sim \pi}\left[Q^{\pi}(s',a')\right]\right],
 \end{align*}
 \end{aligned}$$</span>
@@ -300,7 +300,7 @@ Q^{\pi}(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \mathbb{E}_{a'\sim \p
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^*(s) &= \max_a \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma V^*(s')\right], \\
+V^*(s) &= \max_a \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma V^*(s')\right], \ \
 Q^*(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \max_{a'} Q^*(s',a')\right].
 \end{align*}
 \end{aligned}$$</span>

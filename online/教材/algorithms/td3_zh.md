@@ -107,7 +107,7 @@ $$
 - 更新目标网络
 $$
 \begin{aligned}
-\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
+\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\ \
 \theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{aligned}
 $$

@@ -55,7 +55,7 @@ $$V^{\pi}(s) = \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(
 而 $Q^\pi$ 的贝尔曼方程为：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \ \
 &= \mathbb{E}_{s' \sim P}\left[R(s,a,s') + \gamma V^{\pi}(s')\right].
 \end{aligned}$$
 
@@ -88,7 +88,7 @@ SAC 同时学习策略 $\pi_\theta$ 和两个 Q 函数 $Q_{\phi_1},Q_{\phi_2}$�
 在给出最终的 Q 损失函数之前，先解释熵正则化项如何进入目标值。回到前面熵正则化 $Q^\pi$ 的递归贝尔曼方程，利用熵的定义进行改写：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \ \
 &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') - \alpha \log \pi(a'|s') \right)\right]
 \end{aligned}$$
 
@@ -115,7 +115,7 @@ $$y(r, s', d) = r + \gamma (1 - d) \left( \min_{j=1,2} Q_{\phi_{\text{targ},j}}(
 **学习策略。** 策略在每个状态下都应该使预期未来回报与预期未来熵之和最大，即最大化 $V^\pi(s)$。展开可得：
 
 $$\begin{aligned}
-V^{\pi}(s) &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right) \\
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right) \ \
 &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a) - \alpha \log \pi(a|s)\right].
 \end{aligned}$$
 

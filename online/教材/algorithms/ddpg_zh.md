@@ -130,7 +130,7 @@ $$
 - 更新目标网络：
 $$
 \begin{aligned}
-\phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\\
+\phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\ \
 \theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{aligned}
 $$
