@@ -149,7 +149,7 @@ def github_math_and_pseudocode(text):
         expectation, end = balanced(text, pos)
         text = text[:start] + r"\mathbb{E}_{" + subscript + r"}\left[" + expectation + r"\right]" + text[end:]
 
-    pattern = re.compile(r'(?:<span nowrap="">)?\$\$\\begin\{algorithm\}(?:\[H\])?(.*?)\\end\{algorithm\}\$\$(?:</span>)?', re.S)
+    pattern = re.compile(r'(?:<span nowrap="">)?\$\$\s*(?:\\begin\{aligned\}\s*)?\\begin\{algorithm\}(?:\[H\])?(.*?)\\end\{algorithm\}\s*(?:\\end\{aligned\})?\s*\$\$(?:</span>)?', re.S)
     def algorithm(m):
         block = m.group(1)
         title = re.search(r"\\caption\{([^{}]*)\}", block)
@@ -168,7 +168,7 @@ def github_math_and_pseudocode(text):
         return "\n".join(lines) + "\n"
     text = pattern.sub(algorithm, text)
     if r"\begin{algorithm}" in text or r"\underE" in text:
-        raise AssertionError("Unsupported algorithm/math macro remains: " + repr(text[max(0, text.find(r"\\begin{algorithm}")-80):text.find(r"\\begin{algorithm}")+160]))
+        raise AssertionError("Unsupported algorithm/math macro remains")
     return text
 
 
