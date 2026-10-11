@@ -271,6 +271,24 @@ def main():
             if "://" not in url and not (page.parent / url).resolve().is_file():
                 raise AssertionError("Missing image: " + str(rel) + " -> " + url)
 
+    # Audit locally referenced Markdown pages and media on every export.
+    from urllib.parse import unquote
+    missing_links = []
+    checked_links = 0
+    for page in MATERIAL.rglob("*_zh.md"):
+        source = page.read_text(encoding="utf-8")
+        for match in re.finditer(r"!?\[[^\]]*\]\(([^)\n]+)\)", source):
+            url = match.group(1).strip().split(" ", 1)[0]
+            target = unquote(url.split("#", 1)[0].split("?", 1)[0])
+            if not target or target.startswith(("/", "//", "data:", "mailto:")) or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target):
+                continue
+            checked_links += 1
+            if not (page.parent / target).resolve().is_file():
+                missing_links.append(f"{page.relative_to(MATERIAL)} -> {target}")
+    if missing_links:
+        raise AssertionError("Broken local Markdown links:\n" + "\n".join(missing_links[:30]))
+    print(json.dumps({"local_links_checked": checked_links, "broken_links": len(missing_links)}))
+
     contents = ["# Spinning Up 深度强化学习 · 中文教材", "",
                 "> 已翻译的 24 篇主目录文章。第25篇《作者》尚未完成，不在本笔记库中。",
                 "", "按原站点目录顺序阅读；本公开教材包不包含个人学习笔记。", ""]
