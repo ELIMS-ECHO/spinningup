@@ -126,6 +126,9 @@ def main():
     target.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps({"chapters": len(rows), "blocking_issues": report["blocking_issues"],
                       "manual_review_required": True, "report": str(target)}, ensure_ascii=False))
+    for entry in rows:
+        for issue in entry["issues"]:
+            print(json.dumps({"chapter": entry["chapter"], "issue": issue}, ensure_ascii=False))
     if args.strict and report["blocking_issues"]:
         raise SystemExit(1)
 
