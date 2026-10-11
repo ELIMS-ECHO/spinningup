@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 背景
 
-（前文：[DDPG 的背景](../algorithms/ddpg_zh.md#)）
+（前文：[DDPG 的背景](../algorithms/ddpg_zh.md)）
 
 虽然 DDPG 有时能取得出色表现，但它经常对超参数和其他调节方式十分敏感。DDPG 的一种常见失败模式是：学到的 Q 函数开始严重高估 Q 值，随后策略利用 Q 函数中的误差，最终导致策略失效。双延迟 DDPG（TD3）通过引入三项关键技巧解决这一问题：
 
@@ -341,8 +341,8 @@ save_freq（int）
 
 可以通过以下两种方式访问保存的模型：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略；
-- 使用 [restore_tf_graph](../utils/logger_zh.md#) 将完整的保存计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md) 工具运行训练后的策略；
+- 使用 [restore_tf_graph](../utils/logger_zh.md) 将完整的保存计算图加载到程序中。
 
 ## 参考文献
 

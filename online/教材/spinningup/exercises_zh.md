@@ -22,7 +22,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 >
 > **任务要求。** 编写一个函数：输入一批对角高斯分布各自的均值和标准差的对数（log std），以及先前从这些分布中生成的样本，返回这些样本的对数似然。（在 TensorFlow 版本中，你要编写一个创建相应计算图操作的函数；在 PyTorch 版本中，则直接对给定的 Tensor 执行运算。）
 >
-> 回顾 [强化学习入门中的这一节](../spinningup/rl_intro_zh.md#) 所给出的公式可能会有帮助。
+> 回顾 [强化学习入门中的这一节](../spinningup/rl_intro_zh.md) 所给出的公式可能会有帮助。
 >
 > 请在 `exercise1_1.py` 中实现解答，并运行该文件以自动检查你的工作。
 >
@@ -130,7 +130,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 ## 挑战任务
 
 > [!note] 从零编写代码
-> 按照我们在 [这篇文章](../spinningup/spinningup_zh.md#) 中的建议，尝试从零重新实现多种深度强化学习算法。
+> 按照我们在 [这篇文章](../spinningup/spinningup_zh.md) 中的建议，尝试从零重新实现多种深度强化学习算法。
 
 
 > [!note] 研究课题征集

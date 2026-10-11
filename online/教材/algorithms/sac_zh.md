@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 背景
 
-（前文：[TD3 的背景](../algorithms/td3_zh.md#)）
+（前文：[TD3 的背景](../algorithms/td3_zh.md)）
 
 软演员—评论家（Soft Actor-Critic，SAC）是一种以离策略方式优化随机策略的算法，连接了随机策略优化方法和 DDPG 一类方法。它并不是 TD3 的直接后继算法（两者几乎同时发表），但它采用了裁剪双 Q 技巧，而且由于 SAC 策略本身具有随机性，也能获得类似于目标策略平滑的效果。
 
@@ -34,7 +34,7 @@ SAC 的核心特征是\**熵正则化*\*。策略训练的目标是在期望回�
 
 $$H(P) = \mathbb{E}_{x \sim P}\left[-\log P(x)\right].$$
 
-在熵正则化强化学习中，智能体在每个时间步都会获得一个与该时间步策略熵成比例的奖励加成。于是 [强化学习问题](../spinningup/rl_intro_zh.md#) 变为：
+在熵正则化强化学习中，智能体在每个时间步都会获得一个与该时间步策略熵成比例的奖励加成。于是 [强化学习问题](../spinningup/rl_intro_zh.md) 变为：
 
 $$\pi^* = \arg \max_{\pi} \mathbb{E}_{\tau \sim \pi}\left[ \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg)\right],$$
 
@@ -402,8 +402,8 @@ save_freq（int）
 
 访问保存模型有两种方式：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略；
-- 使用 [restore_tf_graph](../utils/logger_zh.md#) 将完整保存的计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md) 工具运行训练后的策略；
+- 使用 [restore_tf_graph](../utils/logger_zh.md) 将完整保存的计算图加载到程序中。
 
 注意：对于 SAC，正确的评估策略由 mu 给出，而不是 pi。可以把 pi 看作探索策略，把 mu 看作利用策略。
 

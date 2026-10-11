@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 背景
 
-（前置内容：[强化学习导论第一部分：最优 Q 函数与最优动作](../spinningup/rl_intro_zh.md#)）
+（前置内容：[强化学习导论第一部分：最优 Q 函数与最优动作](../spinningup/rl_intro_zh.md)）
 
 深度确定性策略梯度（DDPG）是一种同时学习 Q 函数和策略的算法。它利用离策略数据和贝尔曼方程学习 Q 函数，再利用 Q 函数学习策略。
 
@@ -340,8 +340,8 @@ save_freq（int）
 
 访问保存模型有两种方式：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略。
-- 使用 [restore_tf_graph](../utils/logger_zh.md#) 将保存的完整计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md) 工具运行训练后的策略。
+- 使用 [restore_tf_graph](../utils/logger_zh.md) 将保存的完整计算图加载到程序中。
 
 ## 参考文献
 
