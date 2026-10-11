@@ -161,6 +161,13 @@ def github_math_and_pseudocode(text):
             line = line.strip()
             if not line:
                 continue
+            if line == "$":
+                line = "$"
+            line = re.sub(r"^\\REPEAT$", "- **重复：**", line)
+            line = re.sub(r"^\\UNTIL\{(.*)\}$", r"- **直到：** \1", line)
+            line = re.sub(r"^\\IF\{(.*)\}$", r"- **如果：** \1", line)
+            line = re.sub(r"^\\ELSE$", "- **否则：**", line)
+            line = re.sub(r"^\\ENDIF$", "- **结束条件**", line)
             line = re.sub(r"^\\STATE\s*", "- ", line)
             line = re.sub(r"^\\FOR\{(.*)\}$", r"- **循环：** \1", line)
             line = re.sub(r"^\\ENDFOR\s*$", "- **结束循环**", line)
