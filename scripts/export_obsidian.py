@@ -286,10 +286,10 @@ def main():
         formatted = []
         fenced = False
         for ln in md.splitlines(keepends=True):
-            if re.match(r"^\\s*(?:>\\s*)?`{3}", ln):
+            if re.match(r"^\s*(?:>\s*)?`{3}", ln):
                 fenced = not fenced
             elif not fenced and not ln.lstrip().startswith("$"):
-                ln = re.sub(r"(?<=[\\u4e00-\\u9fff，。：；、）])(?=\\$(?!\\$))", " ", ln)
+                ln = re.sub(r"(?<=[\u4e00-\u9fff，。：；、）])(?=\$(?!\$))", " ", ln)
             formatted.append(ln)
         md = "".join(formatted)
         md = remap_links(md, rst.parent.resolve(), translated)
