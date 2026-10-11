@@ -53,6 +53,7 @@ jobs:
           assert len(manifest) == 24
           PY
           test "$(find online/教材 -name '*_zh.md' | wc -l)" -eq 24
+          python scripts/audit_export.py --strict --output dist/audit_export_before_publish.json
           if [ -n "$(git status --porcelain -- online)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
