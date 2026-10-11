@@ -156,13 +156,17 @@ def github_math_and_pseudocode(text):
         lines = ["", "**算法伪代码" + ("：" + title.group(1) if title else "") + "**", ""]
         block = re.sub(r"\\(?:begin|end)\{algorithmic\}(?:\[\d+\])?", "", block)
         block = re.sub(r"\\(?:caption|label)\{[^{}]*\}", "", block)
-        block = block.replace(r"\begin{equation*}", "\n$\n").replace(r"\end{equation*}", "\n$\n")
+        block = block.replace(r"\begin{equation*}", "\n" + "$" + "$" + "\n").replace(r"\end{equation*}", "\n" + "$" + "$" + "\n")
         for line in block.splitlines():
             line = line.strip()
             if not line:
                 continue
             if line == "$":
-                line = "$"
+                line = "$" + "$"
+            if line == r"\begin{align*}":
+                line = "$" + "$" + "\n" + r"\begin{aligned}"
+            if line == r"\end{align*}":
+                line = r"\end{aligned}" + "\n" + "$" + "$"
             line = re.sub(r"^\\REPEAT$", "- **重复：**", line)
             line = re.sub(r"^\\UNTIL\{(.*)\}$", r"- **直到：** \1", line)
             line = re.sub(r"^\\IF\{(.*)\}$", r"- **如果：** \1", line)
