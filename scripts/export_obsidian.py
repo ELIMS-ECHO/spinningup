@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""Export the 24 reviewed Chinese Spinning Up RST chapters to an Obsidian vault."""
+import ast
+import json
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DOCS = ROOT / "docs"
+VAULT = ROOT / "dist" / "SpinningUp-Obsidian-Vault"
+MATERIAL = VAULT / "教材"
+BASE_URL = "https://github.com/tianyueni78-cyber/spinningup/blob/learning-edition-zh/"
+UPSTREAM = "https://github.com/openai/spinningup/blob/master/docs/"
+SECTION = {"User Documentation": "用户文档", "Introduction to RL": "强化学习基础",
+           "Resources": "研究资源", "Algorithms Docs": "算法原理",
+           "Utilities Docs": "工具文档", "Etc.": "附录"}
+API_PATTERN = re.compile(r"(?m)^\.\. (autoclass|automodule|automethod|autofunction)::\s*([\w.]+)(?:\n[ \t]+:[^\n]*)*")
+LINK_PATTERN = re.compile(r"(\]\()([^)]+)(\))")
+DIV_PATTERN = re.compile(r'(?s)<div class="(contents|admonition|note|warning|tip|important|hint|caution)"[^>]*>\s*(.*?)\s*</div>')
+ROLE_PATTERN = re.compile(r":(?:ref|doc|class|func|meth):`([^`]+)`")
+
+
+def pandoc(text):
+    proc = subprocess.run(["pandoc", "-f", "rst", "-t", "gfm+tex_math_dollars", "--wrap=none"],
+                          input=text, capture_output=True, text=True, encoding="utf-8")
+    if proc.returncode:
+        raise RuntimeError(proc.stderr)
+    return proc.stdout
+
+
+def api_text(kind, dotted):
+    chunks = dotted.split(".")
+    mod = dotted if kind == "automodule" else ".".join(chunks[:-1])
+    src = ROOT / (mod.replace(".", "/") + ".py")
+    output = ["### API：" + dotted, "", "源代码：" + BASE_URL + src.relative_to(ROOT).as_posix(), ""]
+    if not src.is_file():
+        return "\n".join(output + ["源代码未找到；请查阅原始 RST 页面。"])
+    tree = ast.parse(src.read_text(encoding="utf-8"))
+
+    def show(node, parent=""):
+        label = parent + node.name
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            label += "(" + ast.unparse(node.args) + ")"
+        output.extend(["#### " + label, ""])
+        doc = ast.get_docstring(node, clean=True)
+        if doc:
+            try:
+                output.extend([pandoc(doc).strip(), ""])
+            except Exception:
+                output.extend([doc, ""])
+        if kind == "autoclass" and isinstance(node, ast.ClassDef):
+            for child in node.body:
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and (
+                    not child.name.startswith("_") or child.name == "__init__"
+                ):
+                    show(child, node.name + ".")
+
+    nodes = tree.body
+    if kind != "automodule":
+        names = [chunks[-1]]
+        nodes = [n for n in tree.body if getattr(n, "name", "") in names]
+        if not nodes and kind == "automethod":
+            nodes = [n for cls in tree.body if isinstance(cls, ast.ClassDef)
+                     for n in cls.body if getattr(n, "name", "") == names[0]]
+    else:
+        nodes = [n for n in tree.body if isinstance(n, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+                 and not n.name.startswith("_")]
+    if not nodes:
+        output.append("该对象可能来自继承关系，请查阅源码。")
+    for node in nodes:
+        show(node)
+    return "\n".join(output)
+
+
+def postprocess(text):
+    def div_replace(m):
+        kind, body = m.groups()
+        if kind == "contents":
+            return ""
+        lines = body.strip().splitlines()
+        if kind == "admonition" and lines:
+            label = lines.pop(0).strip()
+        else:
+            label = kind
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        output = ["> [!note] " + label]
+        output += ["> " + line if line.strip() else ">" for line in lines]
+        return "\n".join(output) + "\n"
+    return DIV_PATTERN.sub(div_replace, text)
+
+
+def remap_links(text, folder, translated):
+    def change(m):
+        raw = m.group(2)
+        target, sep, anchor = raw.partition("#")
+        if "://" in target or not target.endswith(".html"):
+            return m.group(0)
+        base = (folder / target).resolve().with_suffix("")
+        zh_source = base.with_name(base.name + "_zh.rst")
+        if zh_source in translated:
+            href = target[:-5] + "_zh.md"
+        else:
+            rst = base.with_suffix(".rst")
+            if not rst.is_file() or not rst.is_relative_to(DOCS):
+                return m.group(0)
+            href = UPSTREAM + rst.relative_to(DOCS).as_posix()
+        return m.group(1) + href + (sep + anchor if sep else "") + m.group(3)
+    return LINK_PATTERN.sub(change, text)
+
+
+def index_chapters():
+    label = None
+    ordered = []
+    for line in (DOCS / "index.rst").read_text(encoding="utf-8").splitlines():
+        m = re.search(r":caption:\s*(.+)$", line)
+        if m:
+            label = m.group(1)
+        m = re.fullmatch(r"\s{3}(user|spinningup|algorithms|utils|etc)/(\w+)", line)
+        if m and label in SECTION:
+            path = DOCS / m.group(1) / (m.group(2) + "_zh.rst")
+            if path.is_file():
+                ordered.append((label, path))
+    if len(ordered) != 24:
+        raise AssertionError("Expected 24 translated main chapters; found " + str(len(ordered)))
+    return ordered
+
+
+def main():
+    chapters = index_chapters()
+    if VAULT.exists():
+        shutil.rmtree(VAULT)
+    MATERIAL.mkdir(parents=True)
+    originals = VAULT / "98_原始RST备份"
+    originals.mkdir(parents=True)
+    translated = {p.resolve() for _, p in chapters}
+    listing, manifest = [], []
+
+    for num, (section, rst) in enumerate(chapters, 1):
+        rel = rst.relative_to(DOCS)
+        backup = originals / rel
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(rst, backup)
+        text = rst.read_text(encoding="utf-8")
+        placeholders = {}
+
+        def replace_api(m):
+            token = "APIEXPORTTOKEN" + str(len(placeholders)) + "END"
+            placeholders[token] = api_text(m.group(1), m.group(2))
+            return token
+
+        pre = API_PATTERN.sub(replace_api, text)
+        pre = ROLE_PATTERN.sub(lambda m: m.group(1), pre)
+        md = postprocess(pandoc(pre))
+        for token, actual in placeholders.items():
+            if token not in md:
+                raise AssertionError("Lost API content in " + str(rel))
+            md = md.replace(token, actual)
+        md = remap_links(md, rst.parent.resolve(), translated)
+        title_match = re.search(r"(?m)^# (.+)$", md)
+        title = title_match.group(1).strip() if title_match else rst.stem
+        destination = MATERIAL / rel.with_suffix(".md")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        metadata = [
+            "---",
+            "tags: [SpinningUp, 深度强化学习, 中文教材]",
+            "source_rst: " + (rst.relative_to(ROOT).as_posix()),
+            "source_github: " + BASE_URL + rst.relative_to(ROOT).as_posix(),
+            "---", "",
+        ]
+        destination.write_text("\n".join(metadata) + md.rstrip() + "\n", encoding="utf-8")
+        listing.append((num, section, rel.with_suffix(".md"), title))
+        manifest.append({"number": num, "original": str(rel), "markdown": str(rel.with_suffix(".md")),
+                         "api_extracts": len(placeholders), "original_characters": len(text)})
+
+    # Keep original image paths relative to the corresponding chapter.
+    if (DOCS / "images").is_dir():
+        shutil.copytree(DOCS / "images", MATERIAL / "images",
+                        ignore=shutil.ignore_patterns("*.mp4", "*.xml"))
+    for _, _, rel, _ in listing:
+        page = MATERIAL / rel
+        text = page.read_text(encoding="utf-8")
+        for m in re.finditer(r"!\[[^\]]*\]\(([^)\s]+)", text):
+            url = m.group(1).split("#", 1)[0]
+            if "://" not in url and not (page.parent / url).resolve().is_file():
+                raise AssertionError("Missing image: " + str(rel) + " -> " + url)
+
+    contents = ["# Spinning Up 深度强化学习 · 中文教材", "",
+                "> 已翻译的 24 篇主目录文章。第25篇《作者》尚未完成，不在本笔记库中。",
+                "", "按原站点目录顺序阅读；个人学习记录放在我的笔记文件夹。", ""]
+    last = ""
+    for num, sec, rel, title in listing:
+        if sec != last:
+            last = sec
+            contents += ["## " + SECTION[sec], ""]
+        contents.append(str(num).zfill(2) + ". [[" + "教材/" + rel.with_suffix("").as_posix() + "|" + title + "]]")
+    contents += ["", "## 学习笔记", "", "[[我的笔记/概念索引]] · [[我的笔记/问题清单]]", "", "[[导入说明]]"]
+    (VAULT / "00_课程导航.md").write_text("\n".join(contents) + "\n", encoding="utf-8")
+    notes = VAULT / "我的笔记"
+    notes.mkdir()
+    (notes / "概念索引.md").write_text("# 概念索引\n\n将概念拆成独立笔记，并链接教材中的原始解释、代码和公式。\n", encoding="utf-8")
+    (notes / "问题清单.md").write_text("# 问题清单\n\n- [ ] 目前最不理解的公式或概念是什么？\n- [ ] 有哪些实验需要亲自复现？\n", encoding="utf-8")
+    (VAULT / "导入说明.md").write_text(
+        "# 导入和使用说明\n\n"
+        "1. 将下载的压缩包解压到电脑。\n"
+        "2. 在 Obsidian 选择 Open folder as vault（将文件夹打开为仓库）。\n"
+        "3. 选择文件夹 SpinningUp-Obsidian-Vault，并打开 [[00_课程导航]]。\n\n"
+        "教材是 RST 转换的 Markdown 阅读副本，原始已审计的 RST 文件均在 98_原始RST备份。"
+        "复杂公式、Sphinx 引用与自动生成 API 可能存在显示差异，应以 GitHub 原件为准。"
+        "API 章节从真实 Python 源码静态提取文档字符串，未运行模型训练。"
+        "未包含未翻译的补充附录或第25篇；未复制大型 MP4 视频文件。\n\n"
+        "仓库：" + BASE_URL + "\n", encoding="utf-8"
+    )
+    (VAULT / "转换清单.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    count = len(list(MATERIAL.rglob("*_zh.md")))
+    assert count == 24, count
+    print(json.dumps({"result": "ok", "chapters": count,
+                      "api_objects": sum(m["api_extracts"] for m in manifest),
+                      "image_files": len(list((MATERIAL / "images").rglob("*.*")))},
+                     ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
