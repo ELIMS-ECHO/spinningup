@@ -29,8 +29,18 @@ with sync_playwright() as p:
         url = "https://github.com/" + REPO + "/blob/" + SHA + "/online/" + quote("教材") + "/" + name
         item = {"chapter": name, "url": url, "type": kind}
         try:
-            response = page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            page.locator("article.markdown-body, .markdown-body").first.wait_for(timeout=30000)
+            response = None
+            last_error = None
+            for attempt in range(3):
+                try:
+                    response = page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                    page.locator("article.markdown-body, .markdown-body").first.wait_for(timeout=20000)
+                    last_error = None
+                    break
+                except Exception as exc:
+                    last_error = exc
+            if last_error is not None:
+                raise last_error
             page.wait_for_timeout(3000)
             item["http_status"] = response.status if response else None
             item["has_expected_text"] = required in page.locator("article.markdown-body, .markdown-body").first.inner_text()
@@ -55,6 +65,7 @@ with sync_playwright() as p:
                 result["errors"].append({"chapter": name, "reason": "bibliography missing"})
         except Exception as e:
             result["errors"].append({"chapter": name, "reason": str(e)[:300]})
+        print(json.dumps({"page_audit": item}, ensure_ascii=False))
         result["pages"].append(item)
     browser.close()
 
