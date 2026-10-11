@@ -22,7 +22,8 @@ def headings_rst(text):
     ls = text.splitlines()
     return [ls[i - 1].strip() for i in range(1, len(ls))
             if re.fullmatch(r"[=~^\-]{3,}", ls[i].strip())
-            and ls[i-1].strip() and len(ls[i].strip()) >= len(ls[i-1].strip())]
+            and ls[i-1].strip() and not ls[i-1].lstrip().startswith((">>>", "|", "    "))
+            and len(ls[i].strip()) >= len(ls[i-1].strip())]
 
 def headings_md(text):
     return [x.strip() for x in re.findall(r"(?m)^#{1,6} (.+)$", text)]
