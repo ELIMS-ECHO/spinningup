@@ -48,9 +48,17 @@
 
 24. [acknowledgements 中文版](online/教材/etc/acknowledgements_zh.md)
 
-## 离线版
+## 离线版：GitHub Releases 正式下载
 
-仓库中的 `scripts/export_obsidian.py` 可将已提交的 24 篇中文 RST 转换成 Obsidian Vault；自动构建下载属于临时 Actions 附件，不是长期发布版。正式 Release 尚未发布，请勿将其宣传为已有下载。
+**版本：v1.0.0（已发布）**
+
+- [下载完整 Obsidian 中文教材 ZIP（24 篇）](https://github.com/tianyueni78-cyber/spinningup/releases/download/v1.0.0/SpinningUp-Chinese-Obsidian-Vault-v1.0.0.zip)
+- [查看正式 Release 及版本说明](https://github.com/tianyueni78-cyber/spinningup/releases/tag/v1.0.0)
+- [SHA-256 校验文件](https://github.com/tianyueni78-cyber/spinningup/releases/download/v1.0.0/SHA256SUMS.txt)
+
+下载 ZIP 后解压，用 Obsidian 打开其中的 `SpinningUp-Obsidian-Vault` 文件夹，再打开 `00_课程导航.md`。ZIP 包含中文教材、图片、原始 RST 备份和导入说明，不含本地私人学习笔记；不安装 Obsidian 的读者仍可直接使用上面的 GitHub 在线目录。
+
+发布前内容审计和网页可阅读性检查见 [第 6 项验收记录](validation/PHASE6_ACCEPTANCE.md)。这是非官方中文学习版。
 
 ## 隐私与收录范围
 
