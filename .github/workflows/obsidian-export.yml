@@ -49,7 +49,7 @@ jobs:
                    "[返回教材首页](../README.md)", ""]
           for item in manifest:
               lines.append(f"{item['number']:02d}. [章节 {item['number']:02d} · {Path(item['markdown']).stem}](教材/{item['markdown']})")
-          Path("online/README.md").write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          Path("online/README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
           assert len(manifest) == 24
           PY
           test "$(find online/教材 -name '*_zh.md' | wc -l)" -eq 24
