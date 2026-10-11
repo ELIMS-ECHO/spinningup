@@ -1,0 +1,43 @@
+name: Export Chinese Spinning Up for Obsidian
+on:
+  push:
+    branches: [learning-edition-zh]
+    paths:
+      - 'scripts/export_obsidian.py'
+      - '.github/workflows/obsidian-export.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out translated repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pandoc if missing
+        run: |
+          if ! command -v pandoc >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y pandoc
+          fi
+          pandoc --version | head -n 2
+      - name: Create Obsidian vault from 24 translated pages
+        run: |
+          set -euo pipefail
+          python scripts/export_obsidian.py
+          test -f dist/SpinningUp-Obsidian-Vault/00_课程导航.md
+          test "$(find dist/SpinningUp-Obsidian-Vault/教材 -name '*_zh.md' | wc -l)" -eq 24
+          test "$(find dist/SpinningUp-Obsidian-Vault/98_原始RST备份 -name '*_zh.rst' | wc -l)" -eq 24
+      - name: Upload ready-to-open vault
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpinningUp-Obsidian-24-chapters
+          path: dist/SpinningUp-Obsidian-Vault/
+          retention-days: 30
+          if-no-files-found: error
