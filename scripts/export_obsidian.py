@@ -112,12 +112,14 @@ def postprocess(text):
         output = ["> [!note] " + label]
         output += ["> " + line if line.strip() else ">" for line in lines]
         return "\n".join(output) + "\n"
-    text = DIV_PATTERN.sub(div_replace, text)
     def literal_replace(m):
         body = html.unescape(m.group(1))
         body = "\n".join(line for line in body.splitlines() if line.strip() != chr(96) * 3).strip()
         return "\n```text\n" + body + "\n```\n"
-    text = re.sub(r'(?s)<div class="parsed-literal"[^>]*>\s*(.*?)\s*</div>', literal_replace, text)
+    literal_pattern = re.compile(r'(?s)<div class="parsed-literal"[^>]*>\s*(.*?)\s*</div>')
+    text = literal_pattern.sub(literal_replace, text)
+    text = DIV_PATTERN.sub(div_replace, text)
+    text = literal_pattern.sub(literal_replace, text)
     def figure_replace(m):
         src = html.unescape(m.group(1))
         raw_caption = html.unescape(m.group(2).strip())
@@ -262,7 +264,7 @@ def main():
         for token, actual in placeholders.items():
             if token not in md:
                 raise AssertionError("Lost API content in " + str(rel))
-            md = md.replace(token, actual)
+            md = md.replace(token, postprocess(actual))
         md = github_math_and_pseudocode(md)
         md = remap_links(md, rst.parent.resolve(), translated)
         title_match = re.search(r"(?m)^# (.+)$", md)
