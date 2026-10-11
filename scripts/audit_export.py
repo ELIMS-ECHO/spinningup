@@ -185,6 +185,11 @@ def main():
     target.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps({"chapters": len(rows), "blocking_issues": report["blocking_issues"],
                       "manual_review_required": True, "report": str(target)}, ensure_ascii=False))
+    print(json.dumps({"prose_windows_checked": sum(x.get("prose_alignment", {}).get("checked", 0) for x in rows),
+        "prose_zero_windows": sum(x.get("prose_alignment", {}).get("zero_window_matches", 0) for x in rows),
+        "prose_partial": sum(x.get("prose_alignment", {}).get("partial_matches", 0) for x in rows),
+        "math_source_units": sum(x.get("math_alignment", {}).get("source_expression_units", 0) for x in rows),
+        "math_needs_review": sum(x.get("math_alignment", {}).get("requires_review", 0) for x in rows)}, ensure_ascii=False))
     for entry in rows:
         for issue in entry["issues"]:
             print(json.dumps({"chapter": entry["chapter"], "issue": issue}, ensure_ascii=False))
