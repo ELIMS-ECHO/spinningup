@@ -155,7 +155,7 @@ def chinese_sentence_alignment(source, target):
     chinese = lambda value: "".join(re.findall(r"[\u4e00-\u9fff]", value))
     target_han = chinese(target)
     samples = []
-    for i, sentence in enumerate(re.split(r"[。！？；]", source), 1):
+    for i, sentence in enumerate(re.split(r"[。！？；\\n]", source), 1):
         normalized = chinese(sentence)
         if len(normalized) < 16:
             continue
