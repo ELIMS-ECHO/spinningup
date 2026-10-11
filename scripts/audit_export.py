@@ -191,6 +191,15 @@ def main():
         "math_source_units": sum(x.get("math_alignment", {}).get("source_expression_units", 0) for x in rows),
         "math_needs_review": sum(x.get("math_alignment", {}).get("requires_review", 0) for x in rows)}, ensure_ascii=False))
     for entry in rows:
+        prose = entry.get("prose_alignment", {})
+        math = entry.get("math_alignment", {})
+        if prose.get("zero_window_matches") or math.get("requires_review"):
+            print(json.dumps({"chapter": entry["chapter"],
+                "zero_windows": prose.get("zero_window_matches", 0),
+                "prose_examples": prose.get("suspected_loss", [])[:2],
+                "math_requires_review": math.get("requires_review", 0),
+                "math_examples": math.get("examples", [])[:2]}, ensure_ascii=False))
+    for entry in rows:
         for issue in entry["issues"]:
             print(json.dumps({"chapter": entry["chapter"], "issue": issue}, ensure_ascii=False))
     if args.strict and report["blocking_issues"]:
