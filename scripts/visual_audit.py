@@ -20,6 +20,18 @@ CASES = [
     ("user/running_zh.md", "命令", "code"),
     ("spinningup/keypapers_zh.md", "深度强化学习关键论文", "bibliography"),
 ]
+# Audit every generated chapter's actual GitHub page, not just six examples.
+covered = {name for name, _, _ in CASES}
+for path in sorted((ROOT / "online" / "教材").rglob("*_zh.md")):
+    name = path.relative_to(ROOT / "online" / "教材").as_posix()
+    if name in covered:
+        continue
+    heading = next((line[2:].strip() for line in path.read_text(encoding="utf-8").splitlines()
+                    if line.startswith("# ")), path.stem)
+    CASES.append((name, heading, "presence"))
+if len(CASES) != 24:
+    raise RuntimeError("Expected 24 real GitHub pages, found " + str(len(CASES)))
+
 result = {"repository": REPO, "sha": SHA, "pages": [], "errors": []}
 
 with sync_playwright() as p:
@@ -41,7 +53,7 @@ with sync_playwright() as p:
                     last_error = exc
             if last_error is not None:
                 raise last_error
-            page.wait_for_timeout(3000)
+            page.wait_for_timeout(900 if kind == "presence" else 2500)
             item["http_status"] = response.status if response else None
             item["has_expected_text"] = required in page.locator("article.markdown-body, .markdown-body").first.inner_text()
             item["math_renderers"] = page.locator("math-renderer, .katex, mjx-container, .js-render-math").count()
