@@ -17,7 +17,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 推导最简单的策略梯度
 
-在这里，我们考虑一个随机性的参数化策略 $\pi_{\theta}$。我们希望最大化期望回报 $J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{R(\tau)}$。为了推导方便，假设 $R(\tau)$ 表示[有限时域、无折扣回报](../spinningup/rl_intro_zh.md#reward-and-return)，不过在无限时域、折扣回报情况下，推导几乎完全相同。
+在这里，我们考虑一个随机性的参数化策略 $\pi_{\theta}$。我们希望最大化期望回报 $J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right]$。为了推导方便，假设 $R(\tau)$ 表示[有限时域、无折扣回报](../spinningup/rl_intro_zh.md#reward-and-return)，不过在无限时域、折扣回报情况下，推导几乎完全相同。
 
 我们希望通过梯度上升来优化策略，例如：
 
@@ -57,12 +57,12 @@ $$\begin{aligned}
 > [!note] 基础策略梯度的推导
 > <span nowrap="">$$\begin{aligned}
 > \begin{align*}
-> \nabla_{\theta} J(\pi_{\theta}) &= \nabla_{\theta} \underE{\tau \sim \pi_{\theta}}{R(\tau)} & \\
+> \nabla_{\theta} J(\pi_{\theta}) &= \nabla_{\theta} \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right] & \\
 > &= \nabla_{\theta} \int_{\tau} P(\tau|\theta) R(\tau) & \text{Expand expectation} \\
 > &= \int_{\tau} \nabla_{\theta} P(\tau|\theta) R(\tau) & \text{Bring gradient under integral} \\
 > &= \int_{\tau} P(\tau|\theta) \nabla_{\theta} \log P(\tau|\theta) R(\tau) & \text{Log-derivative trick} \\
-> &= \underE{\tau \sim \pi_{\theta}}{\nabla_{\theta} \log P(\tau|\theta) R(\tau)} & \text{Return to expectation form} \\
-> \therefore \nabla_{\theta} J(\pi_{\theta}) &= \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)} & \text{Expression for grad-log-prob}
+> &= \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\nabla_{\theta} \log P(\tau|\theta) R(\tau)\right] & \text{Return to expectation form} \\
+> \therefore \nabla_{\theta} J(\pi_{\theta}) &= \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)\right] & \text{Expression for grad-log-prob}
 > \end{align*}
 > \end{aligned}$$</span>
 
@@ -228,7 +228,7 @@ def train_one_epoch():
 
 **EGLP 引理。** 假设 $P_{\theta}$ 是随机变量 $x$ 上的一个参数化概率分布，那么：
 
-$$\underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)} = 0.$$
+$$\mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right] = 0.$$
 
 > [!note] 证明
 > 回想一下，所有概率分布都是 *归一化* 的：
@@ -245,7 +245,7 @@ $$\underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)} = 0.$$
 > 0 &= \nabla_{\theta} \int_x P_{\theta}(x) \\
 > &= \int_x \nabla_{\theta} P_{\theta}(x) \\
 > &= \int_x P_{\theta}(x) \nabla_{\theta} \log P_{\theta}(x) \\
-> \therefore 0 &= \underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)}.
+> \therefore 0 &= \mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right].
 > \end{aligned}$$
 
 
@@ -253,7 +253,7 @@ $$\underE{x \sim P_{\theta}}{\nabla_{\theta} \log P_{\theta}(x)} = 0.$$
 
 观察我们最近得到的策略梯度表达式：
 
-$$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)}.$$
+$$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)\right].$$
 
 沿着这个梯度走一步，会按照 $R(\tau)$（也就是 *全部时间内获得的奖励之和*）的大小，提高每个动作的对数概率。但这样做不太合理。
 
@@ -261,7 +261,7 @@ $$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{
 
 事实证明，这一直觉也反映在数学中，我们可以证明策略梯度还可以表达为：
 
-$$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1})}.$$
+$$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1})\right].$$
 
 在这种表达方式下，只会根据动作执行以后获得的奖励来强化动作。
 
@@ -314,11 +314,11 @@ batch_weights += list(reward_to_go(ep_rews))
 
 EGLP 引理的一个直接推论是，对任何只依赖于状态的函数 $b$：
 
-$$\underE{a_t \sim \pi_{\theta}}{\nabla_{\theta} \log \pi_{\theta}(a_t|s_t) b(s_t)} = 0.$$
+$$\mathbb{E}_{a_t \sim \pi_{\theta}}\left[\nabla_{\theta} \log \pi_{\theta}(a_t|s_t) b(s_t)\right] = 0.$$
 
 因此，我们可以向策略梯度表达式中添加任意数量的这类项，或从中减去这类项，而不会改变它的期望：
 
-$$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \left(\sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}) - b(s_t)\right)}.$$
+$$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \left(\sum_{t'=t}^T R(s_{t'}, a_{t'}, s_{t'+1}) - b(s_t)\right)\right].$$
 
 以这种方式使用的函数 $b$，称为 **基线（baseline）**。
 
@@ -331,7 +331,7 @@ $$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{
 >
 > 学习 $V_{\phi}$ 最简单的方式，是最小化一个均方误差目标。大多数策略优化算法的实现（包括 VPG、TRPO、PPO 和 A2C）都采用它：
 >
-> $$\phi_k = \arg \min_{\phi} \underE{s_t, \hat{R}_t \sim \pi_k}{\left( V_{\phi}(s_t) - \hat{R}_t \right)^2},$$
+> $$\phi_k = \arg \min_{\phi} \mathbb{E}_{s_t, \hat{R}_t \sim \pi_k}\left[\left( V_{\phi}(s_t) - \hat{R}_t \right)^2\right],$$
 >
 > 其中 $\pi_k$ 是第 $k$ 个训练轮次的策略。具体做法是从之前的价值参数 $\phi_{k-1}$ 开始，执行一次或多次梯度下降。
 
@@ -340,7 +340,7 @@ $$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{
 
 到目前为止，我们看到策略梯度的一般形式为：
 
-$$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \Phi_t},$$
+$$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) \Phi_t\right],$$
 
 其中 $\Phi_t$ 可以采用以下任意一种形式：
 

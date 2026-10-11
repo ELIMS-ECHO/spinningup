@@ -100,46 +100,42 @@ DDPG 以离策略方式训练确定性策略。由于策略是确定性的，如
 
 ### 伪代码
 
-<span nowrap="">$$\begin{aligned}
-\begin{algorithm}[H]
-    \caption{深度确定性策略梯度}
-    \label{alg1}
-\begin{algorithmic}[1]
-    \STATE 输入：初始策略参数 $\theta$、Q 函数参数 $\phi$、空经验回放缓冲区 $\mathcal D$
-    \STATE 将目标参数设为主网络参数：$\theta_{\text{targ}}\leftarrow\theta$，$\phi_{\text{targ}}\leftarrow\phi$
-    \REPEAT
-        \STATE 观察状态 $s$，选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
-        \STATE 在环境中执行动作 $a$
-        \STATE 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
-        \STATE 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
-        \STATE 如果 $s'$ 是终止状态，则重置环境状态
-        \IF{到达更新时机}
-            \FOR{执行预定次数的更新}
-                \STATE 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
-                \STATE 计算目标值
-                \begin{equation*}
-                    y(r,s',d)=r+\gamma(1-d)Q_{\phi_{\text{targ}}}(s',\mu_{\theta_{\text{targ}}}(s'))
-                \end{equation*}
-                \STATE 使用下式进行一步梯度下降，更新 Q 函数
-                \begin{equation*}
-                    \nabla_\phi\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}
-                    \left(Q_\phi(s,a)-y(r,s',d)\right)^2
-                \end{equation*}
-                \STATE 使用下式进行一步梯度上升，更新策略
-                \begin{equation*}
-                    \nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_\phi(s,\mu_\theta(s))
-                \end{equation*}
-                \STATE 更新目标网络：
-                \begin{align*}
-                    \phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\\
-                    \theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
-                \end{align*}
-            \ENDFOR
-        \ENDIF
-    \UNTIL{收敛}
-\end{algorithmic}
-\end{algorithm}
-\end{aligned}$$</span>
+
+**算法伪代码：深度确定性策略梯度**
+
+- 输入：初始策略参数 $\theta$、Q 函数参数 $\phi$、空经验回放缓冲区 $\mathcal D$
+- 将目标参数设为主网络参数：$\theta_{\text{targ}}\leftarrow\theta$，$\phi_{\text{targ}}\leftarrow\phi$
+\REPEAT
+- 观察状态 $s$，选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
+- 在环境中执行动作 $a$
+- 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
+- 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
+- 如果 $s'$ 是终止状态，则重置环境状态
+\IF{到达更新时机}
+- **循环：** 执行预定次数的更新
+- 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
+- 计算目标值
+$
+y(r,s',d)=r+\gamma(1-d)Q_{\phi_{\text{targ}}}(s',\mu_{\theta_{\text{targ}}}(s'))
+$
+- 使用下式进行一步梯度下降，更新 Q 函数
+$
+\nabla_\phi\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}
+\left(Q_\phi(s,a)-y(r,s',d)\right)^2
+$
+- 使用下式进行一步梯度上升，更新策略
+$
+\nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_\phi(s,\mu_\theta(s))
+$
+- 更新目标网络：
+\begin{align*}
+\phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\\
+\theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
+\end{align*}
+- **结束循环**
+\ENDIF
+\UNTIL{收敛}
+
 
 ## 接口文档
 

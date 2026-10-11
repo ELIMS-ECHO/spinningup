@@ -32,31 +32,31 @@ SAC 的核心特征是\**熵正则化*\*。策略训练的目标是在期望回�
 
 设 $x$ 为随机变量，概率质量函数或概率密度函数为 $P$。根据其分布 $P$，熵 $H$ 计算如下：
 
-$$H(P) = \underE{x \sim P}{-\log P(x)}.$$
+$$H(P) = \mathbb{E}_{x \sim P}\left[-\log P(x)\right].$$
 
 在熵正则化强化学习中，智能体在每个时间步都会获得一个与该时间步策略熵成比例的奖励加成。于是 [强化学习问题](../spinningup/rl_intro_zh.md#the-rl-problem) 变为：
 
-$$\pi^* = \arg \max_{\pi} \underE{\tau \sim \pi}{ \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg)},$$
+$$\pi^* = \arg \max_{\pi} \mathbb{E}_{\tau \sim \pi}\left[ \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg)\right],$$
 
 其中 $\alpha>0$ 为权衡系数。（注意：这里假设无限时域折扣设置，本文后续部分也采用这一假设。）
 
 现在可以定义该设置下稍有不同的价值函数。$V^\pi$ 被修改为包含每个时间步的熵奖励：
 
-$$V^{\pi}(s) = \underE{\tau \sim \pi}{ \left. \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg) \right| s_0 = s}$$
+$$V^{\pi}(s) = \mathbb{E}_{\tau \sim \pi}\left[ \left. \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg) \right| s_0 = s\right]$$
 
 $Q^\pi$ 则被修改为包含\*除第一个时间步之外\*所有时间步的熵奖励：
 
-$$Q^{\pi}(s,a) = \underE{\tau \sim \pi}{ \left. \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t, s_{t+1}) + \alpha \sum_{t=1}^{\infty} \gamma^t H\left(\pi(\cdot|s_t)\right)\right| s_0 = s, a_0 = a}$$
+$$Q^{\pi}(s,a) = \mathbb{E}_{\tau \sim \pi}\left[ \left. \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t, s_{t+1}) + \alpha \sum_{t=1}^{\infty} \gamma^t H\left(\pi(\cdot|s_t)\right)\right| s_0 = s, a_0 = a\right]$$
 
 根据这些定义，$V^\pi$ 与 $Q^\pi$ 的关系为：
 
-$$V^{\pi}(s) = \underE{a \sim \pi}{Q^{\pi}(s,a)} + \alpha H\left(\pi(\cdot|s)\right)$$
+$$V^{\pi}(s) = \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right)$$
 
 而 $Q^\pi$ 的贝尔曼方程为：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \underE{s' \sim P \\ a' \sim \pi}{R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)} \\
-&= \underE{s' \sim P}{R(s,a,s') + \gamma V^{\pi}(s')}.
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
+&= \mathbb{E}_{s' \sim P}\left[R(s,a,s') + \gamma V^{\pi}(s')\right].
 \end{aligned}$$
 
 > [!note] 你应该知道
@@ -88,8 +88,8 @@ SAC 同时学习策略 $\pi_\theta$ 和两个 Q 函数 $Q_{\phi_1},Q_{\phi_2}$�
 在给出最终的 Q 损失函数之前，先解释熵正则化项如何进入目标值。回到前面熵正则化 $Q^\pi$ 的递归贝尔曼方程，利用熵的定义进行改写：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \underE{s' \sim P \\ a' \sim \pi}{R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)} \\
-&= \underE{s' \sim P \\ a' \sim \pi}{R(s,a,s') + \gamma\left(Q^{\pi}(s',a') - \alpha \log \pi(a'|s') \right)}
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
+&= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') - \alpha \log \pi(a'|s') \right)\right]
 \end{aligned}$$
 
 右侧是对下一状态和下一动作求期望。下一状态来自经验回放缓冲区，下一动作来自当前策略，\**不是*\*回放缓冲区。既然是期望，就可以通过采样近似：
@@ -115,8 +115,8 @@ $$y(r, s', d) = r + \gamma (1 - d) \left( \min_{j=1,2} Q_{\phi_{\text{targ},j}}(
 **学习策略。** 策略在每个状态下都应该使预期未来回报与预期未来熵之和最大，即最大化 $V^\pi(s)$。展开可得：
 
 $$\begin{aligned}
-V^{\pi}(s) &= \underE{a \sim \pi}{Q^{\pi}(s,a)} + \alpha H\left(\pi(\cdot|s)\right) \\
-&= \underE{a \sim \pi}{Q^{\pi}(s,a) - \alpha \log \pi(a|s)}.
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right) \\
+&= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a) - \alpha \log \pi(a|s)\right].
 \end{aligned}$$
 
 我们使用\**重参数化技巧*\*优化策略：通过计算状态、策略参数和独立噪声的确定性函数，得到服从 $\pi_\theta(\cdot|s)$ 的样本。举例来说，遵循 SAC 论文作者的做法，我们使用经过压缩变换的高斯策略（squashed Gaussian policy），样本按下式获得：
@@ -133,12 +133,12 @@ $$\tilde{a}_{\theta}(s, \xi) = \tanh\left( \mu_{\theta}(s) + \sigma_{\theta}(s) 
 
 重参数化技巧允许我们把对动作的期望（困难在于动作分布依赖策略参数）改写为对噪声的期望（困难由此消除，因为噪声分布不依赖参数）：
 
-$$\underE{a \sim \pi_{\theta}}{Q^{\pi_{\theta}}(s,a) - \alpha \log \pi_{\theta}(a|s)} = \underE{\xi \sim \mathcal{N}}{Q^{\pi_{\theta}}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)}$$
+$$\mathbb{E}_{a \sim \pi_{\theta}}\left[Q^{\pi_{\theta}}(s,a) - \alpha \log \pi_{\theta}(a|s)\right] = \mathbb{E}_{\xi \sim \mathcal{N}}\left[Q^{\pi_{\theta}}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)\right]$$
 
 为了得到策略损失，最后还需要使用函数近似器替换 $Q^{\pi_\theta}$。与 TD3 使用第一个 Q 近似器 $Q_{\phi_1}$ 不同，SAC 使用两个 Q 近似器的最小值 $\min_{j=1,2}Q_{\phi_j}$。因此策略优化目标为：
 
 $$\begin{aligned}
-\max_{\theta} \underE{s \sim \mathcal{D} \\ \xi \sim \mathcal{N}}{\min_{j=1,2} Q_{\phi_j}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)},
+\max_{\theta} \mathbb{E}_{s \sim \mathcal{D} \\ \xi \sim \mathcal{N}}\left[\min_{j=1,2} Q_{\phi_j}(s,\tilde{a}_{\theta}(s,\xi)) - \alpha \log \pi_{\theta}(\tilde{a}_{\theta}(s,\xi)|s)\right],
 \end{aligned}$$
 
 除了取双 Q 最小值、随机性和熵项之外，这与 DDPG、TD3 的策略优化几乎相同。
@@ -155,43 +155,41 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 
 ### 伪代码
 
-<span nowrap="">$$\begin{algorithm}[H]
-    \caption{软演员—评论家算法}
-    \label{alg1}
-\begin{algorithmic}[1]
-    \STATE 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$ 和 $\phi_2$，以及空经验回放缓冲区 $\mathcal D$
-    \STATE 将目标参数设为主网络参数：$\phi_{\text{targ},1}\leftarrow\phi_1$，$\phi_{\text{targ},2}\leftarrow\phi_2$
-    \REPEAT
-        \STATE 观察状态 $s$，选择动作 $a\sim\pi_\theta(\cdot|s)$
-        \STATE 在环境中执行 $a$
-        \STATE 观察下一状态 $s'$、奖励 $r$，以及表示 $s'$ 是否为终止状态的完成信号 $d$
-        \STATE 将 $(s,a,r,s',d)$ 存入经验回放缓冲区 $\mathcal D$
-        \STATE 如果 $s'$ 是终止状态，则重置环境状态
-        \IF{到了更新时机}
-            \FOR{$j$ 遍历预定的更新次数}
-                \STATE 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
-                \STATE 计算 Q 函数的目标值：
-                \begin{align*}
-                    y(r,s',d)&=r+\gamma(1-d)\left(\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',\tilde a')-\alpha\log\pi_\theta(\tilde a'|s')\right), &&\tilde a'\sim\pi_\theta(\cdot|s')
-                \end{align*}
-                \STATE 使用下式进行一步梯度下降，更新两个 Q 函数：
-                \begin{align*}
-                    &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
-                \end{align*}
-                \STATE 使用下式进行一步梯度上升，更新策略：
-                \begin{equation*}
-                    \nabla_\theta\frac{1}{|B|}\sum_{s\in B}\Big(\min_{i=1,2}Q_{\phi_i}(s,\tilde a_\theta(s))-\alpha\log\pi_\theta\left(\left.\tilde a_\theta(s)\right|s\right)\Big),
-                \end{equation*}
-                其中 $\tilde a_\theta(s)$ 是从 $\pi_\theta(\cdot|s)$ 采样的动作，并可通过重参数化技巧对 $\theta$ 求导。
-                \STATE 更新目标网络：
-                \begin{align*}
-                    \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2
-                \end{align*}
-            \ENDFOR
-        \ENDIF
-    \UNTIL{收敛}
-\end{algorithmic}
-\end{algorithm}$$</span>
+
+**算法伪代码：软演员—评论家算法**
+
+- 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$ 和 $\phi_2$，以及空经验回放缓冲区 $\mathcal D$
+- 将目标参数设为主网络参数：$\phi_{\text{targ},1}\leftarrow\phi_1$，$\phi_{\text{targ},2}\leftarrow\phi_2$
+\REPEAT
+- 观察状态 $s$，选择动作 $a\sim\pi_\theta(\cdot|s)$
+- 在环境中执行 $a$
+- 观察下一状态 $s'$、奖励 $r$，以及表示 $s'$ 是否为终止状态的完成信号 $d$
+- 将 $(s,a,r,s',d)$ 存入经验回放缓冲区 $\mathcal D$
+- 如果 $s'$ 是终止状态，则重置环境状态
+\IF{到了更新时机}
+- **循环：** $j$ 遍历预定的更新次数
+- 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
+- 计算 Q 函数的目标值：
+\begin{align*}
+y(r,s',d)&=r+\gamma(1-d)\left(\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',\tilde a')-\alpha\log\pi_\theta(\tilde a'|s')\right), &&\tilde a'\sim\pi_\theta(\cdot|s')
+\end{align*}
+- 使用下式进行一步梯度下降，更新两个 Q 函数：
+\begin{align*}
+&\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
+\end{align*}
+- 使用下式进行一步梯度上升，更新策略：
+$
+\nabla_\theta\frac{1}{|B|}\sum_{s\in B}\Big(\min_{i=1,2}Q_{\phi_i}(s,\tilde a_\theta(s))-\alpha\log\pi_\theta\left(\left.\tilde a_\theta(s)\right|s\right)\Big),
+$
+其中 $\tilde a_\theta(s)$ 是从 $\pi_\theta(\cdot|s)$ 采样的动作，并可通过重参数化技巧对 $\theta$ 求导。
+- 更新目标网络：
+\begin{align*}
+\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2
+\end{align*}
+- **结束循环**
+\ENDIF
+\UNTIL{收敛}
+
 
 ## 接口文档
 

@@ -23,9 +23,9 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 令 $\pi_{\theta}$ 表示参数为 $\theta$ 的策略，$J(\pi_{\theta})$ 表示这个策略在有限时域、无折扣情况下的期望回报。$J(\pi_{\theta})$ 的梯度为：
 
-$$\nabla_{\theta} J(\pi_{\theta}) = \underE{\tau \sim \pi_{\theta}}{
+$$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[
     \sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t|s_t) A^{\pi_{\theta}}(s_t,a_t)
-    },$$
+    \right],$$
 
 其中 $\tau$ 是一条轨迹，$A^{\pi_{\theta}}$ 是当前策略的优势函数。
 
@@ -41,32 +41,30 @@ VPG 以同策略方式训练一个随机策略。这意味着，它通过按照�
 
 ### 伪代码
 
-<span nowrap="">$$\begin{algorithm}[H]
-    \caption{原始策略梯度算法（Vanilla Policy Gradient Algorithm）}
-    \label{alg1}
-\begin{algorithmic}[1]
-    \STATE 输入：初始策略参数 $\theta_0$，初始价值函数参数 $\phi_0$
-    \FOR{$k = 0,1,2,...$}
-    \STATE 在环境中运行策略 $\pi_k = \pi(\theta_k)$，收集轨迹集合 $ {\mathcal D}_k = \{\tau_i\}$。
-    \STATE 计算未来回报 $\hat{R}_t$。
-    \STATE 基于当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计值 $\hat{A}_t$。
-    \STATE 将策略梯度估计为
-        \begin{equation*}
-        \hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
-        \end{equation*}
-    \STATE 计算策略更新。可以使用标准梯度上升：
-        \begin{equation*}
-        \theta_{k+1} = \theta_k + \alpha_k \hat{g}_k,
-        \end{equation*}
-        也可以使用 Adam 等其他梯度上升算法。
-    \STATE 通过最小化均方误差的回归来拟合价值函数：
-        \begin{equation*}
-        \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
-        \end{equation*}
-        通常使用某种梯度下降算法来完成。
-    \ENDFOR
-\end{algorithmic}
-\end{algorithm}$$</span>
+
+**算法伪代码：原始策略梯度算法（Vanilla Policy Gradient Algorithm）**
+
+- 输入：初始策略参数 $\theta_0$，初始价值函数参数 $\phi_0$
+- **循环：** $k = 0,1,2,...$
+- 在环境中运行策略 $\pi_k = \pi(\theta_k)$，收集轨迹集合 $ {\mathcal D}_k = \{\tau_i\}$。
+- 计算未来回报 $\hat{R}_t$。
+- 基于当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计值 $\hat{A}_t$。
+- 将策略梯度估计为
+$
+\hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
+$
+- 计算策略更新。可以使用标准梯度上升：
+$
+\theta_{k+1} = \theta_k + \alpha_k \hat{g}_k,
+$
+也可以使用 Adam 等其他梯度上升算法。
+- 通过最小化均方误差的回归来拟合价值函数：
+$
+\phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
+$
+通常使用某种梯度下降算法来完成。
+- **结束循环**
+
 
 ## 接口文档
 

@@ -223,7 +223,7 @@ $$P(\tau|\pi) = \rho_0 (s_0) \prod_{t=0}^{T-1} P(s_{t+1} | s_t, a_t) \pi(a_t | s
 
 随后，期望回报（无论采用上述哪种回报形式）记为 $J(\pi)$，其表达式为：
 
-$$J(\pi) = \int_{\tau} P(\tau|\pi) R(\tau) = \underE{\tau\sim \pi}{R(\tau)}.$$
+$$J(\pi) = \int_{\tau} P(\tau|\pi) R(\tau) = \mathbb{E}_{\tau\sim \pi}\left[R(\tau)\right].$$
 
 因此，强化学习的核心优化问题可以写为：
 
@@ -239,19 +239,19 @@ $$\pi^* = \arg \max_{\pi} J(\pi),$$
 
 1.  **给定策略下的状态价值函数（On-Policy Value Function）** $V^{\pi}(s)$，表示从状态 $s$ 出发、此后始终按照策略 $\pi$ 行动时的期望回报：
 
-    > $$V^{\pi}(s) = \underE{\tau \sim \pi}{R(\tau)\left| s_0 = s\right.}$$
+    > $$V^{\pi}(s) = \mathbb{E}_{\tau \sim \pi}\left[R(\tau)\left| s_0 = s\right.\right]$$
 
 2.  **给定策略下的动作价值函数（On-Policy Action-Value Function）** $Q^{\pi}(s,a)$，表示从状态 $s$ 出发，先采取任意指定动作 $a$（这个动作不一定来自策略），此后始终按照策略 $\pi$ 行动时的期望回报：
 
-    > $$Q^{\pi}(s,a) = \underE{\tau \sim \pi}{R(\tau)\left| s_0 = s, a_0 = a\right.}$$
+    > $$Q^{\pi}(s,a) = \mathbb{E}_{\tau \sim \pi}\left[R(\tau)\left| s_0 = s, a_0 = a\right.\right]$$
 
 3.  **最优状态价值函数（Optimal Value Function）** $V^*(s)$，表示从状态 $s$ 出发，此后始终按照环境中的 *最优* 策略行动时的期望回报：
 
-    > $$V^*(s) = \max_{\pi} \underE{\tau \sim \pi}{R(\tau)\left| s_0 = s\right.}$$
+    > $$V^*(s) = \max_{\pi} \mathbb{E}_{\tau \sim \pi}\left[R(\tau)\left| s_0 = s\right.\right]$$
 
 4.  **最优动作价值函数（Optimal Action-Value Function）** $Q^*(s,a)$，表示从状态 $s$ 出发，先采取任意指定动作 $a$，此后始终按照环境中的 *最优* 策略行动时的期望回报：
 
-    > $$Q^*(s,a) = \max_{\pi} \underE{\tau \sim \pi}{R(\tau)\left| s_0 = s, a_0 = a\right.}$$
+    > $$Q^*(s,a) = \max_{\pi} \mathbb{E}_{\tau \sim \pi}\left[R(\tau)\left| s_0 = s, a_0 = a\right.\right]$$
 
 > [!note] 你应该知道
 > 当我们讨论价值函数却没有明确提到时间依赖关系时，所指的只是期望 **无限时域折扣回报**。如果是有限时域、无折扣回报，相应的价值函数还需要把时间作为一个参数。你能想出这是为什么吗？提示：当时间用完时会发生什么？
@@ -260,7 +260,7 @@ $$\pi^* = \arg \max_{\pi} J(\pi),$$
 > [!note] 你应该知道
 > 价值函数与动作价值函数之间有两个非常重要、而且经常出现的联系：
 >
-> $$V^{\pi}(s) = \underE{a\sim \pi}{Q^{\pi}(s,a)},$$
+> $$V^{\pi}(s) = \mathbb{E}_{a\sim \pi}\left[Q^{\pi}(s,a)\right],$$
 >
 > 以及
 >
@@ -289,8 +289,8 @@ $$a^*(s) = \arg \max_a Q^* (s,a).$$
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^{\pi}(s) &= \underE{a \sim \pi \\ s'\sim P}{r(s,a) + \gamma V^{\pi}(s')}, \\
-Q^{\pi}(s,a) &= \underE{s'\sim P}{r(s,a) + \gamma \underE{a'\sim \pi}{Q^{\pi}(s',a')}},
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi \\ s'\sim P}\left[r(s,a) + \gamma V^{\pi}(s')\right], \\
+Q^{\pi}(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \mathbb{E}_{a'\sim \pi}\left[Q^{\pi}(s',a')\right]\right],
 \end{align*}
 \end{aligned}$$</span>
 
@@ -300,8 +300,8 @@ Q^{\pi}(s,a) &= \underE{s'\sim P}{r(s,a) + \gamma \underE{a'\sim \pi}{Q^{\pi}(s'
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^*(s) &= \max_a \underE{s'\sim P}{r(s,a) + \gamma V^*(s')}, \\
-Q^*(s,a) &= \underE{s'\sim P}{r(s,a) + \gamma \max_{a'} Q^*(s',a')}.
+V^*(s) &= \max_a \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma V^*(s')\right], \\
+Q^*(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \max_{a'} Q^*(s',a')\right].
 \end{align*}
 \end{aligned}$$</span>
 

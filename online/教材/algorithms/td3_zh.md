@@ -43,13 +43,13 @@ $$y(r,s',d) = r + \gamma (1 - d) \min_{i=1,2} Q_{\phi_{i, \text{targ}}}(s', a'(s
 
 随后两个 Q 函数都通过回归逼近该目标值来学习：
 
-$$L(\phi_1, {\mathcal D}) = \underE{(s,a,r,s',d) \sim {\mathcal D}}{
+$$L(\phi_1, {\mathcal D}) = \mathbb{E}_{(s,a,r,s',d) \sim {\mathcal D}}\left[
     \Bigg( Q_{\phi_1}(s,a) - y(r,s',d) \Bigg)^2
-    },$$
+    \right],$$
 
-$$L(\phi_2, {\mathcal D}) = \underE{(s,a,r,s',d) \sim {\mathcal D}}{
+$$L(\phi_2, {\mathcal D}) = \mathbb{E}_{(s,a,r,s',d) \sim {\mathcal D}}\left[
     \Bigg( Q_{\phi_2}(s,a) - y(r,s',d) \Bigg)^2
-    }.$$
+    \right].$$
 
 使用较小的 Q 值构造目标，并向这个目标回归，有助于抑制 Q 函数的过高估计。
 
@@ -71,51 +71,47 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 
 ### 伪代码
 
-<span nowrap="">$$\begin{aligned}
-\begin{algorithm}[H]
-    \caption{双延迟 DDPG}
-    \label{alg1}
-\begin{algorithmic}[1]
-    \STATE 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$、$\phi_2$，以及空回放缓冲区 $\mathcal D$
-    \STATE 令目标参数等于主网络参数：$\theta_{\text{targ}}\leftarrow\theta$、$\phi_{\text{targ},1}\leftarrow\phi_1$、$\phi_{\text{targ},2}\leftarrow\phi_2$
-    \REPEAT
-        \STATE 观察状态 $s$ 并选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
-        \STATE 在环境中执行 $a$
-        \STATE 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
-        \STATE 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
-        \STATE 如果 $s'$ 是终止状态，则重置环境状态
-        \IF{到了更新时机}
-            \FOR{$j$ 取预定的更新次数}
-                \STATE 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
-                \STATE 计算目标动作
-                \begin{equation*}
-                    a'(s')=\text{clip}\left(\mu_{\theta_{\text{targ}}}(s')+\text{clip}(\epsilon,-c,c),a_{Low},a_{High}\right),\quad \epsilon\sim\mathcal N(0,\sigma)
-                \end{equation*}
-                \STATE 计算目标值
-                \begin{equation*}
-                    y(r,s',d)=r+\gamma(1-d)\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',a'(s'))
-                \end{equation*}
-                \STATE 利用下式执行一步梯度下降，更新两个 Q 函数
-                \begin{align*}
-                    &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
-                \end{align*}
-                \IF{$j\mod\texttt{policy\_delay}=0$}
-                    \STATE 利用下式执行一步梯度上升，更新策略
-                    \begin{equation*}
-                        \nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_{\phi_1}(s,\mu_\theta(s))
-                    \end{equation*}
-                    \STATE 更新目标网络
-                    \begin{align*}
-                        \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
-                        \theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
-                    \end{align*}
-                \ENDIF
-            \ENDFOR
-        \ENDIF
-    \UNTIL{收敛}
-\end{algorithmic}
-\end{algorithm}
-\end{aligned}$$</span>
+
+**算法伪代码：双延迟 DDPG**
+
+- 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$、$\phi_2$，以及空回放缓冲区 $\mathcal D$
+- 令目标参数等于主网络参数：$\theta_{\text{targ}}\leftarrow\theta$、$\phi_{\text{targ},1}\leftarrow\phi_1$、$\phi_{\text{targ},2}\leftarrow\phi_2$
+\REPEAT
+- 观察状态 $s$ 并选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
+- 在环境中执行 $a$
+- 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
+- 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
+- 如果 $s'$ 是终止状态，则重置环境状态
+\IF{到了更新时机}
+- **循环：** $j$ 取预定的更新次数
+- 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
+- 计算目标动作
+$
+a'(s')=\text{clip}\left(\mu_{\theta_{\text{targ}}}(s')+\text{clip}(\epsilon,-c,c),a_{Low},a_{High}\right),\quad \epsilon\sim\mathcal N(0,\sigma)
+$
+- 计算目标值
+$
+y(r,s',d)=r+\gamma(1-d)\min_{i=1,2}Q_{\phi_{\text{targ},i}}(s',a'(s'))
+$
+- 利用下式执行一步梯度下降，更新两个 Q 函数
+\begin{align*}
+&\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
+\end{align*}
+\IF{$j\mod\texttt{policy\_delay}=0$}
+- 利用下式执行一步梯度上升，更新策略
+$
+\nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_{\phi_1}(s,\mu_\theta(s))
+$
+- 更新目标网络
+\begin{align*}
+\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
+\theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
+\end{align*}
+\ENDIF
+- **结束循环**
+\ENDIF
+\UNTIL{收敛}
+
 
 ## 接口文档
 

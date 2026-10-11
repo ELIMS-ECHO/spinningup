@@ -32,15 +32,15 @@ $$\begin{aligned}
 
 其中 ${\mathcal L}(\theta_k,\theta)$ 是代理优势，它使用旧策略的数据衡量新策略 $\pi_\theta$ 相对于旧策略 $\pi_{\theta_k}$ 的表现：
 
-$${\mathcal L}(\theta_k, \theta) = \underE{s,a \sim \pi_{\theta_k}}{
+$${\mathcal L}(\theta_k, \theta) = \mathbb{E}_{s,a \sim \pi_{\theta_k}}\left[
     \frac{\pi_{\theta}(a|s)}{\pi_{\theta_k}(a|s)} A^{\pi_{\theta_k}}(s,a)
-    },$$
+    \right],$$
 
 而 $\bar{D}_{KL}(\theta || \theta_k)$ 是在旧策略访问的状态上，新旧策略之间的平均 KL 散度：
 
-$$\bar{D}_{KL}(\theta || \theta_k) = \underE{s \sim \pi_{\theta_k}}{
+$$\bar{D}_{KL}(\theta || \theta_k) = \mathbb{E}_{s \sim \pi_{\theta_k}}\left[
     D_{KL}\left(\pi_{\theta}(\cdot|s) || \pi_{\theta_k} (\cdot|s) \right)
-}.$$
+\right].$$
 
 > [!note] 你应该知道
 > 当 $\theta=\theta_k$ 时，目标函数和约束函数都为零。此外，约束函数对 $\theta$ 的梯度在此处也为零。证明这些结论需要细致的数学推导，准备好时很值得尝试！
@@ -86,38 +86,36 @@ TRPO 以同策略方式训练随机策略，因此通过根据最新随机策略
 
 ### 伪代码
 
-<span nowrap="">$$\begin{algorithm}[H]
-    \caption{信赖域策略优化（Trust Region Policy Optimization）}
-    \label{alg1}
-\begin{algorithmic}[1]
-    \STATE 输入：初始策略参数 $\theta_0$，初始价值函数参数 $\phi_0$
-    \STATE 超参数：KL 散度上限 $\delta$、回溯系数 $\alpha$、最大回溯步数 $K$
-    \FOR{$k = 0,1,2,...$}
-    \STATE 在环境中运行策略 $\pi_k = \pi(\theta_k)$，收集轨迹集合 $ {\mathcal D}_k = \{\tau_i\}$。
-    \STATE 计算未来回报 $\hat{R}_t$。
-    \STATE 根据当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计 $\hat{A}_t$。
-    \STATE 将策略梯度估计为
-        \begin{equation*}
-        \hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
-        \end{equation*}
-    \STATE 使用共轭梯度算法计算
-        \begin{equation*}
-        \hat{x}_k \approx \hat{H}_k^{-1} \hat{g}_k,
-        \end{equation*}
-        其中 $\hat{H}_k$ 为样本平均 KL 散度的 Hessian 矩阵。
-    \STATE 使用回溯线搜索更新策略：
-        \begin{equation*}
-        \theta_{k+1} = \theta_k + \alpha^j \sqrt{ \frac{2\delta}{\hat{x}_k^T \hat{H}_k \hat{x}_k}} \hat{x}_k,
-        \end{equation*}
-        其中 $j \in \{0, 1, 2, ... K\}$ 是使样本损失得到改善、同时满足样本 KL 散度约束的最小取值。
-    \STATE 通过对均方误差进行回归来拟合价值函数：
-        \begin{equation*}
-        \phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
-        \end{equation*}
-        通常使用某种梯度下降算法完成。
-    \ENDFOR
-\end{algorithmic}
-\end{algorithm}$$</span>
+
+**算法伪代码：信赖域策略优化（Trust Region Policy Optimization）**
+
+- 输入：初始策略参数 $\theta_0$，初始价值函数参数 $\phi_0$
+- 超参数：KL 散度上限 $\delta$、回溯系数 $\alpha$、最大回溯步数 $K$
+- **循环：** $k = 0,1,2,...$
+- 在环境中运行策略 $\pi_k = \pi(\theta_k)$，收集轨迹集合 $ {\mathcal D}_k = \{\tau_i\}$。
+- 计算未来回报 $\hat{R}_t$。
+- 根据当前价值函数 $V_{\phi_k}$，使用任意一种优势估计方法计算优势估计 $\hat{A}_t$。
+- 将策略梯度估计为
+$
+\hat{g}_k = \frac{1}{|{\mathcal D}_k|} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T \left. \nabla_{\theta} \log\pi_{\theta}(a_t|s_t)\right|_{\theta_k} \hat{A}_t.
+$
+- 使用共轭梯度算法计算
+$
+\hat{x}_k \approx \hat{H}_k^{-1} \hat{g}_k,
+$
+其中 $\hat{H}_k$ 为样本平均 KL 散度的 Hessian 矩阵。
+- 使用回溯线搜索更新策略：
+$
+\theta_{k+1} = \theta_k + \alpha^j \sqrt{ \frac{2\delta}{\hat{x}_k^T \hat{H}_k \hat{x}_k}} \hat{x}_k,
+$
+其中 $j \in \{0, 1, 2, ... K\}$ 是使样本损失得到改善、同时满足样本 KL 散度约束的最小取值。
+- 通过对均方误差进行回归来拟合价值函数：
+$
+\phi_{k+1} = \arg \min_{\phi} \frac{1}{|{\mathcal D}_k| T} \sum_{\tau \in {\mathcal D}_k} \sum_{t=0}^T\left( V_{\phi} (s_t) - \hat{R}_t \right)^2,
+$
+通常使用某种梯度下降算法完成。
+- **结束循环**
+
 
 ## 接口文档
 
