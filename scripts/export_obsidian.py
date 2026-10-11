@@ -168,7 +168,7 @@ def github_math_and_pseudocode(text):
         return "\n".join(lines) + "\n"
     text = pattern.sub(algorithm, text)
     if r"\begin{algorithm}" in text or r"\underE" in text:
-        raise AssertionError("Unsupported algorithm/math macro remains")
+        raise AssertionError("Unsupported algorithm/math macro remains: " + repr(text[max(0, text.find(r"\\begin{algorithm}")-80):text.find(r"\\begin{algorithm}")+160]))
     return text
 
 
