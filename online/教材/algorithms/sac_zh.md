@@ -160,13 +160,13 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 
 - 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$ 和 $\phi_2$，以及空经验回放缓冲区 $\mathcal D$
 - 将目标参数设为主网络参数：$\phi_{\text{targ},1}\leftarrow\phi_1$，$\phi_{\text{targ},2}\leftarrow\phi_2$
-\REPEAT
+- **重复：**
 - 观察状态 $s$，选择动作 $a\sim\pi_\theta(\cdot|s)$
 - 在环境中执行 $a$
 - 观察下一状态 $s'$、奖励 $r$，以及表示 $s'$ 是否为终止状态的完成信号 $d$
 - 将 $(s,a,r,s',d)$ 存入经验回放缓冲区 $\mathcal D$
 - 如果 $s'$ 是终止状态，则重置环境状态
-\IF{到了更新时机}
+- **如果：** 到了更新时机
 - **循环：** $j$ 遍历预定的更新次数
 - 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
 - 计算 Q 函数的目标值：
@@ -187,8 +187,8 @@ $
 \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2
 \end{align*}
 - **结束循环**
-\ENDIF
-\UNTIL{收敛}
+- **结束条件**
+- **直到：** 收敛
 
 
 ## 接口文档

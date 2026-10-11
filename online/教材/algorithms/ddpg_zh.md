@@ -105,13 +105,13 @@ DDPG 以离策略方式训练确定性策略。由于策略是确定性的，如
 
 - 输入：初始策略参数 $\theta$、Q 函数参数 $\phi$、空经验回放缓冲区 $\mathcal D$
 - 将目标参数设为主网络参数：$\theta_{\text{targ}}\leftarrow\theta$，$\phi_{\text{targ}}\leftarrow\phi$
-\REPEAT
+- **重复：**
 - 观察状态 $s$，选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
 - 在环境中执行动作 $a$
 - 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
 - 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
 - 如果 $s'$ 是终止状态，则重置环境状态
-\IF{到达更新时机}
+- **如果：** 到达更新时机
 - **循环：** 执行预定次数的更新
 - 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
 - 计算目标值
@@ -133,8 +133,8 @@ $
 \theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{align*}
 - **结束循环**
-\ENDIF
-\UNTIL{收敛}
+- **结束条件**
+- **直到：** 收敛
 
 
 ## 接口文档

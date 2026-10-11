@@ -76,13 +76,13 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 
 - 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$、$\phi_2$，以及空回放缓冲区 $\mathcal D$
 - 令目标参数等于主网络参数：$\theta_{\text{targ}}\leftarrow\theta$、$\phi_{\text{targ},1}\leftarrow\phi_1$、$\phi_{\text{targ},2}\leftarrow\phi_2$
-\REPEAT
+- **重复：**
 - 观察状态 $s$ 并选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
 - 在环境中执行 $a$
 - 观察下一状态 $s'$、奖励 $r$ 和表示 $s'$ 是否为终止状态的完成信号 $d$
 - 将 $(s,a,r,s',d)$ 存入回放缓冲区 $\mathcal D$
 - 如果 $s'$ 是终止状态，则重置环境状态
-\IF{到了更新时机}
+- **如果：** 到了更新时机
 - **循环：** $j$ 取预定的更新次数
 - 从 $\mathcal D$ 中随机采样一批转移 $B=\{(s,a,r,s',d)\}$
 - 计算目标动作
@@ -97,7 +97,7 @@ $
 \begin{align*}
 &\nabla_{\phi_i}\frac{1}{|B|}\sum_{(s,a,r,s',d)\in B}\left(Q_{\phi_i}(s,a)-y(r,s',d)\right)^2 &&\text{对于 }i=1,2
 \end{align*}
-\IF{$j\mod\texttt{policy\_delay}=0$}
+- **如果：** $j\mod\texttt{policy\_delay}=0$
 - 利用下式执行一步梯度上升，更新策略
 $
 \nabla_\theta\frac{1}{|B|}\sum_{s\in B}Q_{\phi_1}(s,\mu_\theta(s))
@@ -107,10 +107,10 @@ $
 \phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
 \theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{align*}
-\ENDIF
+- **结束条件**
 - **结束循环**
-\ENDIF
-\UNTIL{收敛}
+- **结束条件**
+- **直到：** 收敛
 
 
 ## 接口文档
