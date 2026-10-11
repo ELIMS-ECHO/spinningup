@@ -50,3 +50,5 @@ jobs:
           name: spinningup-content-audit
           path: dist/audit_export.json
           if-no-files-found: error
+      - name: Enforce zero blocking defects
+        run: python scripts/audit_export.py --strict --output dist/audit_export.json
