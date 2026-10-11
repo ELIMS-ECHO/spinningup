@@ -94,17 +94,62 @@ def rst_directive_blocks(source, names):
         collected.append({"directive": m.group(2), "content": "\n".join(body).strip()})
     return collected
 
+def canonical_math(value):
+    """Independent canonical form for the documented underE -> E expectation mapping."""
+    def argument(text, offset):
+        if offset >= len(text) or text[offset] != "{":
+            raise ValueError("Expected TeX argument")
+        depth = 0
+        for at in range(offset, len(text)):
+            if text[at] == "{":
+                depth += 1
+            elif text[at] == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[offset + 1:at], at + 1
+        raise ValueError("Unclosed TeX argument")
+    value = value.replace(":nowrap:", "")
+    needle = r"\underE"
+    while needle in value:
+        pos = value.index(needle)
+        where = pos + len(needle)
+        sub, where = argument(value, where)
+        body, end = argument(value, where)
+        value = value[:pos] + r"\mathbb{E}_{" + sub + r"}\left[" + body + r"\right]" + value[end:]
+    value = re.sub(r"\\(?:begin|end)\{align(?:ed|\*)\}", "", value)
+    return re.sub(r"\s+", "", value).replace("&", "")
+
+def pseudocode_corresponds(source, target):
+    """Validate algorithm caption and meaningful Chinese instructions are retained."""
+    caption = re.search(r"\\caption\{([^{}]*)\}", source)
+    if not caption or caption.group(1) not in target or "算法伪代码" not in target:
+        return False
+    chinese = lambda x: "".join(re.findall(r"[\u4e00-\u9fff]", x))
+    body = chinese(target)
+    instructions = []
+    for line in source.splitlines():
+        if not any(x in line for x in (r"\STATE", r"\FOR", r"\IF", r"\UNTIL")):
+            continue
+        words = chinese(line)
+        if len(words) >= 9:
+            instructions.append(words[:min(14, len(words))])
+    return not instructions or sum(x in body for x in instructions) >= 0.8 * len(instructions)
+
 def math_alignment(source, target):
-    """Compare each explicit RST math directive to emitted display math, with fuzzy review."""
+    """Compare explicit formulas, separating known conversions from uncertain math."""
     from difflib import SequenceMatcher
     blocks = rst_directive_blocks(source, ["math"])
     blocks += [{"directive": "equation", "content": x.strip()} for x in
                re.findall(r"(?s)\\begin\{equation\*?\}(.*?)\\end\{equation\*?\}", source)]
     target_blocks = re.findall(r"(?s)\$\$(.*?)\$\$", target)
-    normalized_target = [re.sub(r"\s+", "", x) for x in target_blocks]
-    certain, probable, uncertain = 0, 0, []
+    normalized_target = [canonical_math(x) for x in target_blocks]
+    certain, probable, expected_pseudocode, uncertain = 0, 0, 0, []
     for idx, unit in enumerate(blocks, 1):
-        compact = re.sub(r"\s+", "", unit["content"])
+        raw = unit["content"]
+        if r"\begin{algorithm}" in raw and pseudocode_corresponds(raw, target):
+            expected_pseudocode += 1
+            continue
+        compact = canonical_math(raw)
         if not compact:
             continue
         if compact in normalized_target:
@@ -121,7 +166,9 @@ def math_alignment(source, target):
     return {"source_expression_units": len(blocks),
             "target_display_math_blocks": len(target_blocks),
             "literal_preserved": certain, "format_changed_probable": probable,
+            "verified_pseudocode_transforms": expected_pseudocode,
             "requires_review": len(uncertain), "examples": uncertain[:20]}
+
 
 def code_alignment(source, target):
     """Compare source literal code directives to Markdown fenced blocks."""
