@@ -43,7 +43,7 @@ $$L(s,a,\theta_k,\theta) = \min\left(
 
 其中 $\epsilon$ 是一个较小的超参数，大致规定新策略可以偏离旧策略多远。
 
-这个表达式相当复杂，乍看很难理解它的作用，以及它为什么能够让新旧策略保持接近。实际上，该目标存在一个明显简化的形式[^1]，更容易理解，也是我们在代码中实现的版本：
+这个表达式相当复杂，乍看很难理解它的作用，以及它为什么能够让新旧策略保持接近。实际上，该目标存在一个明显简化的形式，更容易理解，也是我们在代码中实现的版本：
 
 $$L(s,a,\theta_k,\theta) = \min\left(
 \frac{\pi_{\theta}(a|s)}{\pi_{\theta_k}(a|s)}  A^{\pi_{\theta_k}}(s,a), \;\;
@@ -86,6 +86,8 @@ $$L(s,a,\theta_k,\theta) = \max\left(
 >
 > 当你熟悉基本数学与实现细节之后，值得查看其他实现如何处理这一问题！
 
+
+- 文献 1： 关于 PPO-Clip 目标函数简化形式的推导，参见 [这份笔记](https://drive.google.com/file/d/1PDzn9RPvaXjJFZkGeapMHbHGiWWW20Ey/view?usp=sharing)。
 
 ### 探索与利用
 
@@ -318,5 +320,3 @@ Schulman 2017 是最初提出 PPO 的论文。Schulman 2016 被收录，是因�
 - [ModularRL](https://github.com/joschu/modular_rl/blob/master/modular_rl/ppo.py)（注意：实现的是 PPO-Penalty，而不是 PPO-Clip。）
 - [rllab](https://github.com/rll/rllab/blob/master/rllab/algos/ppo.py)（注意：实现的是 PPO-Penalty，而不是 PPO-Clip。）
 - [rllib (Ray)](https://github.com/ray-project/ray/tree/master/python/ray/rllib/agents/ppo)
-
-[^1]: 关于 PPO-Clip 目标函数简化形式的推导，参见 [这份笔记](https://drive.google.com/file/d/1PDzn9RPvaXjJFZkGeapMHbHGiWWW20Ey/view?usp=sharing)。

@@ -94,3 +94,51 @@ Joshua Achiam 撰，2018 年 10 月 13 日
 [ML Engineering for AI Safety & Robustness: a Google Brain Engineer’s Guide to Entering the Field](https://80000hours.org/articles/ml-engineering-career-transition-guide/)，作者 Catherine Olsson 和 80,000 Hours。
 
 ## 参考文献
+
+- 文献 1： [Deep Reinforcement Learning Doesn't Work Yet](https://www.alexirpan.com/2018/02/14/rl-hard.html), Alex Irpan, 2018
+- 文献 2： [Reproducibility of Benchmarked Deep Reinforcement Learning Tasks for Continuous Control](https://arxiv.org/abs/1708.04133), Islam et al, 2017
+- 文献 3： [Deep Reinforcement Learning that Matters](https://arxiv.org/abs/1709.06560), Henderson et al, 2017
+- 文献 4： [Lessons Learned Reproducing a Deep Reinforcement Learning Paper](http://amid.fish/reproducing-deep-rl), Matthew Rahtz, 2018
+- 文献 5： [UCL Course on RL](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html)
+- 文献 6： [Berkeley Deep RL Course](http://rll.berkeley.edu/deeprlcourse/)
+- 文献 7： [Deep RL Bootcamp](https://sites.google.com/view/deep-rl-bootcamp/lectures)
+- 文献 8： [Nuts and Bolts of Deep RL](http://joschu.net/docs/nuts-and-bolts.pdf), John Schulman
+- 文献 9： [Stanford Deep Learning Tutorial: Multi-Layer Neural Network](http://ufldl.stanford.edu/tutorial/supervised/MultiLayerNeuralNetworks/)
+- 文献 10： [The Unreasonable Effectiveness of Recurrent Neural Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/), Andrej Karpathy, 2015
+- 文献 11： [LSTM: A Search Space Odyssey](https://arxiv.org/abs/1503.04069), Greff et al, 2015
+- 文献 12： [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/), Chris Olah, 2015
+- 文献 13： [Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](https://arxiv.org/abs/1412.3555v1), Chung et al, 2014 (GRU paper)
+- 文献 14： [Conv Nets: A Modular Perspective](http://colah.github.io/posts/2014-07-Conv-Nets-Modular/), Chris Olah, 2014
+- 文献 15： [Stanford CS231n, Convolutional Neural Networks for Visual Recognition](https://cs231n.github.io/convolutional-networks/)
+- 文献 16： [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385), He et al, 2015 (ResNets)
+- 文献 17： [Neural Machine Translation by Jointly Learning to Align and Translate](https://arxiv.org/abs/1409.0473), Bahdanau et al, 2014 (Attention mechanisms)
+- 文献 18： [Attention Is All You Need](https://arxiv.org/abs/1706.03762), Vaswani et al, 2017
+- 文献 19： [A Simple Weight Decay Can Improve Generalization](https://papers.nips.cc/paper/563-a-simple-weight-decay-can-improve-generalization.pdf), Krogh and Hertz, 1992
+- 文献 20： [Dropout: A Simple Way to Prevent Neural Networks from Overfitting](http://jmlr.org/papers/volume15/srivastava14a.old/srivastava14a.pdf), Srivastava et al, 2014
+- 文献 21： [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167), Ioffe and Szegedy, 2015
+- 文献 22： [Layer Normalization](https://arxiv.org/abs/1607.06450), Ba et al, 2016
+- 文献 23： [Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks](https://arxiv.org/abs/1602.07868), Salimans and Kingma, 2016
+- 文献 24： [Stanford Deep Learning Tutorial: Stochastic Gradient Descent](http://ufldl.stanford.edu/tutorial/supervised/OptimizationStochasticGradientDescent/)
+- 文献 25： [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980), Kingma and Ba, 2014
+- 文献 26： [An overview of gradient descent optimization algorithms](https://arxiv.org/abs/1609.04747), Sebastian Ruder, 2016
+- 文献 27： [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114), Kingma and Welling, 2013 (Reparameterization trick)
+- 文献 28： [Tensorflow](https://www.tensorflow.org/)
+- 文献 29： [PyTorch](http://pytorch.org/)
+- 文献 30： [Spinning Up in Deep RL: Introduction to RL, Part 1](../spinningup/rl_intro_zh.md)
+- 文献 31： [RL-Intro](https://github.com/jachiam/rl-intro/blob/master/Presentation/rl_intro.pdf) Slides from OpenAI Hackathon, Josh Achiam, 2018
+- 文献 32： [A (Long) Peek into Reinforcement Learning](https://lilianweng.github.io/lil-log/2018/02/19/a-long-peek-into-reinforcement-learning.html), Lilian Weng, 2018
+- 文献 33： [Optimizing Expectations](http://joschu.net/docs/thesis.pdf), John Schulman, 2016 (Monotonic improvement theory)
+- 文献 34： [Algorithms for Reinforcement Learning](https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf), Csaba Szepesvari, 2009 (Classic RL Algorithms)
+- 文献 35： [Benchmarking Deep Reinforcement Learning for Continuous Control](https://arxiv.org/abs/1604.06778), Duan et al, 2016
+- 文献 36： [Playing Atari with Deep Reinforcement Learning](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf), Mnih et al, 2013 (DQN)
+- 文献 37： [OpenAI Baselines: ACKTR & A2C](https://blog.openai.com/baselines-acktr-a2c/)
+- 文献 38： [Asynchronous Methods for Deep Reinforcement Learning](https://arxiv.org/abs/1602.01783), Mnih et al, 2016 (A3C)
+- 文献 39： [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347), Schulman et al, 2017 (PPO)
+- 文献 40： [Continuous Control with Deep Reinforcement Learning](https://arxiv.org/abs/1509.02971), Lillicrap et al, 2015 (DDPG)
+- 文献 41： [RL-Intro Policy Gradient Sample Code](https://github.com/jachiam/rl-intro/blob/master/pg_cartpole.py), Josh Achiam, 2018
+- 文献 42： [OpenAI Baselines](https://github.com/openai/baselines)
+- 文献 43： [rllab](https://github.com/rll/rllab)
+- 文献 44： [OpenAI Gym](https://gym.openai.com/)
+- 文献 45： [OpenAI Retro Contest](https://contest.openai.com/2018-1/)
+- 文献 46： [OpenAI Gym Retro](https://blog.openai.com/gym-retro/)
+- 文献 47： [Center for Open Science](https://cos.io/prereg/), explaining what preregistration means in the context of scientific experiments.

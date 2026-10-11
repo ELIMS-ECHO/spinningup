@@ -224,7 +224,7 @@ def train_one_epoch():
 
 ## 期望对数概率梯度引理
 
-本小节将推导一个在策略梯度理论中得到广泛使用的中间结果。我们把它称为“期望对数概率梯度”（Expected Grad-Log-Prob，EGLP）引理。[^1]
+本小节将推导一个在策略梯度理论中得到广泛使用的中间结果。我们把它称为“期望对数概率梯度”（Expected Grad-Log-Prob，EGLP）引理。
 
 **EGLP 引理。** 假设 $P_{\theta}$ 是随机变量 $x$ 上的一个参数化概率分布，那么：
 
@@ -248,6 +248,8 @@ $$\mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right] 
 > \therefore 0 &= \mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right].
 > \end{aligned}$$
 
+
+- 文献 1： 本文作者还不知道文献中有任何地方给这个引理赋予了一个标准名称。不过，鉴于它出现得如此频繁，为方便引用，似乎很值得给它起个名字。
 
 ## 不要让过去分散你的注意力
 
@@ -381,5 +383,3 @@ $$\Phi_t = A^{\pi_{\theta}}(s_t, a_t)$$
 ## 回顾
 
 本章介绍了策略梯度方法的基础理论，并把一些早期结果与代码示例联系起来。感兴趣的学习者可以继续研究后面的结果（价值函数基线与使用优势函数表示策略梯度），如何转化为 Spinning Up 对[原始策略梯度（Vanilla Policy Gradient）](../algorithms/vpg_zh.md) 的实现。
-
-[^1]: 本文作者还不知道文献中有任何地方给这个引理赋予了一个标准名称。不过，鉴于它出现得如此频繁，为方便引用，似乎很值得给它起个名字。

@@ -61,12 +61,13 @@ Q 学习方法的例子包括：
 - [DQN](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)：这是推动深度强化学习领域兴起的经典方法；
 - [C51](https://arxiv.org/abs/1707.06887)：一种学习回报分布的变体，该分布的期望值是 $Q^*$。
 
-**策略优化与 Q 学习的权衡。** 策略优化方法的主要优势，是它们在原理上比较直接：\*直接优化你真正想要的目标\*。因此，它们通常更加稳定、可靠。相比之下，Q 学习通过训练 $Q_{\theta}$ 使其满足某个自洽方程，只是 *间接地* 优化智能体性能。这类学习存在许多失败模式，因此往往不够稳定。[^1] 不过，一旦 Q 学习能够奏效，它在样本效率上具有相当大的优势，因为它可以比策略优化方法更有效地重复利用数据。
+**策略优化与 Q 学习的权衡。** 策略优化方法的主要优势，是它们在原理上比较直接：\*直接优化你真正想要的目标\*。因此，它们通常更加稳定、可靠。相比之下，Q 学习通过训练 $Q_{\theta}$ 使其满足某个自洽方程，只是 *间接地* 优化智能体性能。这类学习存在许多失败模式，因此往往不够稳定。 不过，一旦 Q 学习能够奏效，它在样本效率上具有相当大的优势，因为它可以比策略优化方法更有效地重复利用数据。
 
 **策略优化与 Q 学习之间的过渡方法。** 幸运的是，策略优化和 Q 学习并不互相排斥（在某些条件下，二者甚至是 [equivalent](https://arxiv.org/abs/1704.06440) 的），因此存在一系列位于两个极端之间的算法。这些算法能够审慎地权衡两者各自的长处和短处。例如：
 
 - [DDPG](https://arxiv.org/abs/1509.02971)：同时学习一个确定性策略和一个 Q 函数，利用二者相互促进；
 - [SAC](https://arxiv.org/abs/1801.01290)：使用随机性策略、熵正则化及一些其他技巧来稳定学习，并在标准基准任务上取得比 DDPG 更高的成绩。
+- 文献 1： 如果想进一步了解 Q 学习方法为何以及如何失败，可以参阅：1）[Tsitsiklis and van Roy](http://web.mit.edu/jnt/www/Papers/J063-97-bvr-td.pdf) 的经典论文；2）[review by Szepesvari](https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf)（较新的综述，尤其是第 4.3.2 节）；以及 3）[Sutton and Barto](https://drive.google.com/file/d/1xeUDVGWGUUv1-ccUMAZHJLej2C7aAFWY/view) 第 11 章，特别是第 11.3 节。其中介绍了函数逼近、自举和异策略数据组成的“致命三角”，它们共同导致价值学习算法不稳定。
 
 ### 基于模型的强化学习中学习什么
 
@@ -107,5 +108,3 @@ Q 学习方法的例子包括：
 - [MBMF](https://sites.google.com/view/mbmf)（基于模型的强化学习加无模型微调）：Nagabandi 等，2017
 - [MBVE](https://arxiv.org/abs/1803.00101)（基于模型的价值扩展）：Feinberg 等，2018
 - [AlphaZero](https://arxiv.org/abs/1712.01815)：Silver 等，2017
-
-[^1]: 如果想进一步了解 Q 学习方法为何以及如何失败，可以参阅：1）[Tsitsiklis and van Roy](http://web.mit.edu/jnt/www/Papers/J063-97-bvr-td.pdf) 的经典论文；2）[review by Szepesvari](https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf)（较新的综述，尤其是第 4.3.2 节）；以及 3）[Sutton and Barto](https://drive.google.com/file/d/1xeUDVGWGUUv1-ccUMAZHJLej2C7aAFWY/view) 第 11 章，特别是第 11.3 节。其中介绍了函数逼近、自举和异策略数据组成的“致命三角”，它们共同导致价值学习算法不稳定。

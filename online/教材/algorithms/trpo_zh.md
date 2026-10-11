@@ -64,7 +64,7 @@ $$\begin{aligned}
 > 一个巧妙的巧合是：代理优势函数对 $\theta$ 的梯度 $g$，在 $\theta=\theta_k$ 处求值时，恰好等于策略梯度 $\nabla_\theta J(\pi_\theta)$！如果愿意深入数学，可以尝试证明。
 
 
-使用拉格朗日对偶方法[^1]，可以解析求解这个近似问题：
+使用拉格朗日对偶方法，可以解析求解这个近似问题：
 
 $$\theta_{k+1} = \theta_k + \sqrt{\frac{2 \delta}{g^T H^{-1} g}} H^{-1} g.$$
 
@@ -79,6 +79,8 @@ $$\theta_{k+1} = \theta_k + \alpha^j \sqrt{\frac{2 \delta}{g^T H^{-1} g}} H^{-1}
 $$Hx = \nabla_{\theta} \left( \left(\nabla_{\theta} \bar{D}_{KL}(\theta || \theta_k)\right)^T x \right),$$
 
 从而在不计算整个矩阵的情况下得到正确结果。
+
+- 文献 1： 参见 Boyd 和 Vandenberghe 的[《凸优化》](http://stanford.edu/~boyd/cvxbook/)，尤其是第 2 至第 5 章。
 
 ### 探索与利用
 
@@ -286,5 +288,3 @@ Schulman 2015 是最初提出 TRPO 的论文。Schulman 2016 介绍广义优势�
 - [Baselines](https://github.com/openai/baselines/tree/master/baselines/trpo_mpi)
 - [ModularRL](https://github.com/joschu/modular_rl/blob/master/modular_rl/trpo.py)
 - [rllab](https://github.com/rll/rllab/blob/master/rllab/algos/trpo.py)
-
-[^1]: 参见 Boyd 和 Vandenberghe 的[《凸优化》](http://stanford.edu/~boyd/cvxbook/)，尤其是第 2 至第 5 章。
