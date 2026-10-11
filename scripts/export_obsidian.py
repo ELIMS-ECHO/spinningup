@@ -113,6 +113,10 @@ def postprocess(text):
         output += ["> " + line if line.strip() else ">" for line in lines]
         return "\n".join(output) + "\n"
     text = DIV_PATTERN.sub(div_replace, text)
+    def literal_replace(m):
+        body = html.unescape(m.group(1)).strip()
+        return "\n```text\n" + body + "\n```\n"
+    text = re.sub(r'(?s)<div class="parsed-literal">\s*(.*?)\s*</div>', literal_replace, text)
     def figure_replace(m):
         src = html.unescape(m.group(1))
         raw_caption = html.unescape(m.group(2).strip())
