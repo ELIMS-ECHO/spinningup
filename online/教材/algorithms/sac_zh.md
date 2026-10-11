@@ -40,7 +40,7 @@ $$\pi^* = \arg \max_{\pi} \mathbb{E}_{\tau \sim \pi}\left[ \sum_{t=0}^{\infty} \
 
 其中 $\alpha>0$ 为权衡系数。（注意：这里假设无限时域折扣设置，本文后续部分也采用这一假设。）
 
-现在可以定义该设置下稍有不同的价值函数。$V^\pi$ 被修改为包含每个时间步的熵奖励：
+现在可以定义该设置下稍有不同的价值函数。 $V^\pi$ 被修改为包含每个时间步的熵奖励：
 
 $$V^{\pi}(s) = \mathbb{E}_{\tau \sim \pi}\left[ \left. \sum_{t=0}^{\infty} \gamma^t \bigg( R(s_t, a_t, s_{t+1}) + \alpha H\left(\pi(\cdot|s_t)\right) \bigg) \right| s_0 = s\right]$$
 
@@ -48,14 +48,14 @@ $Q^\pi$ 则被修改为包含\*除第一个时间步之外\*所有时间步的�
 
 $$Q^{\pi}(s,a) = \mathbb{E}_{\tau \sim \pi}\left[ \left. \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t, s_{t+1}) + \alpha \sum_{t=1}^{\infty} \gamma^t H\left(\pi(\cdot|s_t)\right)\right| s_0 = s, a_0 = a\right]$$
 
-根据这些定义，$V^\pi$ 与 $Q^\pi$ 的关系为：
+根据这些定义， $V^\pi$ 与 $Q^\pi$ 的关系为：
 
 $$V^{\pi}(s) = \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right)$$
 
 而 $Q^\pi$ 的贝尔曼方程为：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \ \
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
 &= \mathbb{E}_{s' \sim P}\left[R(s,a,s') + \gamma V^{\pi}(s')\right].
 \end{aligned}$$
 
@@ -88,7 +88,7 @@ SAC 同时学习策略 $\pi_\theta$ 和两个 Q 函数 $Q_{\phi_1},Q_{\phi_2}$�
 在给出最终的 Q 损失函数之前，先解释熵正则化项如何进入目标值。回到前面熵正则化 $Q^\pi$ 的递归贝尔曼方程，利用熵的定义进行改写：
 
 $$\begin{aligned}
-Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \ \
+Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') + \alpha H\left(\pi(\cdot|s')\right) \right)\right] \\
 &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\left(Q^{\pi}(s',a') - \alpha \log \pi(a'|s') \right)\right]
 \end{aligned}$$
 
@@ -97,7 +97,7 @@ Q^{\pi}(s,a) &= \mathbb{E}_{s' \sim P \\ a' \sim \pi}\left[R(s,a,s') + \gamma\le
 $$Q^{\pi}(s,a) &\approx r + \gamma\left(Q^{\pi}(s',\tilde{a}') - \alpha \log \pi(\tilde{a}'|s') \right), \;\;\;\;\; \tilde{a}' \sim \pi(\cdot|s').$$
 
 > [!note] 你应该知道
-> 这里将下一动作记号从 $a'$ 改为 $\tilde a'$，是为了强调下一动作必须重新从策略采样；相比之下，$r$ 和 $s'$ 应来自经验回放缓冲区。
+> 这里将下一动作记号从 $a'$ 改为 $\tilde a'$，是为了强调下一动作必须重新从策略采样；相比之下， $r$ 和 $s'$ 应来自经验回放缓冲区。
 
 
 SAC 使用这种对目标值的采样近似，为每个 Q 函数构造 MSBE 损失。唯一尚未确定的是，采样备份时使用哪个 Q 函数。与 TD3 一样，SAC 采用裁剪双 Q 技巧，取两个 Q 近似器估计值中的较小者。
@@ -115,7 +115,7 @@ $$y(r, s', d) = r + \gamma (1 - d) \left( \min_{j=1,2} Q_{\phi_{\text{targ},j}}(
 **学习策略。** 策略在每个状态下都应该使预期未来回报与预期未来熵之和最大，即最大化 $V^\pi(s)$。展开可得：
 
 $$\begin{aligned}
-V^{\pi}(s) &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right) \ \
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a)\right] + \alpha H\left(\pi(\cdot|s)\right) \\
 &= \mathbb{E}_{a \sim \pi}\left[Q^{\pi}(s,a) - \alpha \log \pi(a|s)\right].
 \end{aligned}$$
 
@@ -145,7 +145,7 @@ $$\begin{aligned}
 
 ### 探索与利用
 
-SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索。熵正则化系数 $\alpha$ 显式控制探索与利用之间的权衡：$\alpha$ 越大，探索越多；$\alpha$ 越小，利用越多。合适的系数（能够实现最稳定学习或最高奖励的系数）可能因环境而异，需要仔细调整。
+SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索。熵正则化系数 $\alpha$ 显式控制探索与利用之间的权衡： $\alpha$ 越大，探索越多； $\alpha$ 越小，利用越多。合适的系数（能够实现最稳定学习或最高奖励的系数）可能因环境而异，需要仔细调整。
 
 测试时，为了观察策略利用所学知识的能力，我们移除随机性，使用均值动作，而不是从分布中采样动作。这样通常比原始随机策略表现更好。
 
@@ -159,7 +159,7 @@ SAC 训练带有熵正则化的随机策略，并以同策略方式进行探索�
 **算法伪代码：软演员—评论家算法**
 
 - 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$ 和 $\phi_2$，以及空经验回放缓冲区 $\mathcal D$
-- 将目标参数设为主网络参数：$\phi_{\text{targ},1}\leftarrow\phi_1$，$\phi_{\text{targ},2}\leftarrow\phi_2$
+- 将目标参数设为主网络参数： $\phi_{\text{targ},1}\leftarrow\phi_1$， $\phi_{\text{targ},2}\leftarrow\phi_2$
 - **重复：**
 - 观察状态 $s$，选择动作 $a\sim\pi_\theta(\cdot|s)$
 - 在环境中执行 $a$

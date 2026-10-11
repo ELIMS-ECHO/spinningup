@@ -55,7 +55,7 @@ g(\epsilon, A^{\pi_{\theta_k}}(s,a))
 $$\begin{aligned}
 g(\epsilon, A) = \left\{
     \begin{array}{ll}
-    (1 + \epsilon) A & A \geq 0 \ \
+    (1 + \epsilon) A & A \geq 0 \\
     (1 - \epsilon) A & A < 0.
     \end{array}
     \right.

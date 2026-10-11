@@ -35,7 +35,7 @@ $$\theta_{k+1} = \theta_k + \alpha \left. \nabla_{\theta} J(\pi_{\theta}) \right
 
 $$P(\tau|\theta) = \rho_0 (s_0) \prod_{t=0}^{T} P(s_{t+1}|s_t, a_t) \pi_{\theta}(a_t |s_t).$$
 
-**2. 对数求导技巧（Log-Derivative Trick）。** 对数求导技巧基于一条简单的微积分规则：$\log x$ 对 $x$ 的导数为 $1/x$。重新整理并结合链式法则，可以得到：
+**2. 对数求导技巧（Log-Derivative Trick）。** 对数求导技巧基于一条简单的微积分规则： $\log x$ 对 $x$ 的导数为 $1/x$。重新整理并结合链式法则，可以得到：
 
 $$\nabla_{\theta} P(\tau | \theta) = P(\tau | \theta) \nabla_{\theta} \log P(\tau | \theta).$$
 
@@ -43,12 +43,12 @@ $$\nabla_{\theta} P(\tau | \theta) = P(\tau | \theta) \nabla_{\theta} \log P(\ta
 
 $$\log P(\tau|\theta) = \log \rho_0 (s_0) + \sum_{t=0}^{T} \bigg( \log P(s_{t+1}|s_t, a_t)  + \log \pi_{\theta}(a_t |s_t)\bigg).$$
 
-**4. 环境函数的梯度。** 环境不依赖 $\theta$，因此 $\rho_0(s_0)$、$P(s_{t+1}|s_t,a_t)$ 和 $R(\tau)$ 对该参数的梯度都为零。
+**4. 环境函数的梯度。** 环境不依赖 $\theta$，因此 $\rho_0(s_0)$、 $P(s_{t+1}|s_t,a_t)$ 和 $R(\tau)$ 对该参数的梯度都为零。
 
 **5. 轨迹对数概率的梯度。** 因此，轨迹对数概率的梯度为：
 
 $$\begin{aligned}
-\nabla_{\theta} \log P(\tau | \theta) &= \cancel{\nabla_{\theta} \log \rho_0 (s_0)} + \sum_{t=0}^{T} \bigg( \cancel{\nabla_{\theta} \log P(s_{t+1}|s_t, a_t)}  + \nabla_{\theta} \log \pi_{\theta}(a_t |s_t)\bigg) \ \
+\nabla_{\theta} \log P(\tau | \theta) &= \cancel{\nabla_{\theta} \log \rho_0 (s_0)} + \sum_{t=0}^{T} \bigg( \cancel{\nabla_{\theta} \log P(s_{t+1}|s_t, a_t)}  + \nabla_{\theta} \log \pi_{\theta}(a_t |s_t)\bigg) \\
 &= \sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t).
 \end{aligned}$$
 
@@ -57,11 +57,11 @@ $$\begin{aligned}
 > [!note] 基础策略梯度的推导
 > <span nowrap="">$$\begin{aligned}
 > \begin{align*}
-> \nabla_{\theta} J(\pi_{\theta}) &= \nabla_{\theta} \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right] & \ \
-> &= \nabla_{\theta} \int_{\tau} P(\tau|\theta) R(\tau) & \text{Expand expectation} \ \
-> &= \int_{\tau} \nabla_{\theta} P(\tau|\theta) R(\tau) & \text{Bring gradient under integral} \ \
-> &= \int_{\tau} P(\tau|\theta) \nabla_{\theta} \log P(\tau|\theta) R(\tau) & \text{Log-derivative trick} \ \
-> &= \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\nabla_{\theta} \log P(\tau|\theta) R(\tau)\right] & \text{Return to expectation form} \ \
+> \nabla_{\theta} J(\pi_{\theta}) &= \nabla_{\theta} \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right] & \\
+> &= \nabla_{\theta} \int_{\tau} P(\tau|\theta) R(\tau) & \text{Expand expectation} \\
+> &= \int_{\tau} \nabla_{\theta} P(\tau|\theta) R(\tau) & \text{Bring gradient under integral} \\
+> &= \int_{\tau} P(\tau|\theta) \nabla_{\theta} \log P(\tau|\theta) R(\tau) & \text{Log-derivative trick} \\
+> &= \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\nabla_{\theta} \log P(\tau|\theta) R(\tau)\right] & \text{Return to expectation form} \\
 > \therefore \nabla_{\theta} J(\pi_{\theta}) &= \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t |s_t) R(\tau)\right] & \text{Expression for grad-log-prob}
 > \end{align*}
 > \end{aligned}$$</span>
@@ -242,9 +242,9 @@ $$\mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right] 
 > 使用对数求导技巧，得到：
 >
 > $$\begin{aligned}
-> 0 &= \nabla_{\theta} \int_x P_{\theta}(x) \ \
-> &= \int_x \nabla_{\theta} P_{\theta}(x) \ \
-> &= \int_x P_{\theta}(x) \nabla_{\theta} \log P_{\theta}(x) \ \
+> 0 &= \nabla_{\theta} \int_x P_{\theta}(x) \\
+> &= \int_x \nabla_{\theta} P_{\theta}(x) \\
+> &= \int_x P_{\theta}(x) \nabla_{\theta} \log P_{\theta}(x) \\
 > \therefore 0 &= \mathbb{E}_{x \sim P_{\theta}}\left[\nabla_{\theta} \log P_{\theta}(x)\right].
 > \end{aligned}$$
 

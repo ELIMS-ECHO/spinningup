@@ -21,13 +21,13 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ### 关键公式
 
-令 $\pi_{\theta}$ 表示参数为 $\theta$ 的策略，$J(\pi_{\theta})$ 表示这个策略在有限时域、无折扣情况下的期望回报。$J(\pi_{\theta})$ 的梯度为：
+令 $\pi_{\theta}$ 表示参数为 $\theta$ 的策略， $J(\pi_{\theta})$ 表示这个策略在有限时域、无折扣情况下的期望回报。 $J(\pi_{\theta})$ 的梯度为：
 
 $$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[
     \sum_{t=0}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t|s_t) A^{\pi_{\theta}}(s_t,a_t)
     \right],$$
 
-其中 $\tau$ 是一条轨迹，$A^{\pi_{\theta}}$ 是当前策略的优势函数。
+其中 $\tau$ 是一条轨迹， $A^{\pi_{\theta}}$ 是当前策略的优势函数。
 
 策略梯度算法通过针对策略表现进行随机梯度上升来更新策略参数：
 

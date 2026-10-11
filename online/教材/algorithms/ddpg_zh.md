@@ -42,7 +42,7 @@ $$Q^*(s,a) = \underset{s' \sim P}{{\mathrm E}}\left[r(s,a) + \gamma \max_{a'} Q^
 
 其中 $s'\sim P$ 是简写，表示环境从分布 $P(\cdot|s,a)$ 中采样下一状态 $s'$。
 
-这个贝尔曼方程是学习 $Q^*(s,a)$ 近似函数的起点。假设近似函数是参数为 $\phi$ 的神经网络 $Q_\phi(s,a)$，并且已经收集了转移数据集 $\mathcal D$，其中每个转移为 $(s,a,r,s',d)$，$d$ 表示 $s'$ 是否为终止状态。可以定义\**均方贝尔曼误差（MSBE）*\*，大致衡量 $Q_\phi$ 满足贝尔曼方程的程度：
+这个贝尔曼方程是学习 $Q^*(s,a)$ 近似函数的起点。假设近似函数是参数为 $\phi$ 的神经网络 $Q_\phi(s,a)$，并且已经收集了转移数据集 $\mathcal D$，其中每个转移为 $(s,a,r,s',d)$， $d$ 表示 $s'$ 是否为终止状态。可以定义\**均方贝尔曼误差（MSBE）*\*，大致衡量 $Q_\phi$ 满足贝尔曼方程的程度：
 
 $$L(\phi, {\mathcal D}) = \underset{(s,a,r,s',d) \sim {\mathcal D}}{{\mathrm E}}\left[
     \Bigg( Q_{\phi}(s,a) - \left(r + \gamma (1 - d) \max_{a'} Q_{\phi}(s',a') \right) \Bigg)^2
@@ -104,7 +104,7 @@ DDPG 以离策略方式训练确定性策略。由于策略是确定性的，如
 **算法伪代码：深度确定性策略梯度**
 
 - 输入：初始策略参数 $\theta$、Q 函数参数 $\phi$、空经验回放缓冲区 $\mathcal D$
-- 将目标参数设为主网络参数：$\theta_{\text{targ}}\leftarrow\theta$，$\phi_{\text{targ}}\leftarrow\phi$
+- 将目标参数设为主网络参数： $\theta_{\text{targ}}\leftarrow\theta$， $\phi_{\text{targ}}\leftarrow\phi$
 - **重复：**
 - 观察状态 $s$，选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
 - 在环境中执行动作 $a$
@@ -130,7 +130,7 @@ $$
 - 更新目标网络：
 $$
 \begin{aligned}
-\phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\ \
+\phi_{\text{targ}} &\leftarrow \rho\phi_{\text{targ}}+(1-\rho)\phi\\
 \theta_{\text{targ}} &\leftarrow \rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{aligned}
 $$

@@ -26,7 +26,7 @@ TRPO 在满足新旧策略接近程度的特殊约束时，尽可能采取能够
 设 $\pi_{\theta}$ 是参数为 $\theta$ 的策略。理论上的 TRPO 更新为：
 
 $$\begin{aligned}
-\theta_{k+1} = \arg \max_{\theta} \; & {\mathcal L}(\theta_k, \theta) \ \
+\theta_{k+1} = \arg \max_{\theta} \; & {\mathcal L}(\theta_k, \theta) \\
 \text{s.t.} \; & \bar{D}_{KL}(\theta || \theta_k) \leq \delta
 \end{aligned}$$
 
@@ -49,14 +49,14 @@ $$\bar{D}_{KL}(\theta || \theta_k) = \mathbb{E}_{s \sim \pi_{\theta_k}}\left[
 理论上的 TRPO 更新并不容易直接求解，所以 TRPO 使用近似来快速得到答案。在 $\theta_k$ 附近，对目标函数和约束函数进行泰勒展开并保留最低阶项：
 
 $$\begin{aligned}
-{\mathcal L}(\theta_k, \theta) &\approx g^T (\theta - \theta_k) \ \
+{\mathcal L}(\theta_k, \theta) &\approx g^T (\theta - \theta_k) \\
 \bar{D}_{KL}(\theta || \theta_k) & \approx \frac{1}{2} (\theta - \theta_k)^T H (\theta - \theta_k)
 \end{aligned}$$
 
 于是得到近似优化问题：
 
 $$\begin{aligned}
-\theta_{k+1} = \arg \max_{\theta} \; & g^T (\theta - \theta_k) \ \
+\theta_{k+1} = \arg \max_{\theta} \; & g^T (\theta - \theta_k) \\
 \text{s.t.} \; & \frac{1}{2} (\theta - \theta_k)^T H (\theta - \theta_k) \leq \delta.
 \end{aligned}$$
 
@@ -72,7 +72,7 @@ $$\theta_{k+1} = \theta_k + \sqrt{\frac{2 \delta}{g^T H^{-1} g}} H^{-1} g.$$
 
 $$\theta_{k+1} = \theta_k + \alpha^j \sqrt{\frac{2 \delta}{g^T H^{-1} g}} H^{-1} g,$$
 
-其中 $\alpha\in(0,1)$ 是回溯系数；$j$ 是使新策略 $\pi_{\theta_{k+1}}$ 满足 KL 约束且产生正代理优势的最小非负整数。
+其中 $\alpha\in(0,1)$ 是回溯系数； $j$ 是使新策略 $\pi_{\theta_{k+1}}$ 满足 KL 约束且产生正代理优势的最小非负整数。
 
 最后，神经网络策略可能拥有数千或数百万参数，直接计算和存储矩阵逆 $H^{-1}$ 的代价非常高。TRPO 使用[共轭梯度](https://en.wikipedia.org/wiki/Conjugate_gradient_method)算法求解 $Hx=g$，得到 $x=H^{-1}g$。它只需要计算矩阵与向量的乘积 $Hx$，不必显式计算或存储整个矩阵 $H$。我们可以构建符号运算：
 

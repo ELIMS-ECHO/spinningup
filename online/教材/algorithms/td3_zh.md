@@ -74,8 +74,8 @@ TD3 以离策略方式训练确定性策略。由于策略是确定性的，如�
 
 **算法伪代码：双延迟 DDPG**
 
-- 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$、$\phi_2$，以及空回放缓冲区 $\mathcal D$
-- 令目标参数等于主网络参数：$\theta_{\text{targ}}\leftarrow\theta$、$\phi_{\text{targ},1}\leftarrow\phi_1$、$\phi_{\text{targ},2}\leftarrow\phi_2$
+- 输入：初始策略参数 $\theta$、Q 函数参数 $\phi_1$、 $\phi_2$，以及空回放缓冲区 $\mathcal D$
+- 令目标参数等于主网络参数： $\theta_{\text{targ}}\leftarrow\theta$、 $\phi_{\text{targ},1}\leftarrow\phi_1$、 $\phi_{\text{targ},2}\leftarrow\phi_2$
 - **重复：**
 - 观察状态 $s$ 并选择动作 $a=\text{clip}(\mu_\theta(s)+\epsilon,a_{Low},a_{High})$，其中 $\epsilon\sim\mathcal N$
 - 在环境中执行 $a$
@@ -107,7 +107,7 @@ $$
 - 更新目标网络
 $$
 \begin{aligned}
-\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\ \
+\phi_{\text{targ},i}&\leftarrow\rho\phi_{\text{targ},i}+(1-\rho)\phi_i &&\text{对于 }i=1,2\\
 \theta_{\text{targ}}&\leftarrow\rho\theta_{\text{targ}}+(1-\rho)\theta
 \end{aligned}
 $$

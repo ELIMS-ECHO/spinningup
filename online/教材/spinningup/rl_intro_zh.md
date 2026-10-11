@@ -89,7 +89,7 @@ $$a_t \sim \pi(\cdot | s_t).$$
 我们通常用 $\theta$ 或 $\phi$ 表示这类策略的参数，并把它写成策略符号的下标，以强调二者之间的关系：
 
 $$\begin{aligned}
-a_t &= \mu_{\theta}(s_t) \ \
+a_t &= \mu_{\theta}(s_t) \\
 a_t &\sim \pi_{\theta}(\cdot | s_t).
 \end{aligned}$$
 
@@ -156,7 +156,7 @@ actions = pi_net(obs_tensor)
 >
 > $$a = \mu_{\theta}(s) + \sigma_{\theta}(s) \odot z,$$
 >
-> 其中，$\odot$ 表示两个向量的逐元素乘法。常见框架都提供了生成噪声向量的内置方法，例如 [torch.normal](https://pytorch.org/docs/stable/torch.html#torch.normal) 或 [tf.random_normal](https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/random/normal)。你也可以构建分布对象，例如通过 [torch.distributions.Normal](https://pytorch.org/docs/stable/distributions.html#normal) 或 [tf.distributions.Normal](https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/distributions/Normal)，然后用这些对象生成样本。（后者的优点是，分布对象还可以为你计算对数似然。）
+> 其中， $\odot$ 表示两个向量的逐元素乘法。常见框架都提供了生成噪声向量的内置方法，例如 [torch.normal](https://pytorch.org/docs/stable/torch.html#torch.normal) 或 [tf.random_normal](https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/random/normal)。你也可以构建分布对象，例如通过 [torch.distributions.Normal](https://pytorch.org/docs/stable/distributions.html#normal) 或 [tf.distributions.Normal](https://www.tensorflow.org/versions/r1.15/api_docs/python/tf/distributions/Normal)，然后用这些对象生成样本。（后者的优点是，分布对象还可以为你计算对数似然。）
 >
 > **对数似然。** 对于一个 $k$ 维动作 $a$，若对角高斯分布的均值为 $\mu = \mu_{\theta}(s)$，标准差为 $\sigma = \sigma_{\theta}(s)$，则对数似然为：
 >
@@ -229,7 +229,7 @@ $$J(\pi) = \int_{\tau} P(\tau|\pi) R(\tau) = \mathbb{E}_{\tau\sim \pi}\left[R(\t
 
 $$\pi^* = \arg \max_{\pi} J(\pi),$$
 
-其中，$\pi^*$ 是 **最优策略（optimal policy）**。
+其中， $\pi^*$ 是 **最优策略（optimal policy）**。
 
 ### 价值函数
 
@@ -271,7 +271,7 @@ $$\pi^* = \arg \max_{\pi} J(\pi),$$
 
 ### 最优 Q 函数与最优动作
 
-最优动作价值函数 $Q^*(s,a)$ 与最优策略选择的动作之间，存在一个重要联系。根据定义，$Q^*(s,a)$ 表示从状态 $s$ 开始，先采取（任意指定的）动作 $a$，然后始终按照最优策略行动所能得到的期望回报。
+最优动作价值函数 $Q^*(s,a)$ 与最优策略选择的动作之间，存在一个重要联系。根据定义， $Q^*(s,a)$ 表示从状态 $s$ 开始，先采取（任意指定的）动作 $a$，然后始终按照最优策略行动所能得到的期望回报。
 
 在状态 $s$ 下，最优策略会选择那个使从 $s$ 出发的期望回报最大的动作。因此，如果我们已经知道 $Q^*$，就可以通过下面的式子直接得到最优动作 $a^*(s)$：
 
@@ -289,18 +289,18 @@ $$a^*(s) = \arg \max_a Q^* (s,a).$$
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^{\pi}(s) &= \mathbb{E}_{a \sim \pi \\ s'\sim P}\left[r(s,a) + \gamma V^{\pi}(s')\right], \ \
+V^{\pi}(s) &= \mathbb{E}_{a \sim \pi \\ s'\sim P}\left[r(s,a) + \gamma V^{\pi}(s')\right], \\
 Q^{\pi}(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \mathbb{E}_{a'\sim \pi}\left[Q^{\pi}(s',a')\right]\right],
 \end{align*}
 \end{aligned}$$</span>
 
-其中，$s' \sim P$ 是 $s' \sim P(\cdot |s,a)$ 的简写，表示下一状态 $s'$ 根据环境的转移规则进行采样；$a \sim \pi$ 是 $a \sim \pi(\cdot|s)$ 的简写；$a' \sim \pi$ 则是 $a' \sim \pi(\cdot|s')$ 的简写。
+其中， $s' \sim P$ 是 $s' \sim P(\cdot |s,a)$ 的简写，表示下一状态 $s'$ 根据环境的转移规则进行采样； $a \sim \pi$ 是 $a \sim \pi(\cdot|s)$ 的简写； $a' \sim \pi$ 则是 $a' \sim \pi(\cdot|s')$ 的简写。
 
 最优价值函数的贝尔曼方程为：
 
 <span nowrap="">$$\begin{aligned}
 \begin{align*}
-V^*(s) &= \max_a \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma V^*(s')\right], \ \
+V^*(s) &= \max_a \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma V^*(s')\right], \\
 Q^*(s,a) &= \mathbb{E}_{s'\sim P}\left[r(s,a) + \gamma \max_{a'} Q^*(s',a')\right].
 \end{align*}
 \end{aligned}$$</span>
