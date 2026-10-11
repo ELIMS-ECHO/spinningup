@@ -17,7 +17,7 @@ Spinning Up 附带 `spinup/run.py`，它是一个方便的工具，可让你从�
 
 
 ```text
-python -m spinup.run \[algo name\] \[experiment flags\]
+python -m spinup.run [algo name] [experiment flags]
 ```
 
 
@@ -36,7 +36,7 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 > [!note] 详细快速入门指南
 > ```text
 > python -m spinup.run ppo --exp_name ppo_ant --env Ant-v2 --clip_ratio 0.1 0.2  
-> --hid\[h\] \[32,32\] \[64,32\] --act torch.nn.Tanh --seed 0 10 20 --dt --data_dir path/to/data
+> --hid[h] [32,32] [64,32] --act torch.nn.Tanh --seed 0 10 20 --dt --data_dir path/to/data
 > ```
 >
 >
@@ -68,7 +68,7 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 
 
 ```text
-python -m spinup.run [\[algo\]]()pytorch
+python -m spinup.run [[algo]]()pytorch
 ```
 
 
@@ -76,7 +76,7 @@ python -m spinup.run [\[algo\]]()pytorch
 
 
 ```text
-python -m spinup.run [\[algo\]]()tf1
+python -m spinup.run [[algo]]()tf1
 ```
 
 
@@ -88,7 +88,7 @@ python -m spinup.run [\[algo\]]()tf1
 
 
 ```text
-python -m spinup.run \[algo name\] --help
+python -m spinup.run [algo name] --help
 ```
 
 
@@ -235,7 +235,7 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --seed 0 10 20
 
 
 ```text
-python -m spinup.run ddpg_tf1 --env Hopper-v2 --hid\[h\] \[300\] \[128,128\] --act tf.nn.tanh tf.nn.relu
+python -m spinup.run ddpg_tf1 --env Hopper-v2 --hid[h] [300] [128,128] --act tf.nn.tanh tf.nn.relu
 ```
 
 

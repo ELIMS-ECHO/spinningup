@@ -9,8 +9,8 @@ Spinning Up 附带一个简单的绘图工具，用于解读实验结果。使�
 
 
 ```text
-python -m spinup.run plot \[path/to/output_directory ...\] \[--legend \[LEGEND ...\]\]  
-\[--xaxis XAXIS\] \[--value \[VALUE ...\]\] \[--count\] \[--smooth S\] \[--select \[SEL ...\]\] \[--exclude \[EXC ...\]\]
+python -m spinup.run plot [path/to/output_directory ...] [--legend [LEGEND ...]]  
+[--xaxis XAXIS] [--value [VALUE ...]] [--count] [--smooth S] [--select [SEL ...]] [--exclude [EXC ...]]
 ```
 
 

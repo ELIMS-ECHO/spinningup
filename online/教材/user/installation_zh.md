@@ -83,7 +83,7 @@ git clone <https://github.com/openai/spinningup.git> cd spinningup pip install -
 
 
 ```text
-python -m spinup.run ppo --hid "\[32,32\]" --env LunarLander-v2 --exp_name installtest --gamma 0.999
+python -m spinup.run ppo --hid "[32,32]" --env LunarLander-v2 --exp_name installtest --gamma 0.999
 ```
 
 
@@ -117,7 +117,7 @@ python -m spinup.run plot data/installtest/installtest_s0
 
 
 ```text
-pip install gym\[mujoco,robotics\]
+pip install gym[mujoco,robotics]
 ```
 
 
@@ -125,5 +125,5 @@ pip install gym\[mujoco,robotics\]
 
 
 ```text
-python -m spinup.run ppo --hid "\[32,32\]" --env Walker2d-v2 --exp_name mujocotest
+python -m spinup.run ppo --hid "[32,32]" --env Walker2d-v2 --exp_name mujocotest
 ```

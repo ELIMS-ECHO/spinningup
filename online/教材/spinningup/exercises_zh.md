@@ -86,7 +86,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 >
 >
 > ```text
-> python -m spinup.run trpo --env Hopper-v2 --train_v_iters\[v\] 0 80 --exp_name ex2-1 --epochs 250 --steps_per_epoch 4000 --seed 0 10 20 --dt
+> python -m spinup.run trpo --env Hopper-v2 --train_v_iters[v] 0 80 --exp_name ex2-1 --epochs 250 --steps_per_epoch 4000 --seed 0 10 20 --dt
 > ```
 >
 >
