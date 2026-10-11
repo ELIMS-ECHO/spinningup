@@ -9,15 +9,15 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 在本节中，我们将讨论策略优化算法的数学基础，并把相关内容与示例代码联系起来。我们会介绍 **策略梯度（policy gradients）** 理论中的三个重要结果：
 
-- 一个描述策略表现相对于策略参数的梯度的[最简单公式](../spinningup/rl_intro3_zh.md#deriving-the-simplest-policy-gradient)；
-- 一个允许我们从表达式中[去掉无用项](../spinningup/rl_intro3_zh.md#don-t-let-the-past-distract-you) 的规则；
-- 一个允许我们向表达式中[加入有用项](../spinningup/rl_intro3_zh.md#baselines-in-policy-gradients) 的规则。
+- 一个描述策略表现相对于策略参数的梯度的[最简单公式](../spinningup/rl_intro3_zh.md#)；
+- 一个允许我们从表达式中[去掉无用项](../spinningup/rl_intro3_zh.md#) 的规则；
+- 一个允许我们向表达式中[加入有用项](../spinningup/rl_intro3_zh.md#) 的规则。
 
 最后，我们将这些结果综合起来，介绍基于优势函数的策略梯度表达式。这正是我们在[原始策略梯度（Vanilla Policy Gradient）](../algorithms/vpg_zh.md) 实现中采用的版本。
 
 ## 推导最简单的策略梯度
 
-在这里，我们考虑一个随机性的参数化策略 $\pi_{\theta}$。我们希望最大化期望回报 $J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right]$。为了推导方便，假设 $R(\tau)$ 表示[有限时域、无折扣回报](../spinningup/rl_intro_zh.md#reward-and-return)，不过在无限时域、折扣回报情况下，推导几乎完全相同。
+在这里，我们考虑一个随机性的参数化策略 $\pi_{\theta}$。我们希望最大化期望回报 $J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[R(\tau)\right]$。为了推导方便，假设 $R(\tau)$ 表示[有限时域、无折扣回报](../spinningup/rl_intro_zh.md#)，不过在无限时域、折扣回报情况下，推导几乎完全相同。
 
 我们希望通过梯度上升来优化策略，例如：
 
@@ -99,7 +99,7 @@ def get_action(obs):
     return get_policy(obs).sample().item()
 ```
 
-这一代码块建立了一些模块和函数，用来使用前馈神经网络构造一个分类策略。（如果需要复习，可以参考第一部分中的[随机性策略](../spinningup/rl_intro_zh.md#stochastic-policies)。）\`logits_net\` 模块的输出可用于构造动作的对数概率与概率，而 <span class="title-ref">get_action</span> 函数根据 logits 计算出的概率采样动作。（注意：这个特定的 <span class="title-ref">get_action</span> 函数假设仅提供一个 <span class="title-ref">obs</span>，因此只输出一个整数动作。这就是它使用 <span class="title-ref">.item()</span> 的原因，该方法用于[取得只有一个元素的 Tensor 的内容](https://pytorch.org/docs/stable/tensors.html#torch.Tensor.item)。）
+这一代码块建立了一些模块和函数，用来使用前馈神经网络构造一个分类策略。（如果需要复习，可以参考第一部分中的[随机性策略](../spinningup/rl_intro_zh.md#)。）\`logits_net\` 模块的输出可用于构造动作的对数概率与概率，而 <span class="title-ref">get_action</span> 函数根据 logits 计算出的概率采样动作。（注意：这个特定的 <span class="title-ref">get_action</span> 函数假设仅提供一个 <span class="title-ref">obs</span>，因此只输出一个整数动作。这就是它使用 <span class="title-ref">.item()</span> 的原因，该方法用于[取得只有一个元素的 Tensor 的内容](https://pytorch.org/docs/stable/tensors.html#torch.Tensor.item)。）
 
 这里的大量工作由第 36 行的 <span class="title-ref">Categorical</span> 对象完成。它是 PyTorch 的一个 <span class="title-ref">Distribution</span> 对象，封装了一些与概率分布有关的数学函数。具体来说，它提供了从分布中采样的方法（第 40 行使用），以及计算给定样本的对数概率的方法（后面会用到）。PyTorch 的分布对象在强化学习中很有用，建议阅读[其文档](https://pytorch.org/docs/stable/distributions.html) 来了解其工作方式。
 
@@ -322,7 +322,7 @@ $$\nabla_{\theta} J(\pi_{\theta}) = \mathbb{E}_{\tau \sim \pi_{\theta}}\left[\su
 
 以这种方式使用的函数 $b$，称为 **基线（baseline）**。
 
-最常见的基线选择是[给定策略下的状态价值函数](../spinningup/rl_intro_zh.md#value-functions) $V^{\pi}(s_t)$。回想一下，它表示智能体从状态 $s_t$ 开始，并在之后始终按照策略 $\pi$ 行动，所能获得的平均回报。
+最常见的基线选择是[给定策略下的状态价值函数](../spinningup/rl_intro_zh.md#) $V^{\pi}(s_t)$。回想一下，它表示智能体从状态 $s_t$ 开始，并在之后始终按照策略 $\pi$ 行动，所能获得的平均回报。
 
 根据经验，选择 $b(s_t) = V^{\pi}(s_t)$ 可以降低策略梯度样本估计的方差。这使得策略学习更快、更稳定。从概念上看，这种选择也很有吸引力：它体现了一种直觉，即如果智能体获得了自己预期的结果，那么它应对此“没有特别的感觉”。
 
@@ -362,7 +362,7 @@ $$\Phi_t = Q^{\pi_{\theta}}(s_t, a_t)$$
 
 也是有效的。可参阅[这一页](https://github.com/openai/spinningup/blob/master/docs/spinningup/extra_pg_proof2.rst)，查看该结论的（可选）证明。
 
-**2. 优势函数（Advantage Function）。** 回想一下，一个动作的[优势](../spinningup/rl_intro_zh.md#advantage-functions) 定义为 $A^{\pi}(s_t,a_t) = Q^{\pi}(s_t,a_t) - V^{\pi}(s_t)$，表示它与当前策略下其他动作相比，平均而言有多好或多差。选择：
+**2. 优势函数（Advantage Function）。** 回想一下，一个动作的[优势](../spinningup/rl_intro_zh.md#) 定义为 $A^{\pi}(s_t,a_t) = Q^{\pi}(s_t,a_t) - V^{\pi}(s_t)$，表示它与当前策略下其他动作相比，平均而言有多好或多差。选择：
 
 $$\Phi_t = A^{\pi_{\theta}}(s_t, a_t)$$
 

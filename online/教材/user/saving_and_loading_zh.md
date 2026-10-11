@@ -200,4 +200,4 @@ Episode 1    EpRet -346.164      EpLen 99
 
 ### 使用训练好的价值函数
 
-`test_policy.py` 工具无法帮助你查看训练好的价值函数。如果想使用它们，就需要自行进行一些检查。对于 PyTorch，应使用 `torch.load` 加载保存的模型文件，再查看各算法的文档，了解 ActorCritic 对象包含哪些模块。对于 TensorFlow，应使用 [restore_tf_graph](../utils/logger_zh.md#spinup.utils.logx.restore_tf_graph) 函数加载保存的计算图，再查看各算法的文档，了解保存了哪些函数。
+`test_policy.py` 工具无法帮助你查看训练好的价值函数。如果想使用它们，就需要自行进行一些检查。对于 PyTorch，应使用 `torch.load` 加载保存的模型文件，再查看各算法的文档，了解 ActorCritic 对象包含哪些模块。对于 TensorFlow，应使用 [restore_tf_graph](../utils/logger_zh.md#) 函数加载保存的计算图，再查看各算法的文档，了解保存了哪些函数。

@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 使用日志记录器
 
-Spinning Up 提供了基本的日志记录工具，分别由 [Logger](../utils/logger_zh.md#spinup.utils.logx.Logger) 和 [EpochLogger](../utils/logger_zh.md#spinup.utils.logx.EpochLogger) 两个类实现。`Logger` 类提供了绝大多数基本功能，用于保存诊断指标、超参数配置、训练运行状态及训练好的模型。`EpochLogger` 类在此基础上添加了一层轻量封装，便于统计每个 epoch 内、以及不同 MPI 工作进程之间的诊断指标均值、标准差、最小值和最大值。
+Spinning Up 提供了基本的日志记录工具，分别由 [Logger](../utils/logger_zh.md#) 和 [EpochLogger](../utils/logger_zh.md#) 两个类实现。`Logger` 类提供了绝大多数基本功能，用于保存诊断指标、超参数配置、训练运行状态及训练好的模型。`EpochLogger` 类在此基础上添加了一层轻量封装，便于统计每个 epoch 内、以及不同 MPI 工作进程之间的诊断指标均值、标准差、最小值和最大值。
 
 > [!note] 你应该知道
 > Spinning Up 中的所有算法实现都使用 `EpochLogger`。
@@ -112,11 +112,11 @@ if __name__ == '__main__':
 
 在这个示例中，请注意：
 
-- 第 19 行使用 [logger.save_config](../utils/logger_zh.md#spinup.utils.logx.Logger.save_config) 将超参数配置保存为 JSON 文件。
-- 第 42、43 行使用 [logger.setup_tf_saver](../utils/logger_zh.md#spinup.utils.logx.Logger.setup_tf_saver)，配置日志记录器以保存计算图中的关键元素。
-- 第 54 行通过 [logger.store](../utils/logger_zh.md#spinup.utils.logx.EpochLogger.store) 将诊断指标保存到日志记录器的内部状态中。
-- 第 58 行通过 [logger.save_state](../utils/logger_zh.md#spinup.utils.logx.Logger.save_state) 每个 epoch 保存一次计算图。
-- 第 61–66 行使用 [logger.log_tabular](../utils/logger_zh.md#spinup.utils.logx.EpochLogger.log_tabular) 和 [logger.dump_tabular](../utils/logger_zh.md#spinup.utils.logx.Logger.dump_tabular) 将每个 epoch 的诊断指标写入文件。请注意，传入 [logger.log_tabular](../utils/logger_zh.md#spinup.utils.logx.EpochLogger.log_tabular) 的键与传入 [logger.store](../utils/logger_zh.md#spinup.utils.logx.EpochLogger.store) 的键相同。
+- 第 19 行使用 [logger.save_config](../utils/logger_zh.md#) 将超参数配置保存为 JSON 文件。
+- 第 42、43 行使用 [logger.setup_tf_saver](../utils/logger_zh.md#)，配置日志记录器以保存计算图中的关键元素。
+- 第 54 行通过 [logger.store](../utils/logger_zh.md#) 将诊断指标保存到日志记录器的内部状态中。
+- 第 58 行通过 [logger.save_state](../utils/logger_zh.md#) 每个 epoch 保存一次计算图。
+- 第 61–66 行使用 [logger.log_tabular](../utils/logger_zh.md#) 和 [logger.dump_tabular](../utils/logger_zh.md#) 将每个 epoch 的诊断指标写入文件。请注意，传入 [logger.log_tabular](../utils/logger_zh.md#) 的键与传入 [logger.store](../utils/logger_zh.md#) 的键相同。
 
 ### 日志记录与 PyTorch
 

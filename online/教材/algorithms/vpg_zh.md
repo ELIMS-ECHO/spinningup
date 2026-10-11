@@ -283,8 +283,8 @@ GAE-Lambda 中的 Lambda 参数。（始终位于 0 和 1 之间，且接近 1�
 
 可以通过以下任一方式访问保存的模型：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#loading-and-running-trained-policies) 工具运行训练后的策略；
-- 或使用 [restore_tf_graph](../utils/logger_zh.md#spinup.utils.logx.restore_tf_graph) 将整个保存的计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略；
+- 或使用 [restore_tf_graph](../utils/logger_zh.md#) 将整个保存的计算图加载到程序中。
 
 ## 参考文献
 

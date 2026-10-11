@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 背景
 
-（前文：[TRPO 的背景](../algorithms/trpo_zh.md#background)）
+（前文：[TRPO 的背景](../algorithms/trpo_zh.md#)）
 
 PPO 与 TRPO 源于同一个问题：如何利用当前已有的数据，尽可能大幅度地改善策略，同时又不让更新步长大到意外导致性能崩溃？TRPO 试图用复杂的二阶方法解决这一问题，而 PPO 是一类一阶方法，通过其他技巧使新策略与旧策略保持接近。PPO 的实现明显更简单，经验上似乎至少能达到与 TRPO 相当的性能。
 
@@ -297,8 +297,8 @@ GAE-Lambda 的 Lambda 参数，始终介于 0 和 1 之间且接近 1。
 
 可以通过以下两种方式访问保存的模型：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#loading-and-running-trained-policies) 工具运行训练后的策略；
-- 使用 [restore_tf_graph](../utils/logger_zh.md#spinup.utils.logx.restore_tf_graph) 将保存的整个计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略；
+- 使用 [restore_tf_graph](../utils/logger_zh.md#) 将保存的整个计算图加载到程序中。
 
 ## 参考文献
 

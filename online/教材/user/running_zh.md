@@ -44,9 +44,9 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 
 默认运行 PyTorch 版本（TRPO 除外，因为 Spinning Up 尚未提供 PyTorch 版 TRPO）。若要运行 TensorFlow 版本，将 `ppo` 替换为 `ppo_tf1`。
 
-`clip_ratio`、`hid` 和 `act` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。要了解可以设置哪些超参数，请查阅相应的算法文档（点击这里查看 [PPO 文档](../algorithms/ppo_zh.md#spinup.ppo)）。
+`clip_ratio`、`hid` 和 `act` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。要了解可以设置哪些超参数，请查阅相应的算法文档（点击这里查看 [PPO 文档](../algorithms/ppo_zh.md#)）。
 
-`hid` 和 `act` 是设置神经网络隐藏层大小和激活函数的 [特殊快捷参数](../user/running_zh.md#shortcut-flags)。
+`hid` 和 `act` 是设置神经网络隐藏层大小和激活函数的 [特殊快捷参数](../user/running_zh.md#)。
 
 `seed` 参数设置随机数生成器的种子。强化学习算法的结果方差较大，因此应尝试多个种子，以了解性能的变化情况。
 
@@ -54,7 +54,7 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 
 `data_dir` 参数用于设置结果保存文件夹。默认值由 `spinup/user_config.py` 中的 `DEFAULT_DATA_DIR` 指定；除非修改，否则它是 `spinningup` 文件夹下的 `data` 子文件夹。
 
-[保存目录名称](../user/running_zh.md#where-results-are-saved) 根据 `exp_name` 及具有多个取值的参数决定。目录名中会使用参数的缩写，而不是完整参数名。用户可以在参数后的方括号中指定缩写，例如 `--hid[h]`；否则会自动使用参数名称的子串（例如 `clip_ratio` 变成 `cli`）。例如，当 `clip_ratio=0.1`、`hid=[32,32]`、`seed=10` 时，保存目录为：
+[保存目录名称](../user/running_zh.md#) 根据 `exp_name` 及具有多个取值的参数决定。目录名中会使用参数的缩写，而不是完整参数名。用户可以在参数后的方括号中指定缩写，例如 `--hid[h]`；否则会自动使用参数名称的子串（例如 `clip_ratio` 变成 `cli`）。例如，当 `clip_ratio=0.1`、`hid=[32,32]`、`seed=10` 时，保存目录为：
 
 <div class="parsed-literal">
 
@@ -287,7 +287,7 @@ ppo(env_fn=env_fn, ac_kwargs=ac_kwargs, steps_per_epoch=5000, epochs=250, logger
 
 ### 使用 ExperimentGrid
 
-在机器学习研究中，使用多种可能的超参数运行同一算法通常很有用。Spinning Up 提供了一个简单工具来辅助完成这项工作，名为 [ExperimentGrid](../utils/run_utils_zh.md#experimentgrid)。
+在机器学习研究中，使用多种可能的超参数运行同一算法通常很有用。Spinning Up 提供了一个简单工具来辅助完成这项工作，名为 [ExperimentGrid](../utils/run_utils_zh.md#)。
 
 请看 `spinup/examples/pytorch/bench_ppo_cartpole.py` 中的示例：
 
@@ -333,6 +333,6 @@ eg.run(thunk, \*\*run_kwargs)
 
 </div>
 
-即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 `thunk`。`ExperimentGrid.run` 使用名为 [call_experiment](../utils/run_utils_zh.md#spinup.utils.run_utils.call_experiment) 的函数启动 `thunk`，而 `**run_kwargs` 则指定 `call_experiment` 的行为。详见 [文档页面](../utils/run_utils_zh.md#experimentgrid)。
+即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 `thunk`。`ExperimentGrid.run` 使用名为 [call_experiment](../utils/run_utils_zh.md#) 的函数启动 `thunk`，而 `**run_kwargs` 则指定 `call_experiment` 的行为。详见 [文档页面](../utils/run_utils_zh.md#)。
 
 除了不能使用快捷关键字参数（在 `ExperimentGrid` 中不能用 `hid` 代替 `ac_kwargs:hidden_sizes`）之外，`ExperimentGrid` 的基本行为与命令行运行方式相同。（实际上，`spinup.run` 内部就使用了 `ExperimentGrid`。）

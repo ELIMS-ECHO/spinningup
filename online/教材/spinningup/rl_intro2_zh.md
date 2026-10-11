@@ -52,7 +52,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 - [A2C / A3C](https://arxiv.org/abs/1602.01783)：通过梯度上升直接最大化性能；
 - [PPO](https://arxiv.org/abs/1707.06347)：通过最大化一个 *代理目标函数（surrogate objective）* 间接提高性能。这个代理目标函数对更新所引起的 $J(\pi_{\theta})$ 变化提供一种保守估计。
 
-**Q 学习（Q-Learning）。** 这一类方法学习一个近似函数 $Q_{\theta}(s,a)$，用来近似最优动作价值函数 $Q^*(s,a)$。通常，它们使用基于 [Bellman equation](../spinningup/rl_intro_zh.md#bellman-equations) 的目标函数进行学习。这类优化几乎总是 **异策略（off-policy）** 的，也就是说，每次更新可以使用训练过程中任意时刻收集的数据，而不必考虑当时智能体采用了怎样的探索行为。相应的策略由 $Q^*$ 与 $\pi^*$ 的联系得到：Q 学习智能体采取的动作为
+**Q 学习（Q-Learning）。** 这一类方法学习一个近似函数 $Q_{\theta}(s,a)$，用来近似最优动作价值函数 $Q^*(s,a)$。通常，它们使用基于 [Bellman equation](../spinningup/rl_intro_zh.md#) 的目标函数进行学习。这类优化几乎总是 **异策略（off-policy）** 的，也就是说，每次更新可以使用训练过程中任意时刻收集的数据，而不必考虑当时智能体采用了怎样的探索行为。相应的策略由 $Q^*$ 与 $\pi^*$ 的联系得到：Q 学习智能体采取的动作为
 
 $$a(s) = \arg \max_a Q_{\theta}(s,a).$$
 

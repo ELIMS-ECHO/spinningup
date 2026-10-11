@@ -9,7 +9,7 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 ## 背景
 
-（前置内容：[VPG 背景](../algorithms/vpg_zh.md#background)）
+（前置内容：[VPG 背景](../algorithms/vpg_zh.md#)）
 
 TRPO 在满足新旧策略接近程度的特殊约束时，尽可能采取能够改善性能的最大更新步长。该约束使用[KL 散度](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence)来表示，它衡量概率分布之间的差异，类似于距离，但严格来说并非距离。
 
@@ -266,8 +266,8 @@ trpo(env_fn, actor_critic=core.mlp_actor_critic, ac_kwargs=dict(), seed=0,
 
 访问保存模型有两种方式：
 
-- 使用 [test_policy.py](../user/saving_and_loading_zh.md#loading-and-running-trained-policies) 工具运行训练后的策略；
-- 使用 [restore_tf_graph](../utils/logger_zh.md#spinup.utils.logx.restore_tf_graph) 将完整的保存计算图加载到程序中。
+- 使用 [test_policy.py](../user/saving_and_loading_zh.md#) 工具运行训练后的策略；
+- 使用 [restore_tf_graph](../utils/logger_zh.md#) 将完整的保存计算图加载到程序中。
 
 ## 参考文献
 
