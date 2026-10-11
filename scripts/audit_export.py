@@ -43,6 +43,56 @@ def paragraph_samples(text):
     return [c.strip() for c in chunks if len(c.strip()) > 100 and
             not c.lstrip().startswith((".. ", "#", "~~~", "```"))]
 
+
+def normalize_prose(value):
+    """Normalize surface syntax; never pretend this proves semantic identity."""
+    value = re.sub(r"\`([^<\`]+)\s*<https?://[^>]+>\`_", r"\1", value)
+    value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
+    value = re.sub(r"https?://\S+", "", value)
+    value = re.sub(r"(?m)^\s*\.\. [^:\n]+::.*$", "", value)
+    value = re.sub(r"[\s\`*\\_#|\[\]()<>{}~]", "", value)
+    return value
+
+def prose_alignment(source, target):
+    """Find high-signal windows from every substantive source paragraph."""
+    normalized_target = normalize_prose(target)
+    entries = []
+    for idx, para in enumerate(paragraph_samples(source), 1):
+        clean = normalize_prose(para)
+        if len(re.findall(r"[\u4e00-\u9fff]", clean)) < 35:
+            continue
+        width = min(28, len(clean))
+        anchors = [clean[:width], clean[max(0, len(clean)//2 - width//2):][:width], clean[-width:]]
+        hits = [bool(x and x in normalized_target) for x in anchors]
+        entries.append({"source_paragraph": idx, "size": len(clean),
+                        "windows_found": sum(hits), "windows_total": len(hits),
+                        "fingerprint": sha(clean),
+                        "excerpt": clean[:70] if not all(hits) else None})
+    suspicious = [x for x in entries if x["windows_found"] == 0]
+    partial = [x for x in entries if 0 < x["windows_found"] < x["windows_total"]]
+    return {"checked": len(entries), "zero_window_matches": len(suspicious),
+            "partial_matches": len(partial),
+            "suspected_loss": suspicious[:30], "partial_examples": partial[:15]}
+
+def math_alignment(source, target):
+    """Track explicit RST math expressions without asserting LaTeX equivalence."""
+    blocks = re.findall(r"(?ms)^\s*\.\. math::\s*\n((?:\s{3,}.+\n|\s*\n)+)", source)
+    blocks += re.findall(r"(?s)\\begin\{equation\*?\}(.*?)\\end\{equation\*?\}", source)
+    target_compact = re.sub(r"\s+", "", target)
+    matched, uncertain = 0, []
+    for idx, expression in enumerate(blocks, 1):
+        compact = re.sub(r"\s+", "", expression)
+        compact = compact.strip()
+        if not compact:
+            continue
+        if compact in target_compact:
+            matched += 1
+        else:
+            uncertain.append({"expression": idx, "fingerprint": sha(compact),
+                              "excerpt": compact[:110]})
+    return {"source_expression_units": len(blocks), "literal_preserved": matched,
+            "requires_review": len(uncertain), "examples": uncertain[:20]}
+
 def audit_pair(name):
     src = DOCS / (name + "_zh.rst")
     dst = ONLINE / (name + "_zh.md")
@@ -85,6 +135,14 @@ def audit_pair(name):
         out["issues"].append({"kind": "unclosed_code_fence"})
     if b.count("$$") % 2:
         out["issues"].append({"kind": "unclosed_display_math"})
+    out["prose_alignment"] = prose_alignment(a, b)
+    out["math_alignment"] = math_alignment(a, b)
+    if out["prose_alignment"]["zero_window_matches"]:
+        out["review"].append({"kind": "suspected_paragraph_loss",
+            "count": out["prose_alignment"]["zero_window_matches"]})
+    if out["math_alignment"]["requires_review"]:
+        out["review"].append({"kind": "math_equivalence_unverified",
+            "count": out["math_alignment"]["requires_review"]})
     # Non-identical prose is not necessarily missing: Pandoc reformats it.
     # Preserve samples for deterministic/manual review, do not claim semantic
     # paragraph equivalence from a heading or character-count match.
