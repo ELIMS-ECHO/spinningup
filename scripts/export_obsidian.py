@@ -114,14 +114,10 @@ def postprocess(text):
         return "\n".join(output) + "\n"
     text = DIV_PATTERN.sub(div_replace, text)
     def literal_replace(m):
-        body = html.unescape(m.group(1)).strip()
+        body = html.unescape(m.group(1))
+        body = re.sub(r'(?m)^\\s*\x60\x60\x60\\s*$', '', body).strip()
         return "\n```text\n" + body + "\n```\n"
-    # Pandoc may nest parsed-literal within other HTML wrappers and leave an
-    # unmatched fence before the closing div. Convert the entire wrapper,
-    # stripping any Pandoc fence artifacts rather than leaking raw HTML.
-    text = re.sub(r'(?s)<div class="parsed-literal"[^>]*>\\s*(.*?)\\s*</div>',
-                  lambda m: "\\n\u0060\u0060\u0060text\\n" +
-                  re.sub(r'(?m)^\\s*\u0060\u0060\u0060\\s*
+    text = re.sub(r'(?s)<div class="parsed-literal"[^>]*>\s*(.*?)\s*</div>', literal_replace, text)
     def figure_replace(m):
         src = html.unescape(m.group(1))
         raw_caption = html.unescape(m.group(2).strip())
