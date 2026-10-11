@@ -1,0 +1,85 @@
+name: Publish vetted Obsidian textbook v1.0.0
+on:
+  push:
+    branches: [learning-edition-zh]
+    paths:
+      - '.github/workflows/release-obsidian-v1.yml'
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Pandoc
+        run: |
+          if ! command -v pandoc >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y pandoc
+          fi
+      - name: Build verified public Vault
+        run: python scripts/export_obsidian.py
+      - name: Independently verify 24 chapters before publication
+        run: python scripts/audit_export.py --strict --output dist/release-audit.json
+      - name: Package, inspect and hash release payload
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, zipfile
+          root = pathlib.Path("dist")
+          vault = root / "SpinningUp-Obsidian-Vault"
+          assert (vault / "00_课程导航.md").is_file()
+          assert (vault / "导入说明.md").is_file()
+          assert len(list((vault / "教材").rglob("*_zh.md"))) == 24
+          assert len(list((vault / "98_原始RST备份").rglob("*_zh.rst"))) == 24
+          manifest = json.loads((vault / "转换清单.json").read_text(encoding="utf-8"))
+          assert len(manifest) == 24
+          files = sorted(p for p in vault.rglob("*") if p.is_file())
+          banned = ("我的笔记", "个人笔记", "private-notes", ".obsidian/workspace")
+          assert files
+          for path in files:
+              rel = path.relative_to(root).as_posix()
+              assert not any(term in rel for term in banned), rel
+              assert path.suffix.lower() not in {".env", ".key", ".pem"}, rel
+          output = root / "SpinningUp-Chinese-Obsidian-Vault-v1.0.0.zip"
+          with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+              for file in files:
+                  archive.write(file, file.relative_to(root).as_posix())
+          with zipfile.ZipFile(output) as archive:
+              names = archive.namelist()
+              assert archive.testzip() is None
+              assert len([n for n in names if n.startswith("SpinningUp-Obsidian-Vault/教材/") and n.endswith("_zh.md")]) == 24
+              assert len([n for n in names if n.startswith("SpinningUp-Obsidian-Vault/98_原始RST备份/") and n.endswith("_zh.rst")]) == 24
+              assert "SpinningUp-Obsidian-Vault/00_课程导航.md" in names
+          digest = hashlib.sha256(output.read_bytes()).hexdigest()
+          (root / "SHA256SUMS.txt").write_text(digest + "  " + output.name + "\n", encoding="utf-8")
+          print(json.dumps({"archive": output.name, "files": len(files), "chapters":24, "rst_backups":24, "sha256": digest}))
+          PY
+      - name: Create immutable GitHub release and attach ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -z "$(gh release list --limit 100 --json tagName --jq '.[] | select(.tagName == "v1.0.0") | .tagName')"
+          gh release create v1.0.0 \
+            dist/SpinningUp-Chinese-Obsidian-Vault-v1.0.0.zip \
+            dist/SHA256SUMS.txt \
+            dist/release-audit.json \
+            --target "$GITHUB_SHA" \
+            --title "Spinning Up 中文教材 · Obsidian 阅读版 v1.0.0" \
+            --notes "基于公开仓库中的 24 篇中文 RST 生成。包含 24 篇中文 Markdown、60 张教材图片、原始 RST 备份、课程导航与导入说明。不包含个人笔记。\n\n可以直接在 GitHub 阅读在线 Markdown，或下载 ZIP 后解压并用 Obsidian 打开 SpinningUp-Obsidian-Vault 文件夹。\n\n这是非官方中文学习版。内容经过第 6 项工程验收；复杂数学排版的转换不构成形式化数学等价证明。原项目：OpenAI Spinning Up。详见仓库 LICENSE、validation/PHASE6_ACCEPTANCE.md。" \
+            --latest
+      - name: Verify release and download asset metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view v1.0.0 --json url,tagName,isDraft,isPrerelease,assets
+          test "$(gh release view v1.0.0 --json assets --jq '[.assets[] | select(.name=="SpinningUp-Chinese-Obsidian-Vault-v1.0.0.zip")] | length')" -eq 1
+          mkdir -p dist/download-verify
+          gh release download v1.0.0 --pattern 'SpinningUp-Chinese-Obsidian-Vault-v1.0.0.zip' --dir dist/download-verify
+          (cd dist/download-verify && sha256sum -c ../SHA256SUMS.txt)
