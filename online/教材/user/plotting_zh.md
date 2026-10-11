@@ -25,28 +25,27 @@ logdir
 > [!note] 你应该知道
 > 内部自动补全功能非常方便！假设你已经运行了几组实验，目的是比较不同算法的性能，得到以下日志目录结构：
 >
-> 
-```text
 >
+> ```text
 > data/  
 > bench_algo1/  
 > bench_algo1-seed0/ bench_algo1-seed10/
 >
 > bench_algo2/  
 > bench_algo2-seed0/ bench_algo2-seed10/
+> ```
+>
+>
+> 你可以轻松使用以下命令生成比较 algo1 和 algo2 的图：
+>
+>
+> ```text
+> python spinup/utils/plot.py data/bench_algo
+> ```
+>
+>
+> 绘图工具会依靠自动补全，同时找到 `data/bench_algo1` 和 `data/bench_algo2`。
 
-
-你可以轻松使用以下命令生成比较 algo1 和 algo2 的图：
-
-<div class="parsed-literal">
-
-python spinup/utils/plot.py data/bench_algo
-```
-
-
-绘图工具会依靠自动补全，同时找到 `data/bench_algo1` 和 `data/bench_algo2`。
-
-</div>
 
 </div>
 

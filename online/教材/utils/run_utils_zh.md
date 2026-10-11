@@ -69,8 +69,8 @@ The colons are taken to indicate that these parameters should have a nested dict
 
 the variant dict will have the structure
 
-<div class="parsed-literal">
 
+```text
 variant = {  
 base: {  
 param : {  
@@ -79,8 +79,8 @@ a : 1, b : 2 }
 }
 
 }
+```
 
-</div>
 
 #### ExperimentGrid.run(self, thunk, num_cpu=1, data_dir=None, datestamp=False)
 

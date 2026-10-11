@@ -34,36 +34,33 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 
 
 > [!note] 详细快速入门指南
-> 
-```text
->
+> ```text
 > python -m spinup.run ppo --exp_name ppo_ant --env Ant-v2 --clip_ratio 0.1 0.2  
 > --hid\[h\] \[32,32\] \[64,32\] --act torch.nn.Tanh --seed 0 10 20 --dt --data_dir path/to/data
+> ```
+>
+>
+> 这条命令在 Gym 的 `Ant-v2` 环境中运行 PPO，并通过各项参数控制不同设置。
+>
+> 默认运行 PyTorch 版本（TRPO 除外，因为 Spinning Up 尚未提供 PyTorch 版 TRPO）。若要运行 TensorFlow 版本，将 `ppo` 替换为 `ppo_tf1`。
+>
+> `clip_ratio`、`hid` 和 `act` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。要了解可以设置哪些超参数，请查阅相应的算法文档（点击这里查看 [PPO 文档](../algorithms/ppo_zh.md)）。
+>
+> `hid` 和 `act` 是设置神经网络隐藏层大小和激活函数的 [特殊快捷参数](../user/running_zh.md)。
+>
+> `seed` 参数设置随机数生成器的种子。强化学习算法的结果方差较大，因此应尝试多个种子，以了解性能的变化情况。
+>
+> `dt` 参数确保保存目录名称包含时间戳（否则不会包含，除非在 `spinup/user_config.py` 中设置 `FORCE_DATESTAMP=True`）。
+>
+> `data_dir` 参数用于设置结果保存文件夹。默认值由 `spinup/user_config.py` 中的 `DEFAULT_DATA_DIR` 指定；除非修改，否则它是 `spinningup` 文件夹下的 `data` 子文件夹。
+>
+> [保存目录名称](../user/running_zh.md) 根据 `exp_name` 及具有多个取值的参数决定。目录名中会使用参数的缩写，而不是完整参数名。用户可以在参数后的方括号中指定缩写，例如 `--hid[h]`；否则会自动使用参数名称的子串（例如 `clip_ratio` 变成 `cli`）。例如，当 `clip_ratio=0.1`、`hid=[32,32]`、`seed=10` 时，保存目录为：
+>
+>
+> ```text
+> path/to/data/YY-MM-DD_ppo_ant_cli0-1_h32-32/YY-MM-DD_HH-MM-SS-ppo_ant_cli0-1_h32-32_seed10
+> ```
 
-
-这条命令在 Gym 的 `Ant-v2` 环境中运行 PPO，并通过各项参数控制不同设置。
-
-默认运行 PyTorch 版本（TRPO 除外，因为 Spinning Up 尚未提供 PyTorch 版 TRPO）。若要运行 TensorFlow 版本，将 `ppo` 替换为 `ppo_tf1`。
-
-`clip_ratio`、`hid` 和 `act` 用于设置算法的部分超参数。可以为超参数提供多个值，从而运行多个实验。要了解可以设置哪些超参数，请查阅相应的算法文档（点击这里查看 [PPO 文档](../algorithms/ppo_zh.md)）。
-
-`hid` 和 `act` 是设置神经网络隐藏层大小和激活函数的 [特殊快捷参数](../user/running_zh.md)。
-
-`seed` 参数设置随机数生成器的种子。强化学习算法的结果方差较大，因此应尝试多个种子，以了解性能的变化情况。
-
-`dt` 参数确保保存目录名称包含时间戳（否则不会包含，除非在 `spinup/user_config.py` 中设置 `FORCE_DATESTAMP=True`）。
-
-`data_dir` 参数用于设置结果保存文件夹。默认值由 `spinup/user_config.py` 中的 `DEFAULT_DATA_DIR` 指定；除非修改，否则它是 `spinningup` 文件夹下的 `data` 子文件夹。
-
-[保存目录名称](../user/running_zh.md) 根据 `exp_name` 及具有多个取值的参数决定。目录名中会使用参数的缩写，而不是完整参数名。用户可以在参数后的方括号中指定缩写，例如 `--hid[h]`；否则会自动使用参数名称的子串（例如 `clip_ratio` 变成 `cli`）。例如，当 `clip_ratio=0.1`、`hid=[32,32]`、`seed=10` 时，保存目录为：
-
-<div class="parsed-literal">
-
-path/to/data/YY-MM-DD_ppo_ant_cli0-1_h32-32/YY-MM-DD_HH-MM-SS-ppo_ant_cli0-1_h32-32_seed10
-```
-
-
-</div>
 
 ### 从命令行选择 PyTorch 或 TensorFlow
 
@@ -100,36 +97,34 @@ python -m spinup.run \[algo name\] --help
 > [!note] 你应该知道
 > 参数值在使用前会经过 `eval()` 处理，因此可以直接从命令行描述某些函数和对象。例如：
 >
-> 
-```text
 >
+> ```text
 > python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --act torch.nn.ELU
-
-
-这会将 `torch.nn.ELU` 设置为激活函数。（TensorFlow 中对应的方式是运行 `ppo_tf1` 并传入 `--act tf.nn.elu`。）
-```
+> ```
+>
+>
+> 这会将 `torch.nn.ELU` 设置为激活函数。（TensorFlow 中对应的方式是运行 `ppo_tf1` 并传入 `--act tf.nn.elu`。）
 
 
 > [!note] 你应该知道
 > 对于接收字典值的关键字参数，提供了方便的处理方式。不必写：
 >
-> 
-```text
 >
+> ```text
 > --key dict(v1=value_1, v2=value_2)
+> ```
+>
+>
+> 可以改写为：
+>
+>
+> ```text
+> --key:v1 value_1 --key:v2 value_2
+> ```
+>
+>
+> 两者效果相同。
 
-
-可以改写为：
-
-<div class="parsed-literal">
-
---key:v1 value_1 --key:v2 value_2
-```
-
-
-两者效果相同。
-
-</div>
 
 ### 一次启动多个实验
 
