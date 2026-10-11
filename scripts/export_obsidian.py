@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Export the 24 reviewed Chinese Spinning Up RST chapters to an Obsidian vault."""
 import ast
+import html
 import json
 import re
 import shutil
@@ -20,6 +21,7 @@ API_PATTERN = re.compile(r"(?m)^\.\. (autoclass|automodule|automethod|autofuncti
 LINK_PATTERN = re.compile(r"(\]\()([^)]+)(\))")
 DIV_PATTERN = re.compile(r'(?s)<div class="(contents|admonition|note|warning|tip|important|hint|caution)"[^>]*>\s*(.*?)\s*</div>')
 ROLE_PATTERN = re.compile(r":(?:ref|doc|class|func|meth):`([^`]+)`")
+FIGURE_RE = re.compile(r'(?s)<figure>\s*<img\s+src="([^"]+)"[^>]*\/>\s*<figcaption>(.*?)</figcaption>\s*</figure>')
 
 
 def pandoc(text):
@@ -74,6 +76,27 @@ def api_text(kind, dotted):
     return "\n".join(output)
 
 
+def preserve_console_blocks(text):
+    """Protect REPL prompts and their text output from Pandoc paragraph joining."""
+    lines = text.splitlines(keepends=True)
+    result = []
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith(">>> "):
+            end = i
+            while end < len(lines) and lines[end].strip():
+                end += 1
+            result.extend([".. code-block:: text\n", "\n"])
+            for line in lines[i:end]:
+                result.append("    " + line)
+            result.append("\n")
+            i = end
+        else:
+            result.append(lines[i])
+            i += 1
+    return "".join(result)
+
+
 def postprocess(text):
     def div_replace(m):
         kind, body = m.groups()
@@ -89,7 +112,15 @@ def postprocess(text):
         output = ["> [!note] " + label]
         output += ["> " + line if line.strip() else ">" for line in lines]
         return "\n".join(output) + "\n"
-    return DIV_PATTERN.sub(div_replace, text)
+    text = DIV_PATTERN.sub(div_replace, text)
+    def figure_replace(m):
+        src = html.unescape(m.group(1))
+        raw_caption = html.unescape(m.group(2).strip())
+        plain = re.sub(r"<[^>]*>", "", raw_caption)
+        rich = re.sub(r"</?strong>", "**", raw_caption)
+        rich = re.sub(r"<[^>]*>", "", rich)
+        return "![" + plain[:80].replace("]", "") + "](" + src + ")\n\n*" + rich + "*\n"
+    return FIGURE_RE.sub(figure_replace, text)
 
 
 def remap_links(text, folder, translated):
@@ -152,6 +183,7 @@ def main():
             return token
 
         pre = API_PATTERN.sub(replace_api, text)
+        pre = preserve_console_blocks(pre)
         pre = ROLE_PATTERN.sub(lambda m: m.group(1), pre)
         md = postprocess(pandoc(pre))
         for token, actual in placeholders.items():
