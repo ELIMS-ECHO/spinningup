@@ -281,6 +281,17 @@ def main():
                 raise AssertionError("Lost API content in " + str(rel))
             md = md.replace(token, postprocess(actual))
         md = github_math_and_pseudocode(md)
+        # GitHub math parser needs a boundary before inline dollar math
+        # when the previous character is CJK text or Chinese punctuation.
+        formatted = []
+        fenced = False
+        for ln in md.splitlines(keepends=True):
+            if re.match(r"^\\s*(?:>\\s*)?`{3}", ln):
+                fenced = not fenced
+            elif not fenced and not ln.lstrip().startswith("$"):
+                ln = re.sub(r"(?<=[\\u4e00-\\u9fff，。：；、）])(?=\\$(?!\\$))", " ", ln)
+            formatted.append(ln)
+        md = "".join(formatted)
         md = remap_links(md, rst.parent.resolve(), translated)
         title_match = re.search(r"(?m)^# (.+)$", md)
         title = title_match.group(1).strip() if title_match else rst.stem
