@@ -123,6 +123,55 @@ def postprocess(text):
     return FIGURE_RE.sub(figure_replace, text)
 
 
+
+def github_math_and_pseudocode(text):
+    """Translate unsupported Sphinx/algorithmic LaTeX for GitHub Markdown."""
+    def balanced(source, start):
+        if start >= len(source) or source[start] != "{":
+            raise ValueError("Expected braced LaTeX argument")
+        depth = 0
+        for i in range(start, len(source)):
+            if source[i] == "{":
+                depth += 1
+            elif source[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    return source[start + 1:i], i + 1
+        raise ValueError("Unclosed LaTeX argument")
+
+    token = r"\underE"
+    while token in text:
+        start = text.index(token)
+        pos = start + len(token)
+        if pos >= len(text) or text[pos] != "{":
+            raise ValueError("Unexpected underE syntax")
+        subscript, pos = balanced(text, pos)
+        expectation, end = balanced(text, pos)
+        text = text[:start] + r"\mathbb{E}_{" + subscript + r"}\left[" + expectation + r"\right]" + text[end:]
+
+    pattern = re.compile(r'(?:<span nowrap="">)?\$\$\\begin\{algorithm\}(?:\[H\])?(.*?)\\end\{algorithm\}\$\$(?:</span>)?', re.S)
+    def algorithm(m):
+        block = m.group(1)
+        title = re.search(r"\\caption\{([^{}]*)\}", block)
+        lines = ["", "**算法伪代码" + ("：" + title.group(1) if title else "") + "**", ""]
+        block = re.sub(r"\\(?:begin|end)\{algorithmic\}(?:\[\d+\])?", "", block)
+        block = re.sub(r"\\(?:caption|label)\{[^{}]*\}", "", block)
+        block = block.replace(r"\begin{equation*}", "\n$\n").replace(r"\end{equation*}", "\n$\n")
+        for line in block.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            line = re.sub(r"^\\STATE\s*", "- ", line)
+            line = re.sub(r"^\\FOR\{(.*)\}$", r"- **循环：** \1", line)
+            line = re.sub(r"^\\ENDFOR\s*$", "- **结束循环**", line)
+            lines.append(line)
+        return "\n".join(lines) + "\n"
+    text = pattern.sub(algorithm, text)
+    if r"\begin{algorithm}" in text or r"\underE" in text:
+        raise AssertionError("Unsupported algorithm/math macro remains")
+    return text
+
+
 def remap_links(text, folder, translated):
     def change(m):
         raw = m.group(2)
@@ -192,6 +241,7 @@ def main():
             if token not in md:
                 raise AssertionError("Lost API content in " + str(rel))
             md = md.replace(token, actual)
+        md = github_math_and_pseudocode(md)
         md = remap_links(md, rst.parent.resolve(), translated)
         title_match = re.search(r"(?m)^# (.+)$", md)
         title = title_match.group(1).strip() if title_match else rst.stem
