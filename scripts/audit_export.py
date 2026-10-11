@@ -74,24 +74,80 @@ def prose_alignment(source, target):
             "partial_matches": len(partial),
             "suspected_loss": suspicious[:30], "partial_examples": partial[:15]}
 
+def rst_directive_blocks(source, names):
+    """Extract one indented RST directive payload without swallowing later prose."""
+    lines = source.splitlines()
+    collected = []
+    for i, line in enumerate(lines):
+        m = re.match(r"^([ \t]*)\.\. (" + "|".join(names) + r")::[ \t]*(.*)$", line)
+        if not m:
+            continue
+        indent = len(m.group(1))
+        body = [m.group(3)] if m.group(3).strip() else []
+        for following in lines[i + 1:]:
+            if not following.strip():
+                body.append("")
+            elif len(following) - len(following.lstrip(" ")) > indent:
+                body.append(following.strip())
+            else:
+                break
+        collected.append({"directive": m.group(2), "content": "\n".join(body).strip()})
+    return collected
+
 def math_alignment(source, target):
-    """Track explicit RST math expressions without asserting LaTeX equivalence."""
-    blocks = re.findall(r"(?ms)^\s*\.\. math::\s*\n((?:\s{3,}.+\n|\s*\n)+)", source)
-    blocks += re.findall(r"(?s)\\begin\{equation\*?\}(.*?)\\end\{equation\*?\}", source)
-    target_compact = re.sub(r"\s+", "", target)
-    matched, uncertain = 0, []
-    for idx, expression in enumerate(blocks, 1):
-        compact = re.sub(r"\s+", "", expression)
-        compact = compact.strip()
+    """Compare each explicit RST math directive to emitted display math, with fuzzy review."""
+    from difflib import SequenceMatcher
+    blocks = rst_directive_blocks(source, ["math"])
+    blocks += [{"directive": "equation", "content": x.strip()} for x in
+               re.findall(r"(?s)\\begin\{equation\*?\}(.*?)\\end\{equation\*?\}", source)]
+    target_blocks = re.findall(r"(?s)\$\$(.*?)\$\$", target)
+    normalized_target = [re.sub(r"\s+", "", x) for x in target_blocks]
+    certain, probable, uncertain = 0, 0, []
+    for idx, unit in enumerate(blocks, 1):
+        compact = re.sub(r"\s+", "", unit["content"])
         if not compact:
             continue
-        if compact in target_compact:
-            matched += 1
+        if compact in normalized_target:
+            certain += 1
+            continue
+        scores = [SequenceMatcher(None, compact, x, autojunk=False).ratio()
+                  for x in normalized_target]
+        best = max(scores, default=0)
+        if best >= 0.83:
+            probable += 1
         else:
             uncertain.append({"expression": idx, "fingerprint": sha(compact),
-                              "excerpt": compact[:110]})
-    return {"source_expression_units": len(blocks), "literal_preserved": matched,
+                              "max_similarity": round(best, 3), "excerpt": compact[:110]})
+    return {"source_expression_units": len(blocks),
+            "target_display_math_blocks": len(target_blocks),
+            "literal_preserved": certain, "format_changed_probable": probable,
             "requires_review": len(uncertain), "examples": uncertain[:20]}
+
+def code_alignment(source, target):
+    """Compare source literal code directives to Markdown fenced blocks."""
+    from difflib import SequenceMatcher
+    source_blocks = rst_directive_blocks(source,
+        ["code-block", "code", "parsed-literal", "literalinclude"])
+    target_blocks = re.findall(r"(?ms)^"+chr(96)*3+r"[^\n]*\n(.*?)^"+chr(96)*3+r"\s*$", target)
+    def norm(value):
+        return re.sub(r"\s+", "", value).replace(r"\[", "[").replace(r"\]", "]")
+    target_norm = [norm(x) for x in target_blocks]
+    uncertain, strong = [], 0
+    for i, item in enumerate(source_blocks, 1):
+        v = norm(item["content"])
+        if not v:
+            continue
+        score = max((SequenceMatcher(None, v, t, autojunk=False).ratio()
+                     for t in target_norm), default=0)
+        if score >= 0.82:
+            strong += 1
+        else:
+            uncertain.append({"block": i, "type": item["directive"],
+                              "max_similarity": round(score, 3), "excerpt": v[:95]})
+    return {"source_directives": len(source_blocks), "target_code_blocks": len(target_blocks),
+            "strong_matches": strong, "requires_review": len(uncertain),
+            "examples": uncertain[:20]}
+
 
 def audit_pair(name):
     src = DOCS / (name + "_zh.rst")
@@ -137,9 +193,13 @@ def audit_pair(name):
         out["issues"].append({"kind": "unclosed_display_math"})
     out["prose_alignment"] = prose_alignment(a, b)
     out["math_alignment"] = math_alignment(a, b)
+    out["code_alignment"] = code_alignment(a, b)
     if out["prose_alignment"]["zero_window_matches"]:
         out["review"].append({"kind": "suspected_paragraph_loss",
             "count": out["prose_alignment"]["zero_window_matches"]})
+    if out["code_alignment"]["requires_review"]:
+        out["review"].append({"kind": "code_content_unverified",
+            "count": out["code_alignment"]["requires_review"]})
     if out["math_alignment"]["requires_review"]:
         out["review"].append({"kind": "math_equivalence_unverified",
             "count": out["math_alignment"]["requires_review"]})
