@@ -183,9 +183,9 @@ def audit_pair(name):
     missing_heads = [h for h in ah if h not in bh]
     if missing_heads:
         out["issues"].append({"kind": "missing_headings", "examples": missing_heads})
-    numbered = re.findall(r"(?m)^\\.\\. \\[(\\d+)\\] (.+)$", a)
+    numbered = re.findall(r"(?m)^\.\. \[(\d+)\] (.+)$", a)
     missing_numbered = [n for n, _ in numbered if not re.search(
-        r"文献\\s*" + re.escape(n) + r"：", b)]
+        r"文献\s*" + re.escape(n) + r"：", b)]
     if missing_numbered:
         out["issues"].append({"kind": "missing_numbered_bibliography",
             "source_entries": len(numbered), "missing": missing_numbered[:50]})
