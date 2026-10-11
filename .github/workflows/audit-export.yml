@@ -1,0 +1,52 @@
+name: Audit Chinese textbook export
+on:
+  push:
+    branches: [learning-edition-zh]
+    paths:
+      - 'scripts/audit_export.py'
+      - '.github/workflows/audit-export.yml'
+      - 'online/教材/**'
+      - 'docs/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run independent audit
+        run: python scripts/audit_export.py --output dist/audit_export.json
+      - name: Check known silent loss regression
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("dist/audit_export.json").read_text(encoding="utf-8"))
+          assert result["chapters"] == 24, result["chapters"]
+          # An absent bibliography URL must be detected as blocking.
+          import sys
+          sys.path.insert(0, "scripts")
+          import audit_export as audit
+          src = Path("docs/spinningup/keypapers_zh.rst")
+          md = Path("online/教材/spinningup/keypapers_zh.md")
+          original = md.read_text(encoding="utf-8")
+          probe = "https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf"
+          assert probe in src.read_text(encoding="utf-8")
+          assert probe in original
+          # Exact independent rule used by the auditor, no files changed.
+          assert any(u not in original.replace(probe, "")
+              for line in audit.footnotes(src.read_text(encoding="utf-8"))
+              for u in __import__("re").findall(r"https?://[^\s<>]+", line)
+              if probe in u)
+          print("PASS: 24 chapter pairs; lost bibliography URL regression detectable")
+          PY
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: spinningup-content-audit
+          path: dist/audit_export.json
+          if-no-files-found: error
