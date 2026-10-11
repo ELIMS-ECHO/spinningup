@@ -133,11 +133,11 @@ def postprocess(text):
     fence = False
     fixed = []
     for line in text.splitlines(keepends=True):
-        if re.match(r"^\\s*(?:>\\s*)?`{3}", line):
+        if re.match(r"^\s*(?:>\s*)?`{3}", line):
             fence = not fence
             fixed.append(line)
         elif fence:
-            fixed.append(line.replace(r"\\[", "[").replace(r"\\]", "]"))
+            fixed.append(line.replace(r"\[", "[").replace(r"\]", "]"))
         else:
             fixed.append(line)
     return "".join(fixed)
