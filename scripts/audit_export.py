@@ -183,6 +183,12 @@ def audit_pair(name):
     missing_heads = [h for h in ah if h not in bh]
     if missing_heads:
         out["issues"].append({"kind": "missing_headings", "examples": missing_heads})
+    numbered = re.findall(r"(?m)^\\.\\. \\[(\\d+)\\] (.+)$", a)
+    missing_numbered = [n for n, _ in numbered if not re.search(
+        r"文献\\s*" + re.escape(n) + r"：", b)]
+    if missing_numbered:
+        out["issues"].append({"kind": "missing_numbered_bibliography",
+            "source_entries": len(numbered), "missing": missing_numbered[:50]})
     references = footnotes(a)
     # RST auto-numbered references may become inline Markdown footnotes or
     # bibliography bullet entries. Flag each missing *link target*, not text.
@@ -232,6 +238,7 @@ def audit_pair(name):
                           "target_paragraph_candidates": len(paragraph_samples(b))})
     out["counts"] = {"rst_headings": len(ah), "md_headings": len(bh),
                      "rst_auto_footnotes": len(references),
+                     "rst_numbered_references": len(numbered),
                      "rst_code_directives": code_src, "md_code_fences": code_md,
                      "rst_math_directives": math_src,
                      "rst_algorithm_environments": alg_src}
