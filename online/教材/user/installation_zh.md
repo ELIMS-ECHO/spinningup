@@ -9,13 +9,15 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 Spinning Up 需要 Python 3、OpenAI Gym 和 OpenMPI。
 
-Spinning Up 目前仅支持 Linux 和 OS X。虽然也可能在 Windows 上安装，但尚未经过充分测试。[^1]
+Spinning Up 目前仅支持 Linux 和 OS X。虽然也可能在 Windows 上安装，但尚未经过充分测试。
 
 > [!note] 你应该知道
 > Spinning Up 的许多示例和基准测试使用 [MuJoCo](http://www.mujoco.org/index.html) 物理引擎。原文撰写时，MuJoCo 是需要许可证的专有软件，提供免费试用及学生免费许可，其他情况下则需要付费。因此安装是可选的；不过，由于它实际上是连续控制深度强化学习基准测试的通行标准，作者仍建议安装。
 >
 > 即使不安装 MuJoCo，也完全可以在 Gym 免费提供的 [Classic Control](https://gym.openai.com/envs/#classic_control) 和 [Box2d](https://gym.openai.com/envs/#box2d) 环境中运行强化学习算法，开始学习。
 
+
+- 看起来至少有一位用户找到了 [在 Windows 上运行的变通方法](https://github.com/openai/spinningup/issues/23)。如果你通过其他方法成功运行，也欢迎告诉作者具体做法。
 
 ## 安装 Python
 
@@ -126,5 +128,3 @@ pip install gym\[mujoco,robotics\]
 python -m spinup.run ppo --hid "\[32,32\]" --env Walker2d-v2 --exp_name mujocotest
 
 </div>
-
-[^1]: 看起来至少有一位用户找到了 [在 Windows 上运行的变通方法](https://github.com/openai/spinningup/issues/23)。如果你通过其他方法成功运行，也欢迎告诉作者具体做法。

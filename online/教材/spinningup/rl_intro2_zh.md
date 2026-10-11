@@ -92,4 +92,20 @@ Q 学习方法的例子包括：
 
 ## 分类图中的算法链接
 
+- [A2C / A3C](https://arxiv.org/abs/1602.01783)（异步优势演员-评论家）：Mnih 等，2016
+- [PPO](https://arxiv.org/abs/1707.06347)（近端策略优化）：Schulman 等，2017
+- [TRPO](https://arxiv.org/abs/1502.05477)（信赖域策略优化）：Schulman 等，2015
+- [DDPG](https://arxiv.org/abs/1509.02971)（深度确定性策略梯度）：Lillicrap 等，2015
+- [TD3](https://arxiv.org/abs/1802.09477)（双延迟 DDPG）：Fujimoto 等，2018
+- [SAC](https://arxiv.org/abs/1801.01290)（软演员-评论家）：Haarnoja 等，2018
+- [DQN](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)（深度 Q 网络）：Mnih 等，2013
+- [C51](https://arxiv.org/abs/1707.06887)（分类式 51 原子 DQN）：Bellemare 等，2017
+- [QR-DQN](https://arxiv.org/abs/1710.10044)（分位数回归 DQN）：Dabney 等，2017
+- [HER](https://arxiv.org/abs/1707.01495)（事后经验回放）：Andrychowicz 等，2017
+- [World Models](https://worldmodels.github.io/)：Ha 和 Schmidhuber，2018
+- [I2A](https://arxiv.org/abs/1707.06203)（想象增强智能体）：Weber 等，2017
+- [MBMF](https://sites.google.com/view/mbmf)（基于模型的强化学习加无模型微调）：Nagabandi 等，2017
+- [MBVE](https://arxiv.org/abs/1803.00101)（基于模型的价值扩展）：Feinberg 等，2018
+- [AlphaZero](https://arxiv.org/abs/1712.01815)：Silver 等，2017
+
 [^1]: 如果想进一步了解 Q 学习方法为何以及如何失败，可以参阅：1）[Tsitsiklis and van Roy](http://web.mit.edu/jnt/www/Papers/J063-97-bvr-td.pdf) 的经典论文；2）[review by Szepesvari](https://sites.ualberta.ca/~szepesva/papers/RLAlgsInMDPs.pdf)（较新的综述，尤其是第 4.3.2 节）；以及 3）[Sutton and Barto](https://drive.google.com/file/d/1xeUDVGWGUUv1-ccUMAZHJLej2C7aAFWY/view) 第 11 章，特别是第 11.3 节。其中介绍了函数逼近、自举和异策略数据组成的“致命三角”，它们共同导致价值学习算法不稳定。
