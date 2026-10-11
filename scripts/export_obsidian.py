@@ -127,7 +127,20 @@ def postprocess(text):
         rich = re.sub(r"</?strong>", "**", raw_caption)
         rich = re.sub(r"<[^>]*>", "", rich)
         return "![" + plain[:80].replace("]", "") + "](" + src + ")\n\n*" + rich + "*\n"
-    return FIGURE_RE.sub(figure_replace, text)
+    text = FIGURE_RE.sub(figure_replace, text)
+    # Pandoc escapes square brackets even inside fenced shell examples.
+    # Restore those literals only inside code fences, never in mathematics.
+    fence = False
+    fixed = []
+    for line in text.splitlines(keepends=True):
+        if re.match(r"^\\s*(?:>\\s*)?`{3}", line):
+            fence = not fence
+            fixed.append(line)
+        elif fence:
+            fixed.append(line.replace(r"\\[", "[").replace(r"\\]", "]"))
+        else:
+            fixed.append(line)
+    return "".join(fixed)
 
 
 
