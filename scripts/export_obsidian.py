@@ -269,6 +269,8 @@ def main():
         pre = API_PATTERN.sub(replace_api, text)
         # Keep auto-numbered bibliography entries that Pandoc otherwise drops.
         pre = re.sub(r"(?m)^\.\. \[#\] (.*)$", r"- \1", pre)
+        # Preserve numbered RST bibliography entries, which Pandoc may drop if unreferenced.
+        pre = re.sub(r"(?m)^\.\. \[(\d+)\] (.*)$", r"- 文献 \1： \2", pre)
         # Treat Sphinx parsed-literal content as literal code before Pandoc conversion.
         pre = re.sub(r"(?m)^(\\s*)\\.\\. parsed-literal::", r"\\1.. code-block:: text", pre)
         pre = preserve_console_blocks(pre)
