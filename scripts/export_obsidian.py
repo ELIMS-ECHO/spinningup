@@ -196,6 +196,7 @@ def remap_links(text, folder, translated):
             # Sphinx English anchors do not match GitHub slugs of Chinese headings.
             # Link to the valid translated chapter rather than a nonexistent section.
             anchor = ""
+            sep = ""
         else:
             rst = base.with_suffix(".rst")
             if not rst.is_file() or not rst.is_relative_to(DOCS):
