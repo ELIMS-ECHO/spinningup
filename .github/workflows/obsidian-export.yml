@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   export:
@@ -34,6 +34,32 @@ jobs:
           test -f dist/SpinningUp-Obsidian-Vault/00_课程导航.md
           test "$(find dist/SpinningUp-Obsidian-Vault/教材 -name '*_zh.md' | wc -l)" -eq 24
           test "$(find dist/SpinningUp-Obsidian-Vault/98_原始RST备份 -name '*_zh.rst' | wc -l)" -eq 24
+      - name: Publish GitHub-readable Markdown chapters
+        run: |
+          set -euo pipefail
+          mkdir -p online
+          rm -rf online/教材
+          cp -a dist/SpinningUp-Obsidian-Vault/教材 online/教材
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest = json.loads(Path("dist/SpinningUp-Obsidian-Vault/转换清单.json").read_text(encoding="utf-8"))
+          lines = ["# Spinning Up 中文教材 · GitHub 在线阅读", "",
+                   "无需安装 Obsidian，点击章节即可阅读。章节内容由已提交的中文 RST 自动生成。", "",
+                   "[返回教材首页](../README.md)", ""]
+          for item in manifest:
+              lines.append(f"{item['number']:02d}. [章节 {item['number']:02d} · {Path(item['markdown']).stem}](教材/{item['markdown']})")
+          Path("online/README.md").write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          assert len(manifest) == 24
+          PY
+          test "$(find online/教材 -name '*_zh.md' | wc -l)" -eq 24
+          if [ -n "$(git status --porcelain -- online)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add online
+            git commit -m "docs: regenerate 24 GitHub-readable Chinese chapters"
+            git push origin HEAD:learning-edition-zh
+          fi
       - name: Upload ready-to-open vault
         uses: actions/upload-artifact@v4
         with:
