@@ -84,14 +84,15 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 >
 > **任务要求。** 运行以下命令：
 >
-> <div class="parsed-literal">
+> 
+```text
 >
 > python -m spinup.run trpo --env Hopper-v2 --train_v_iters\[v\] 0 80 --exp_name ex2-1 --epochs 250 --steps_per_epoch 4000 --seed 0 10 20 --dt
 
 
 然后绘制结果图。（每次实验可能需要大约 10 分钟，而这条命令总共运行六次实验。）你发现了什么？
+```
 
-</div>
 
 > [!note] 练习 2.2：DDPG 中的静默错误
 > **练习文件路径：**

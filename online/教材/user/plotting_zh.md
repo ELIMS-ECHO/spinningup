@@ -7,12 +7,12 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 Spinning Up 附带一个简单的绘图工具，用于解读实验结果。使用以下命令运行：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run plot \[path/to/output_directory ...\] \[--legend \[LEGEND ...\]\]  
 \[--xaxis XAXIS\] \[--value \[VALUE ...\]\] \[--count\] \[--smooth S\] \[--select \[SEL ...\]\] \[--exclude \[EXC ...\]\]
+```
 
-</div>
 
 **位置参数：**
 
@@ -25,7 +25,8 @@ logdir
 > [!note] 你应该知道
 > 内部自动补全功能非常方便！假设你已经运行了几组实验，目的是比较不同算法的性能，得到以下日志目录结构：
 >
-> <div class="parsed-literal">
+> 
+```text
 >
 > data/  
 > bench_algo1/  
@@ -40,8 +41,8 @@ logdir
 <div class="parsed-literal">
 
 python spinup/utils/plot.py data/bench_algo
+```
 
-</div>
 
 绘图工具会依靠自动补全，同时找到 `data/bench_algo1` 和 `data/bench_algo2`。
 

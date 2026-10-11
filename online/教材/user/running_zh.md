@@ -15,26 +15,27 @@ Spinning Up 附带 `spinup/run.py`，它是一个方便的工具，可让你从�
 
 从命令行运行 Spinning Up 算法的标准方式是：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run \[algo name\] \[experiment flags\]
+```
 
-</div>
 
 例如：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
+```
 
-</div>
 
 > [!note] 你应该知道
 > 如果使用 ZShell：ZShell 会把方括号解释为特殊字符。Spinning Up 的一些命令行参数会使用方括号，因此请确保对它们进行转义。如果希望默认转义，也可以尝试 [这里推荐的解决方法](http://kinopyo.com/en/blog/escape-square-bracket-by-default-in-zsh)。
 
 
 > [!note] 详细快速入门指南
-> <div class="parsed-literal">
+> 
+```text
 >
 > python -m spinup.run ppo --exp_name ppo_ant --env Ant-v2 --clip_ratio 0.1 0.2  
 > --hid\[h\] \[32,32\] \[64,32\] --act torch.nn.Tanh --seed 0 10 20 --dt --data_dir path/to/data
@@ -59,8 +60,8 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker
 <div class="parsed-literal">
 
 path/to/data/YY-MM-DD_ppo_ant_cli0-1_h32-32/YY-MM-DD_HH-MM-SS-ppo_ant_cli0-1_h32-32_seed10
+```
 
-</div>
 
 </div>
 
@@ -68,19 +69,19 @@ path/to/data/YY-MM-DD_ppo_ant_cli0-1_h32-32/YY-MM-DD_HH-MM-SS-ppo_ant_cli0-1_h32
 
 使用算法的 PyTorch 版本时，运行：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run [\[algo\]]()pytorch
+```
 
-</div>
 
 使用 TensorFlow 版本时，运行：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run [\[algo\]]()tf1
+```
 
-</div>
 
 如果运行 `python -m spinup.run [algo]`，不添加 `_pytorch` 或 `_tf1`，运行器就会查看 `spinup/user_config.py`，确定该算法应使用的默认版本。
 
@@ -88,30 +89,32 @@ python -m spinup.run [\[algo\]]()tf1
 
 所有算法的每个超参数都可以直接从命令行控制。如果 `kwarg` 是算法函数的有效关键字参数，就可以使用 `--kwarg` 标志为它设置值。要查看可用的关键字参数，可以阅读算法文档，或者尝试：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run \[algo name\] --help
+```
 
-</div>
 
 以查看函数文档字符串。
 
 > [!note] 你应该知道
 > 参数值在使用前会经过 `eval()` 处理，因此可以直接从命令行描述某些函数和对象。例如：
 >
-> <div class="parsed-literal">
+> 
+```text
 >
 > python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --act torch.nn.ELU
 
 
 这会将 `torch.nn.ELU` 设置为激活函数。（TensorFlow 中对应的方式是运行 `ppo_tf1` 并传入 `--act tf.nn.elu`。）
+```
 
-</div>
 
 > [!note] 你应该知道
 > 对于接收字典值的关键字参数，提供了方便的处理方式。不必写：
 >
-> <div class="parsed-literal">
+> 
+```text
 >
 > --key dict(v1=value_1, v2=value_2)
 
@@ -121,8 +124,8 @@ python -m spinup.run \[algo name\] --help
 <div class="parsed-literal">
 
 --key:v1 value_1 --key:v2 value_2
+```
 
-</div>
 
 两者效果相同。
 
@@ -134,11 +137,11 @@ python -m spinup.run \[algo name\] --help
 
 例如，要使用三个不同的随机种子（0、10、20）运行其他设置相同的实验，可以执行：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --seed 0 10 20
+```
 
-</div>
 
 实验不会并行启动，因为它们会占用大量资源，同时运行多个实验并不能带来加速。
 
@@ -235,21 +238,21 @@ python -m spinup.run ppo --env Walker2d-v2 --exp_name walker --seed 0 10 20
 
 例如：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run ddpg_tf1 --env Hopper-v2 --hid\[h\] \[300\] \[128,128\] --act tf.nn.tanh tf.nn.relu
+```
 
-</div>
 
 这里，`--hid` 使用了\**用户提供的缩写*\* `h`。`--act` 没有用户提供的缩写，因此系统会自动生成。
 
 本例产生的后缀为：
 
-<div class="parsed-literal">
 
+```text
 \_h128-128_ac-actrelu \_h128-128_ac-acttanh \_h300_ac-actrelu \_h300_ac-acttanh
+```
 
-</div>
 
 注意，`h` 是用户提供的；`ac-act` 是根据 `ac_kwargs:activation`（`act` 参数的实际名称）自动生成的。
 
@@ -317,21 +320,21 @@ if __name__ == '__main__':
 
 创建 ExperimentGrid 对象后，使用以下方式添加参数：
 
-<div class="parsed-literal">
 
+```text
 eg.add(param_name, values, shorthand, in_name)
+```
 
-</div>
 
 其中，`in_name` 会强制某个参数出现在实验名称中，即使它在所有实验中的值都相同。
 
 添加全部参数后，运行：
 
-<div class="parsed-literal">
 
+```text
 eg.run(thunk, \*\*run_kwargs)
+```
 
-</div>
 
 即可运行网格中的所有实验（每种有效配置运行一次），将配置作为关键字参数传给函数 `thunk`。`ExperimentGrid.run` 使用名为 [call_experiment](../utils/run_utils_zh.md) 的函数启动 `thunk`，而 `**run_kwargs` 则指定 `call_experiment` 的行为。详见 [文档页面](../utils/run_utils_zh.md)。
 

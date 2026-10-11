@@ -75,8 +75,8 @@ source_github: https://github.com/tianyueni78-cyber/spinningup/blob/learning-edi
 
 默认情况下，实验结果会保存在与 Spinning Up 软件包相同的目录中，位于名为 `data` 的文件夹下：
 
-<div class="parsed-literal">
 
+```text
 spinningup/  
 **data/**  
 ...
@@ -88,8 +88,8 @@ spinup/
 ...
 
 LICENSE setup.py
+```
 
-</div>
 
 你可以修改 `spinup/user_config.py` 中的 `DEFAULT_DATA_DIR`，更改默认结果目录。
 
@@ -99,11 +99,11 @@ LICENSE setup.py
 
 如果环境与智能体一起成功保存，就可以通过以下命令方便地观察训练好的智能体在环境中采取行动：
 
-<div class="parsed-literal">
 
+```text
 python -m spinup.run test_policy path/to/output_directory
+```
 
-</div>
 
 可以使用以下几个选项：
 
@@ -167,8 +167,8 @@ logger.save_state({'env': env}, epoch)
 
 如果环境没有成功保存，`test_policy.py` 很可能会崩溃，并显示类似以下内容：
 
-<div class="parsed-literal">
 
+```text
 Traceback (most recent call last):  
 File "spinup/utils/test_policy.py", line 153, in \<module\>  
 run_policy(env, get_action, args.len, args.episodes, not(args.norender))
@@ -181,8 +181,8 @@ AssertionError: Environment not found!
 > It looks like the environment wasn't saved, and we can't run the agent in it. :(
 >
 > Check out the readthedocs page on Experiment Outputs for how to handle this situation.
+```
 
-</div>
 
 在这种情况下，观察智能体的表现会稍微麻烦一些，但只要能够轻松重新创建环境，就仍然可以做到。请在 IPython 中尝试：
 
